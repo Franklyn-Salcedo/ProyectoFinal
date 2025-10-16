@@ -1,0 +1,281 @@
+<!-- <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Option Store</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white">
+    <div class="flex justify-center items-center h-screen">
+        <h1 class="text-4xl font-bold">KEY OPTION - Próximamente</h1>
+    </div>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Option Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;700&family=Poppins:ital,wght@1,300&family=Frijole&family=Carter+One&display=swap');
+        
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0D0D0D; 
+            color: #f1f1f1; 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+        }
+        
+        h2, h3, .font-title {
+            font-family: "Carter One", system-ui;
+            font-weight: 400;
+            font-style: normal;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .neon-accent-bg { background-color: #FFDE4D; }
+        .neon-accent-text { color: #FFDE4D; }
+
+        .logo-font { font-family: "Frijole", system-ui; font-weight: 400; font-style: normal; }
+        .slogan-font { font-family: "Carter One", system-ui; font-weight: 400; font-style: normal; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); }
+
+        #hero-section {
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            z-index: 5; 
+        }
+        
+        #store {
+            position: relative;
+            z-index: 10;
+            background-color: #0D0D0D;
+        }
+        
+        .hero-bg {
+            background-image: url('imagenes/caution.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .rainbow-text {
+            background-image: linear-gradient(90deg, #000000, #F5F5F5, #FFDE4D, #F5F5F5, #000000);
+            background-size: 200% 100%;
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: rainbow-flow 5s linear infinite;
+        }
+        @keyframes rainbow-flow { 0% { background-position: 200% center; } 100% { background-position: 0% center; } }
+
+        #scroll-arrow { transition: transform 0.4s ease-in-out; }
+        .rotate-180 { transform: rotate(180deg); }
+        .chevron { opacity: 0; animation: pulse-chevron 2.5s ease-out infinite; }
+        .chevron:nth-child(2) { animation-delay: 0.2s; }
+        .chevron:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse-chevron { 0% { opacity: 0; transform: translateY(-8px); } 30% { opacity: 1; transform: translateY(0); } 70% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(8px); } }
+
+        #store-product-list { perspective: 1000px; }
+        .product-card-store { opacity: 0; transform: translateY(40px) scale(0.98); transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.4s ease-out; position: relative; z-index: 1; }
+        .product-card-store.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+        .product-card-store:hover { transform: translateY(-10px) rotateY(3deg) scale(1.05) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6); z-index: 10; }
+        .product-card-store::after { content: ''; position: absolute; top: 50%; left: 50%; width: 150%; height: 150%; background: conic-gradient( transparent, rgba(255, 255, 255, 0.8), transparent 15% ); animation: spin-border 4s linear infinite; opacity: 0; transition: opacity 0.5s ease-in-out; z-index: -1; border-radius: 0.5rem; }
+        .product-card-store:hover::after { opacity: 1; }
+        @keyframes spin-border { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        #shatter-canvas { pointer-events: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; }
+        #hero-content.is-shattering {
+            opacity: 0 !important;
+            transform: scale(0.95);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        /* --- NUEVOS ESTILOS PARA WHATSAPP --- */
+        #whatsapp-button {
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { filter: drop-shadow(0 0 4px #25D366); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 12px #25D366); transform: scale(1.1); }
+            100% { filter: drop-shadow(0 0 4px #25D366); transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header id="hero-section" class="hero-bg flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
+        <div id="hero-content" class="z-10 p-8 md:p-12 transition-opacity duration-300">
+            <h1 class="text-6xl md:text-9xl logo-font rainbow-text leading-none md:leading-tight">KEY<br>OPTION</h1>
+            <p class="text-2xl md:text-3xl mt-4 text-gray-200 slogan-font">Define Tu Estilo</p>
+            <a id="ver-coleccion-btn" href="#store" class="mt-10 inline-block neon-accent-bg text-black py-4 px-10 rounded-lg hover:scale-105 transition-transform font-title text-lg">Ver Colección</a>
+        </div>
+        <canvas id="shatter-canvas"></canvas>
+    </header>
+
+    <main id="store">
+        <div class="p-4 md:p-8 min-h-screen">
+            <h2 class="text-3xl text-center mb-8 pt-16">Nuestra Colección</h2>
+            <div id="store-product-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
+        </div>
+    </main>
+    
+    <div id="cart-button" class="fixed top-5 right-5 z-50 cursor-pointer">
+        <div class="relative">
+            <svg class="w-14 h-14 text-white bg-black/50 backdrop-blur-sm rounded-full p-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <div id="cart-count" class="absolute -top-1 -right-1 neon-accent-bg text-black text-sm font-bold rounded-full h-6 w-6 flex items-center justify-center">0</div>
+        </div>
+    </div>
+    
+    <!-- WHATSAPP ICON ACTUALIZADO -->
+    <a id="whatsapp-button" href="#" class="fixed bottom-5 right-5 z-50" target="_blank">
+        <svg class="w-16 h-16" viewBox="0 0 24 24"><path fill="#25D366" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.4 16.88L2.31 20.82L6.4 19.75C7.88 20.53 9.49 20.93 11.16 20.93H11.17C16.63 20.93 21.08 16.48 21.08 11.02C21.08 8.34 19.96 5.86 18.13 4.03C16.3 2.2 13.82 1.08 11.16 1.08L12.04 2M12.04 3.67C15.93 3.67 19.11 6.85 19.11 10.74C19.11 14.63 15.93 17.81 12.04 17.81C10.49 17.81 9.02 17.29 7.82 16.4L7.57 16.25L4.51 17.02L5.29 14.05L5.13 13.79C4.26 12.55 3.78 11.02 3.78 9.39C3.78 5.5 6.96 2.32 10.85 2.32H12.04M16.54 13.99C16.3 13.87 15.07 13.27 14.86 13.19C14.66 13.11 14.51 13.07 14.37 13.31C14.23 13.55 13.75 14.11 13.61 14.27C13.47 14.43 13.32 14.45 13.08 14.33C12.84 14.21 11.96 13.91 10.9 13.02C10.06 12.31 9.53 11.45 9.39 11.21C9.25 10.97 9.38 10.84 9.5 10.72C9.61 10.61 9.75 10.43 9.89 10.27C10.03 10.11 10.07 10.02 10.19 9.78C10.31 9.54 10.27 9.39 10.19 9.27C10.11 9.15 9.61 7.92 9.43 7.5C9.25 7.08 9.07 7.13 8.92 7.12H8.91C8.76 7.12 8.52 7.17 8.32 7.37C8.12 7.57 7.6 8.04 7.6 9.1C7.6 10.16 8.35 11.18 8.47 11.34C8.59 11.5 9.64 13.11 11.23 13.8C12.83 14.49 13.21 14.33 13.63 14.29C14.05 14.25 15.07 13.69 15.27 13.11C15.47 12.53 15.47 12.05 15.43 11.95C15.39 11.85 15.25 11.81 15.01 11.69L14.99 11.7C15.25 11.8 15.47 11.88 15.65 11.98C15.83 12.08 15.97 12.22 16.07 12.4C16.17 12.58 16.23 12.78 16.25 13C16.27 13.22 16.25 13.43 16.19 13.63C16.13 13.83 16.03 14 15.89 14.13C15.75 14.26 15.58 14.35 15.38 14.4C15.18 14.45 14.97 14.46 14.75 14.44C14.53 14.42 14.3 14.36 14.06 14.26C13.82 14.16 13.59 14.02 13.38 13.84C13.17 13.66 12.98 13.45 12.81 13.22C12.64 12.99 12.5 12.73 12.38 12.46C12.26 12.19 12.17 11.9 12.11 11.6C12.05 11.3 12.02 11 12.02 10.69C12.02 10.38 12.05 10.09 12.11 9.81C12.17 9.53 12.26 9.26 12.38 9C12.5 8.74 12.64 8.5 12.81 8.28C12.98 8.06 13.17 7.85 13.38 7.67C13.59 7.49 13.82 7.35 14.06 7.25C14.3 7.15 14.53 7.09 14.75 7.07C14.97 7.05 15.18 7.06 15.38 7.11C15.58 7.16 15.75 7.25 15.89 7.38C16.03 7.51 16.13 7.67 16.19 7.87C16.25 8.07 16.27 8.28 16.25 8.5C16.23 8.72 16.17 8.92 16.07 9.1C15.97 9.28 15.83 9.42 15.65 9.52C15.47 9.62 15.25 9.7 14.99 9.74L15.01 9.86C15.24 9.82 15.45 9.82 15.65 9.85C15.85 9.88 16.03 9.95 16.19 10.05C16.35 10.15 16.49 10.28 16.61 10.44C16.73 10.6 16.82 10.78 16.88 10.98C16.94 11.18 16.97 11.39 16.97 11.61C16.97 11.83 16.94 12.04 16.88 12.24C16.82 12.44 16.73 12.62 16.61 12.78C16.49 12.94 16.35 13.07 16.19 13.17C16.03 13.27 15.85 13.34 15.65 13.37C15.45 13.4 15.24 13.4 15.01 13.36L15.04 13.48C15.28 13.56 15.51 13.61 15.73 13.64C15.95 13.67 16.17 13.68 16.38 13.68C16.59 13.68 16.79 13.66 16.98 13.63C17.17 13.6 17.35 13.55 17.52 13.48C17.69 13.41 17.84 13.32 17.97 13.21C18.1 13.1 18.21 12.97 18.3 12.82C18.39 12.67 18.46 12.51 18.51 12.33C18.56 12.15 18.59 11.96 18.59 11.76C18.59 11.56 18.56 11.37 18.51 11.19C18.46 11.01 18.39 10.85 18.3 10.7C18.21 10.55 18.1 10.42 17.97 10.31C17.84 10.2 17.69 10.11 17.52 10.04C17.35 9.97 17.17 9.92 16.98 9.89C16.79 9.86 16.59 9.84 16.38 9.84C16.17 9.84 15.95 9.85 15.73 9.88C15.51 9.91 15.28 9.96 15.04 10.03L15.02 9.91C14.77 9.99 14.54 10.09 14.34 10.22C14.14 10.35 13.96 10.5 13.81 10.67C13.66 10.84 13.54 11.03 13.45 11.23C13.36 11.43 13.32 11.64 13.32 11.86C13.32 12.08 13.36 12.29 13.45 12.49C13.54 12.69 13.66 12.88 13.81 13.05C13.96 13.22 14.14 13.37 14.34 13.5C14.54 13.63 14.77 13.73 15.02 13.81L14.99 13.93C14.72 13.85 14.47 13.8 14.23 13.78C13.99 13.76 13.75 13.75 13.51 13.75C13.27 13.75 13.03 13.76 12.79 13.78C12.55 13.8 12.3 13.85 12.04 13.93C11.78 14.01 11.53 14.11 11.29 14.23C11.05 14.35 10.83 14.49 10.63 14.65C10.43 14.81 10.25 14.99 10.1 15.18C9.95 15.37 9.83 15.58 9.74 15.8C9.65 16.02 9.6 16.25 9.6 16.49C9.6 16.73 9.65 16.96 9.74 17.18C9.83 17.4 9.95 17.61 10.1 17.8C10.25 17.99 10.43 18.17 10.63 18.33C10.83 18.49 11.05 18.63 11.29 18.75C11.53 18.87 11.78 18.97 12.04 19.05C12.3 19.13 12.55 19.18 12.79 19.2C13.03 19.22 13.27 19.23 13.51 19.23C13.75 19.23 13.99 19.22 14.23 19.2C14.47 19.18 14.72 19.13 14.99 19.05L15.01 19.17C15.26 19.1 15.5 19.01 15.71 18.91C15.92 18.81 16.12 18.69 16.29 18.55C16.46 18.41 16.62 18.26 16.75 18.09C16.88 17.92 16.99 17.73 17.08 17.53C17.17 17.33 17.23 17.12 17.26 16.9C17.29 16.68 17.3 16.45 17.3 16.22C17.3 15.99 17.29 15.76 17.26 15.54C17.23 15.32 17.17 15.11 17.08 14.91C16.99 14.71 16.88 14.52 16.75 14.35C16.62 14.18 16.46 14.03 16.29 13.89C16.12 13.75 15.92 13.63 15.71 13.53C15.5 13.43 15.26 13.34 15.01 13.27L14.99 13.15C14.71 13.22 14.45 13.26 14.19 13.28C13.93 13.3 13.67 13.31 13.41 13.31C13.15 13.31 12.89 13.3 12.63 13.28C12.37 13.26 12.11 13.22 11.85 13.15Z"/></svg>
+    </a>
+    <aside id="cart-panel" class="fixed top-0 right-0 z-50 h-full w-full md:w-96 bg-gray-900 shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4"><h3 class="text-2xl font-title">Tu Carrito</h3><button id="close-cart-btn" class="text-2xl">&times;</button></div>
+            <div id="cart-items" class="flex-grow overflow-y-auto py-4"></div>
+            <div class="border-t border-gray-700 pt-4"><div class="flex justify-between font-bold text-lg mb-4"><span>Total:</span><span id="cart-total">$0.00</span></div><button id="checkout-btn" class="w-full neon-accent-bg text-black font-bold py-3 rounded-lg text-center">Finalizar Pedido por WhatsApp</button></div>
+        </div>
+    </aside>
+    <div id="product-modal" class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden"></div>
+    <div id="scroll-indicator" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 cursor-pointer p-2">
+        <svg id="scroll-arrow" class="w-8 h-12 text-white" fill="none" viewBox="0 0 24 40" xmlns="http://www.w3.org/2000/svg">
+            <path class="chevron" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 1l8 8 8-8"></path>
+            <path class="chevron" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 11l8 8 8-8"></path>
+            <path class="chevron" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 21l8 8 8-8"></path>
+        </svg>
+    </div>
+
+    <script type="module">
+        const productsDB = [{ id: 'prod_1', name: 'T-Shirt "Urban Canvas"', description: 'Camiseta de algodón premium con un corte moderno y un diseño minimalista.', price: 29.99, stock: 50, sizes: ['S', 'M', 'L', 'XL'], images: ['https://placehold.co/600x800/1a1a1a/ffffff?text=KO+Front', 'https://placehold.co/600x800/1a1a1a/ffffff?text=KO+Back'] }, { id: 'prod_2', name: 'Jeans "Midnight Rider"', description: 'Vaqueros de corte slim fit en un color negro profundo. Elásticos y cómodos.', price: 79.99, stock: 30, sizes: ['30', '32', '34'], images: ['https://placehold.co/600x800/2b2b2b/ffffff?text=Jeans+1'] }, { id: 'prod_3', name: 'Gorra "KO Signature"', description: 'Gorra de estilo snapback con el logo de Key Option bordado en alta definición.', price: 24.99, stock: 100, sizes: ['Única'], images: ['https://placehold.co/600x800/3c3c3c/ffffff?text=Cap'] }];
+        const getProducts = () => productsDB;
+        const DOMElements = {
+            productList: document.getElementById('store-product-list'), cartButton: document.getElementById('cart-button'), cartPanel: document.getElementById('cart-panel'),
+            closeCartBtn: document.getElementById('close-cart-btn'), cartCount: document.getElementById('cart-count'), cartItems: document.getElementById('cart-items'),
+            cartTotal: document.getElementById('cart-total'), checkoutBtn: document.getElementById('checkout-btn'), productModal: document.getElementById('product-modal'),
+            scrollIndicator: document.getElementById('scroll-indicator'), scrollArrow: document.getElementById('scroll-arrow'), heroSection: document.getElementById('hero-section'),
+            store: document.getElementById('store'),
+            verColeccionBtn: document.getElementById('ver-coleccion-btn'),
+            whatsappButton: document.getElementById('whatsapp-button'), heroContent: document.getElementById('hero-content'), shatterCanvas: document.getElementById('shatter-canvas'),
+        };
+        let cart = [];
+        const storePhoneNumber = "18091234567";
+        const ctx = DOMElements.shatterCanvas.getContext('2d');
+        let particles = [];
+        const particleColors = ["#000000", "#F5F5F5", "#FFDE4D"];
+        function resizeCanvas() { DOMElements.shatterCanvas.width = window.innerWidth; DOMElements.shatterCanvas.height = window.innerHeight; }
+        class Particle { 
+            constructor(x, y) { this.x = x; this.y = y; this.size = Math.random() * 5 + 1; this.speedX = Math.random() * 6 - 3; this.speedY = Math.random() * 6 - 3; this.color = particleColors[Math.floor(Math.random() * particleColors.length)]; this.life = 100; }
+            update() { this.x += this.speedX; this.y += this.speedY; this.life -= 1.5; if (this.size > 0.2) this.size -= 0.1; }
+            draw() { ctx.fillStyle = this.color; ctx.globalAlpha = Math.max(0, this.life / 100); ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        }
+        function handleParticles() { for (let i = particles.length - 1; i >= 0; i--) { particles[i].update(); particles[i].draw(); if (particles[i].life < 1 || particles[i].size < 0.2) { particles.splice(i, 1); } } }
+        function animateParticles() { ctx.clearRect(0, 0, DOMElements.shatterCanvas.width, DOMElements.shatterCanvas.height); handleParticles(); if (particles.length > 0) { requestAnimationFrame(animateParticles); } }
+        function triggerShatter() {
+            if (document.body.classList.contains('has-shattered')) return;
+            document.body.classList.add('has-shattered');
+            DOMElements.heroContent.classList.add('is-shattering');
+            const contentRect = DOMElements.heroContent.getBoundingClientRect();
+            const centerX = contentRect.left + contentRect.width / 2;
+            const centerY = contentRect.top + contentRect.height / 2;
+            for (let i = 0; i < 250; i++) { particles.push(new Particle(centerX, centerY)); }
+            if (particles.length > 0) animateParticles();
+        }
+        
+        function renderProducts() {
+            const products = getProducts();
+            DOMElements.productList.innerHTML = '';
+            products.forEach((product, index) => {
+                const card = document.createElement('div');
+                card.className = 'product-card-store group relative overflow-hidden rounded-lg cursor-pointer';
+                card.dataset.id = product.id;
+                card.style.transitionDelay = `${index * 100}ms`;
+                card.innerHTML = `<img src="${product.images[0] || 'https://placehold.co/600x800/111827/FFFFFF?text=No+Image'}" alt="${product.name}" class="w-full h-full object-cover transform transition-transform duration-300"><div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black to-transparent"><h3 class="font-title text-lg truncate">${product.name}</h3><p class="neon-accent-text font-bold">$${product.price.toFixed(2)}</p></div>`;
+                DOMElements.productList.appendChild(card);
+            });
+        }
+        function updateCartView() { 
+            DOMElements.cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            DOMElements.cartItems.innerHTML = ''; let total = 0;
+            if (cart.length === 0) { DOMElements.cartItems.innerHTML = `<p class="text-gray-400 text-center my-8">Tu carrito está vacío.</p>`; } else {
+                cart.forEach(item => { const product = getProducts().find(p => p.id === item.id); total += product.price * item.quantity; DOMElements.cartItems.innerHTML += `<div class="flex gap-4 items-center mb-4"><img src="${product.images[0]}" class="w-16 h-20 object-cover rounded-md"><div class="flex-grow"><p class="font-bold">${product.name}</p><p class="text-sm text-gray-400">Talla: ${item.size}</p><p class="text-sm">Cantidad: ${item.quantity}</p></div><p class="font-bold">$${(product.price * item.quantity).toFixed(2)}</p></div>`; });
+            }
+            DOMElements.cartTotal.textContent = `$${total.toFixed(2)}`;
+        }
+        function addToCart(productId, size) { const existingItem = cart.find(item => item.id === productId && item.size === size); if (existingItem) { existingItem.quantity++; } else { cart.push({ id: productId, size, quantity: 1 }); } updateCartView(); toggleCartPanel(true); }
+        function toggleCartPanel(show) { DOMElements.cartPanel.classList.toggle('translate-x-full', !show); }
+        function openProductModal(productId) { 
+            const product = getProducts().find(p => p.id === productId); if (!product) return;
+            DOMElements.productModal.innerHTML = `<div class="bg-gray-900 w-full max-w-4xl max-h-[90vh] rounded-lg shadow-lg relative grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto p-6"><button class="absolute top-4 right-4 text-2xl" id="close-modal-btn">&times;</button><div><img src="${product.images[0]}" alt="${product.name}" class="w-full h-auto object-cover rounded-lg mb-4" id="main-modal-image"><div class="grid grid-cols-4 gap-2">${product.images.map(img => `<img src="${img}" class="w-full h-20 object-cover rounded-md cursor-pointer thumbnail-image">`).join('')}</div></div><div><h2 class="font-title text-3xl mb-2">${product.name}</h2><p class="text-3xl neon-accent-text font-bold mb-4">$${product.price.toFixed(2)}</p><p class="text-gray-300 mb-6">${product.description}</p><div class="mb-6"><h4 class="font-title mb-2">Tallas Disponibles</h4><div class="flex gap-2 flex-wrap">${product.sizes.map(s => `<button class="size-btn border border-gray-600 rounded-md py-2 px-4 hover:bg-yellow-400 hover:text-black transition">${s}</button>`).join('')}</div><p id="size-error" class="text-red-500 text-sm mt-2 hidden">Por favor, selecciona una talla.</p></div><button id="add-to-cart-modal-btn" data-id="${product.id}" class="w-full neon-accent-bg text-black font-bold py-3 rounded-lg">Añadir al Carrito</button></div></div>`;
+            DOMElements.productModal.classList.remove('hidden');
+            document.getElementById('close-modal-btn').addEventListener('click', () => DOMElements.productModal.classList.add('hidden'));
+            document.querySelectorAll('.thumbnail-image').forEach(thumb => { thumb.addEventListener('click', () => { document.getElementById('main-modal-image').src = thumb.src; }); });
+            let selectedSize = null;
+            document.querySelectorAll('.size-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('neon-accent-bg', 'text-black')); btn.classList.add('neon-accent-bg', 'text-black'); selectedSize = btn.textContent; document.getElementById('size-error').classList.add('hidden'); }); });
+            document.getElementById('add-to-cart-modal-btn').addEventListener('click', (e) => { if (!selectedSize) { document.getElementById('size-error').classList.remove('hidden'); return; } addToCart(e.target.dataset.id, selectedSize); DOMElements.productModal.classList.add('hidden'); });
+        }
+
+        function initialize() {
+            resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+            renderProducts(); updateCartView();
+            DOMElements.cartButton.addEventListener('click', () => toggleCartPanel(true));
+            DOMElements.closeCartBtn.addEventListener('click', () => toggleCartPanel(false));
+            DOMElements.productList.addEventListener('click', e => { const card = e.target.closest('.product-card-store'); if (card) openProductModal(card.dataset.id); });
+            DOMElements.checkoutBtn.addEventListener('click', () => { if (cart.length === 0) return; let message = "¡Hola Key Option! 👋\n\nQuisiera realizar el siguiente pedido:\n\n", total = 0; cart.forEach(item => { const product = getProducts().find(p => p.id === item.id); message += `👕 *${product.name}*\n   - Talla: ${item.size}\n   - Cantidad: ${item.quantity}\n   - Precio: $${(product.price * item.quantity).toFixed(2)}\n\n`; total += product.price * item.quantity; }); message += `*Total Estimado: $${total.toFixed(2)}*\n\nEspero instrucciones. ¡Gracias!`; window.open(`https://wa.me/${storePhoneNumber}?text=${encodeURIComponent(message)}`, '_blank'); });
+
+            DOMElements.scrollIndicator.addEventListener('click', () => {
+                if (window.scrollY > 100) { window.scrollTo({ top: 0, behavior: 'smooth' }); } 
+                else { DOMElements.store.scrollIntoView({ behavior: 'smooth' }); }
+            });
+            
+            DOMElements.verColeccionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                DOMElements.store.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            const cardObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { entry.target.classList.toggle('is-visible', entry.isIntersecting); });
+            }, { threshold: 0.1 }); 
+            
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.product-card-store');
+                cards.forEach(card => cardObserver.observe(card));
+            }, 100);
+
+            const whatsappMessage = encodeURIComponent("Hola Key Option, tengo una consulta.");
+            DOMElements.whatsappButton.href = `https://wa.me/${storePhoneNumber}?text=${whatsappMessage}`;
+
+            let hasShattered = false;
+            window.addEventListener('scroll', () => {
+                const scrollPosition = window.scrollY;
+                const heroHeight = DOMElements.heroSection.offsetHeight;
+                
+                DOMElements.scrollArrow.classList.toggle('rotate-180', scrollPosition > heroHeight * 0.5);
+
+                const shatterPoint = heroHeight * 0.7;
+                if (scrollPosition > shatterPoint && !hasShattered) {
+                    triggerShatter();
+                    hasShattered = true;
+                }
+
+                if (scrollPosition < 100 && hasShattered) {
+                    hasShattered = false;
+                    document.body.classList.remove('has-shattered');
+                    DOMElements.heroContent.classList.remove('is-shattering');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+</html>
+
+
