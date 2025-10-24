@@ -88,7 +88,7 @@
                     <li class="mb-4">
                         <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition">
                             <i class="fas fa-chart-line mr-3"></i>
-                            Reportes y IA
+                            Reportes e IA
                         </a>
                     </li>
                 </ul>
@@ -106,33 +106,28 @@
                         <span id="current-time" class="block text-sm">Cargando hora...</span>
                     </div>
                 </header>
-    
                 <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-yellow-400">
                         <div class="flex justify-between items-center"><i class="fas fa-dollar-sign text-3xl text-yellow-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Ventas Totales</span></div>
                         <p class="text-4xl font-extrabold mt-3">$12,850.75</p>
                         <p class="text-sm text-green-400 mt-1">▲ 15% vs. mes anterior</p>
                     </div>
-    
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-indigo-500">
                         <div class="flex justify-between items-center"><i class="fas fa-truck text-3xl text-indigo-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Pedidos Pendientes</span></div>
                         <p class="text-4xl font-extrabold mt-3">45</p>
                         <p class="text-sm text-red-400 mt-1">▼ 5% vs. semana anterior</p>
                     </div>
-    
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-red-500">
                         <div class="flex justify-between items-center"><i class="fas fa-exclamation-triangle text-3xl text-red-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Stock Crítico</span></div>
                         <p class="text-4xl font-extrabold mt-3">3</p>
                         <p class="text-sm text-gray-400 mt-1">Productos que reordenar</p>
                     </div>
-    
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-green-500">
                         <div class="flex justify-between items-center"><i class="fas fa-shopping-cart text-3xl text-green-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Conversión</span></div>
                         <p class="text-4xl font-extrabold mt-3">3.4%</p>
                         <p class="text-sm text-green-400 mt-1">Objetivo mensual: 4.0%</p>
                     </div>
                 </section>
-    
                 <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <div class="flex justify-between items-center mb-4">
@@ -156,7 +151,6 @@
                             [Placeholder para Gráfico de Tendencias de Ventas y Predicción]
                         </div>
                     </div>
-    
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <h3 class="text-2xl font-bold uppercase mb-4">Actividad Reciente</h3>
                         <ul class="space-y-4">
@@ -176,42 +170,57 @@
                     <h2 id="form-title" class="text-2xl mb-4 uppercase">Añadir Nuevo Producto</h2>
                     <form id="product-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <input type="hidden" id="product-id">
-                        
                         <div class="md:col-span-2">
                             <label for="product-name" class="block text-sm font-bold mb-2">Nombre del Producto</label>
                             <input type="text" id="product-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
                         </div>
-                        
                         <div class="md:col-span-2">
                             <label for="product-description" class="block text-sm font-bold mb-2">Descripción</label>
                             <textarea id="product-description" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600"></textarea>
                         </div>
-
                         <div>
                             <label for="product-category" class="block text-sm font-bold mb-2">Categoría</label>
-                            <input type="text" id="product-category" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                            <select id="product-category" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                <option value="">-- Seleccionar Categoría --</option>
+                                <optgroup label="Partes de Arriba">
+                                    <option value="T-Shirts">T-Shirts (Camisetas)</option>
+                                    <option value="Hoodies">Hoodies (Sudaderas)</option>
+                                    <option value="Jackets">Jackets (Chaquetas)</option>
+                                    <option value="Shirts">Camisas</option>
+                                </optgroup>
+                                <optgroup label="Partes de Abajo">
+                                    <option value="Pants">Pants (Pantalones)</option>
+                                    <option value="Jeans">Jeans</option>
+                                    <option value="Shorts">Shorts (Pantalones Cortos)</option>
+                                </optgroup>
+                                <optgroup label="Accesorios">
+                                    <option value="Accessories">Accesorios (General)</option>
+                                    <option value="Caps">Gorras</option>
+                                    <option value="Bags">Bolsos / Riñoneras</option>
+                                </optgroup>
+                                <optgroup label="Calzado">
+                                    <option value="Footwear">Calzado / Sneakers</option>
+                                </optgroup>
+                            </select>
                         </div>
-
                         <div>
                             <label for="product-price" class="block text-sm font-bold mb-2">Precio</label>
                             <input type="number" id="product-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
                         </div>
-
                         <div>
                             <label for="product-stock" class="block text-sm font-bold mb-2">Stock</label>
                             <input type="number" id="product-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
                         </div>
-                        
                         <div>
-                            <label for="product-sizes" class="block text-sm font-bold mb-2">Tallas (separadas por coma)</label>
-                            <input type="text" id="product-sizes" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="Ej: S, M, L, XL">
+                            <label for="product-sizes" class="block text-sm font-bold mb-2">Tallas Disponibles (Selección Única)</label>
+                            <select id="product-sizes" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                <option value="">-- Seleccionar Talla --</option>
+                                </select>
                         </div>
-
                         <div class="md:col-span-2">
                             <label for="product-images" class="block text-sm font-bold mb-2">URLs de Imágenes (una por línea)</label>
                             <textarea id="product-images" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"></textarea>
                         </div>
-
                         <div class="md:col-span-2 flex justify-end gap-4">
                             <button type="button" id="cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar</button>
                             <button type="submit" id="save-btn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar Producto</button>
@@ -219,111 +228,75 @@
                     </form>
                 </section>
 
+                <section class="mb-4 bg-gray-800 p-4 rounded-lg">
+                    <label for="product-search-input" class="block text-sm font-bold mb-2">Buscar Producto</label>
+                    <input 
+                        type="text" 
+                        id="product-search-input" 
+                        placeholder="Escribe el nombre o categoría del producto..."
+                        class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 focus:ring-yellow-400 focus:border-yellow-400"
+                    >
+                </section>
                 <section>
                     <h2 class="text-2xl mb-4 uppercase">Inventario de Productos</h2>
                     <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                         </div>
+                        </div>
                 </section>
             </section>
 
-<section id="orders-view" class="view-content" style="display: none;">
+            <section id="orders-view" class="view-content" style="display: none;">
                 <h1 class="text-4xl uppercase mb-8">Gestión de Pedidos</h1>
-                
                 <section class="mb-8 bg-gray-800 p-6 rounded-lg shadow-lg">
                     <h2 id="order-form-title" class="text-2xl mb-4 uppercase">Añadir Nuevo Pedido (Manual)</h2>
-                    <form id="order-form" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <form id="order-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <input type="hidden" id="order-id">
-                        
-                        <div class="md:col-span-3">
-                            <h3 class="text-lg font-bold text-yellow-400 mb-2">Datos del Cliente</h3>
-                        </div>
-                        
                         <div>
+                            <h3 class="text-xl font-bold mb-3 text-yellow-400">Detalles del Cliente</h3>
                             <label for="customer-name" class="block text-sm font-bold mb-2">Nombre del Cliente</label>
-                            <input type="text" id="customer-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                        </div>
-                        
-                        <div>
-                            <label for="customer-email" class="block text-sm font-bold mb-2">Email</label>
-                            <input type="email" id="customer-email" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
-                        </div>
-
-                        <div>
+                            <input type="text" id="customer-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required>
+                            <label for="customer-email" class="block text-sm font-bold mb-2">Email del Cliente</label>
+                            <input type="email" id="customer-email" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required>
                             <label for="customer-address" class="block text-sm font-bold mb-2">Dirección de Envío</label>
-                            <input type="text" id="customer-address" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                        </div>
-                        
-                        <div class="md:col-span-3">
-                            <h3 class="text-lg font-bold text-yellow-400 mt-4 mb-2">Detalles del Pedido</h3>
-                        </div>
-
-                        <div>
-                            <label for="order-status" class="block text-sm font-bold mb-2">Estado del Pedido</label>
-                            <select id="order-status" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                                <option value="pendiente">Pendiente</option>
-                                <option value="procesando">Procesando</option>
-                                <option value="enviado">Enviado</option>
-                                <option value="entregado">Entregado</option>
-                                <option value="cancelado">Cancelado</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label for="order-total" class="block text-sm font-bold mb-2">Monto Total</label>
-                            <input type="number" id="order-total" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required readonly>
-                        </div>
-
-                        <div>
-                            <label for="tracking-number" class="block text-sm font-bold mb-2">N° de Seguimiento</label>
-                            <input type="text" id="tracking-number" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
-                        </div>
-                        
-                        <div class="md:col-span-3 border-t border-gray-700 pt-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-lg font-bold text-yellow-400">Artículos del Pedido</h3>
-                                <button type="button" id="add-order-item-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-1 px-3 rounded-lg flex items-center">
-                                    <i class="fas fa-plus mr-1"></i> Añadir Artículo
-                                </button>
+                            <textarea id="customer-address" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required></textarea>
+                            <h3 class="text-xl font-bold mb-3 text-yellow-400 mt-6">Estado y Seguimiento</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="order-status" class="block text-sm font-bold mb-2">Estado del Pedido</label>
+                                    <select id="order-status" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="procesando">Procesando</option>
+                                        <option value="enviado">Enviado</option>
+                                        <option value="entregado">Entregado</option>
+                                        <option value="cancelado">Cancelado</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="tracking-number" class="block text-sm font-bold mb-2">Número de Seguimiento</label>
+                                    <input type="text" id="tracking-number" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
+                                </div>
                             </div>
-
-                            <div id="order-items-container" class="space-y-3 p-3 bg-gray-700 rounded-lg">
+                            <label for="order-total" class="block text-sm font-bold mb-2 mt-4">Total del Pedido ($)</label>
+                            <input type="number" id="order-total" step="0.01" class="w-full bg-gray-600 p-2 rounded-lg border border-gray-500 cursor-not-allowed" required readonly>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-3 text-yellow-400">Artículos</h3>
+                            <div id="order-items-container" class="space-y-3 mb-4 p-3 bg-gray-700 rounded-lg max-h-96 overflow-y-auto border border-gray-600">
                                 <p class="text-sm text-gray-400 text-center" id="empty-order-placeholder">Usa el botón "Añadir Artículo" para empezar.</p>
                             </div>
-                            
-                            <input type="hidden" id="order-items-summary">
-                        </div>
-                        <div class="md:col-span-3 flex justify-end gap-4 border-t border-gray-700 pt-4">
-                            <button type="button" id="cancel-order-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar</button>
-                            <button type="submit" id="save-order-btn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar Pedido</button>
+                            <button type="button" id="add-order-item-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg mb-6">
+                                <i class="fas fa-plus mr-2"></i> Añadir Artículo
+                            </button>
+                            <div class="flex justify-end gap-4 mt-6 border-t border-gray-700 pt-6">
+                                <button type="button" id="cancel-order-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar</button>
+                                <button type="submit" id="save-order-btn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar Pedido</button>
+                            </div>
                         </div>
                     </form>
                 </section>
-
                 <section>
-                    <h2 class="text-2xl mb-4 uppercase">Listado de Pedidos</h2>
-                    <div id="order-list" class="space-y-4">
-                        <div class="bg-card-bg p-4 rounded-lg shadow flex justify-between items-center border-l-4 border-indigo-500">
-                            <div>
-                                <p class="font-bold text-lg">Pedido #1009</p>
-                                <p class="text-sm text-gray-400">Cliente: María Solís</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="bg-indigo-500 text-white text-xs font-bold py-1 px-3 rounded-full uppercase">Procesando</span>
-                                <p class="text-xl font-extrabold mt-1">$155.00</p>
-                            </div>
+                    <h2 class="text-2xl mb-4 uppercase">Lista de Pedidos</h2>
+                    <div id="order-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         </div>
-                        <div class="bg-card-bg p-4 rounded-lg shadow flex justify-between items-center border-l-4 border-yellow-400">
-                            <div>
-                                <p class="font-bold text-lg">Pedido #1008</p>
-                                <p class="text-sm text-gray-400">Cliente: Juan Pérez</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="bg-yellow-400 text-black text-xs font-bold py-1 px-3 rounded-full uppercase">Pendiente</span>
-                                <p class="text-xl font-extrabold mt-1">$75.99</p>
-                            </div>
-                        </div>
-                        <p class="text-center text-gray-500 mt-8">La lista completa de pedidos se cargará con JavaScript.</p>
-                    </div>
                 </section>
             </section>
         </div>
