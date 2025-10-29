@@ -9,8 +9,11 @@ const ProductSchema = new mongoose.Schema({
     description: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
     stock: { type: Number, required: true, min: 0 },
-    category: { type: String, required: true },
-    sizes: [{ type: String }],
+    // 🛑 RELACIÓN: Guardamos el ID de la categoría (Number)
+    categoryId: { type: Number, required: true }, 
+    
+    // 🛑 Tallas: Guardamos un array de IDs de las tallas aplicables (Array of Numbers)
+    sizeIds: [ { type: Number, required: true } ],
     images: [{ type: String }],
     createdAt: { type: Date, default: Date.now },
 });

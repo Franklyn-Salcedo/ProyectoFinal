@@ -2,6 +2,8 @@
 
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
+import Category from '../models/Category.js'; // Nuevo
+import Size from '../models/Size.js';         // Nuevo
 
 // --- Lógica de IDs para compatibilidad y simplicidad ---
 // Aunque Mongo usa _id, mantenemos el 'id' numérico para facilitar la transición del frontend
@@ -19,6 +21,15 @@ export async function getProducts() {
     // Buscar todos los documentos
     return await Product.find({}).sort({ id: 1 }).exec();
 }
+
+export const getCategories = async () => {
+    // Ordenar por nombre para el SELECT del frontend
+    return await Category.find().sort({ name: 1 }).exec();
+};
+
+export const getSizes = async () => {
+    return await Size.find().sort({ name: 1 }).exec();
+};
 
 export async function saveProduct(productData) {
     if (productData.id) {

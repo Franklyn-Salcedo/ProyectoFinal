@@ -8,7 +8,8 @@ import connectDB from './config/db.js';
 // 2. Importar la nueva lógica CRUD ASÍNCRONA
 import { 
     getProducts, saveProduct, deleteProduct, 
-    getOrders, saveOrder, deleteOrder 
+    getOrders, saveOrder, deleteOrder,
+    getCategories, getSizes
 } from './api/crud.js'; 
 import dotenv from 'dotenv';
 
@@ -35,6 +36,7 @@ const rootPath = path.join(__dirname, '..');
 
 app.use(express.static(frontendPath));
 app.use(express.static(rootPath));
+
 
 // -------------------------------------------------------------------
 // RUTAS DE LA API (Ahora son ASÍNCRONAS)
@@ -107,6 +109,25 @@ app.delete('/api/orders/:id', async (req, res) => {
     }
 });
 
+// CATEGORIAS
+app.get('/api/categories', async (req, res) => {
+    try {
+        const categories = await getCategories();
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener categorías', error: error.message });
+    }
+});
+
+// TALLAS
+app.get('/api/sizes', async (req, res) => {
+    try {
+        const sizes = await getSizes();
+        res.json(sizes);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener tallas', error: error.message });
+    }
+});
 
 // -------------------------------------------------------------------
 // RUTAS DE VISTA (Front-end serving) - Sin cambios

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -22,6 +23,7 @@
         }
     </script>
 </head>
+
 <body class="bg-gray-900 text-white min-h-screen">
 
     <section id="login-section" class="min-h-screen flex items-center justify-center" style="display: none;">
@@ -29,58 +31,58 @@
             <img src="/imagenes/logo.png" alt="Key Option Logo" class="h-20 mx-auto mb-6">
             <h2 class="text-2xl text-center mb-6 uppercase">Panel de Administrador</h2>
             <form id="login-form">
-                
+
                 <div class="mb-4">
                     <label for="username" class="block mb-2 text-sm font-bold text-gray-400">Usuario</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        class="w-full px-3 py-2 bg-white text-gray-900 border border-gray-600 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 transition" 
-                        required
-                    >
+                    <input type="text" id="username"
+                        class="w-full px-3 py-2 bg-white text-gray-900 border border-gray-600 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 transition"
+                        required>
                 </div>
-                
+
                 <div class="mb-4">
                     <label for="password" class="block mb-2 text-sm font-bold text-gray-400">Contraseña</label>
                     <div class="relative">
-                        <input 
-                            type="password" 
-                            id="password" 
-                            class="w-full px-3 py-2 bg-white text-gray-900 border border-gray-600 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 pr-10 transition" 
-                            required
-                        >
-                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 hover:text-gray-700 transition">
-                            <i id="eye-icon" class="fas fa-eye"></i> 
+                        <input type="password" id="password"
+                            class="w-full px-3 py-2 bg-white text-gray-900 border border-gray-600 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 pr-10 transition"
+                            required>
+                        <button type="button" id="toggle-password"
+                            class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 hover:text-gray-700 transition">
+                            <i id="eye-icon" class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
-                
-                <button type="submit" class="w-full bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg hover:bg-yellow-500 transition duration-300">Acceder</button>
+
+                <button type="submit"
+                    class="w-full bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg hover:bg-yellow-500 transition duration-300">Acceder</button>
                 <p id="login-error" class="text-red-500 text-center mt-4 text-sm"></p>
             </form>
         </div>
     </section>
 
     <main id="admin-dashboard" class="flex" style="display: none;">
-        
+
         <aside class="w-64 bg-gray-900 min-h-screen p-6 shadow-xl border-r border-gray-800">
-            <h1 class="text-3xl font-bold mb-8 uppercase text-yellow-400">Key Option <span class="text-sm block leading-none text-white">Admin</span></h1>
+            <h1 class="text-3xl font-bold mb-8 uppercase text-yellow-400">Key Option <span
+                    class="text-sm block leading-none text-white">Admin</span></h1>
             <nav>
                 <ul>
                     <li class="mb-4">
-                        <button data-view="dashboard-view" class="view-btn w-full flex items-center p-3 rounded-lg bg-yellow-400 text-black font-bold justify-start">
+                        <button data-view="dashboard-view"
+                            class="view-btn w-full flex items-center p-3 rounded-lg bg-yellow-400 text-black font-bold justify-start">
                             <i class="fas fa-home mr-3"></i>
                             Dashboard
                         </button>
                     </li>
                     <li class="mb-4">
-                        <button data-view="products-view" class="view-btn w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-white justify-start">
+                        <button data-view="products-view"
+                            class="view-btn w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-white justify-start">
                             <i class="fas fa-box-open mr-3"></i>
                             Gestión de Productos
                         </button>
                     </li>
                     <li class="mb-4">
-                        <button data-view="orders-view" class="view-btn w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-white justify-start">
+                        <button data-view="orders-view"
+                            class="view-btn w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-white justify-start">
                             <i class="fas fa-receipt mr-3"></i>
                             Gestión de Pedidos
                         </button>
@@ -88,12 +90,14 @@
                     <li class="mb-4">
                         <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition">
                             <i class="fas fa-chart-line mr-3"></i>
-                            Reportes e IA
+                            Reportes y IA
                         </a>
                     </li>
                 </ul>
             </nav>
-            <button id="logout-btn" class="mt-8 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Cerrar Sesión</button>
+            <button id="logout-btn"
+                class="mt-8 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Cerrar
+                Sesión</button>
         </aside>
 
         <div class="flex-1 p-4 md:p-10">
@@ -106,35 +110,50 @@
                         <span id="current-time" class="block text-sm">Cargando hora...</span>
                     </div>
                 </header>
+
                 <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-yellow-400">
-                        <div class="flex justify-between items-center"><i class="fas fa-dollar-sign text-3xl text-yellow-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Ventas Totales</span></div>
+                        <div class="flex justify-between items-center"><i
+                                class="fas fa-dollar-sign text-3xl text-yellow-400"></i><span
+                                class="text-sm font-semibold uppercase text-gray-400">Ventas Totales</span></div>
                         <p class="text-4xl font-extrabold mt-3">$12,850.75</p>
                         <p class="text-sm text-green-400 mt-1">▲ 15% vs. mes anterior</p>
                     </div>
+
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-indigo-500">
-                        <div class="flex justify-between items-center"><i class="fas fa-truck text-3xl text-indigo-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Pedidos Pendientes</span></div>
+                        <div class="flex justify-between items-center"><i
+                                class="fas fa-truck text-3xl text-indigo-400"></i><span
+                                class="text-sm font-semibold uppercase text-gray-400">Pedidos Pendientes</span></div>
                         <p class="text-4xl font-extrabold mt-3">45</p>
                         <p class="text-sm text-red-400 mt-1">▼ 5% vs. semana anterior</p>
                     </div>
+
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-red-500">
-                        <div class="flex justify-between items-center"><i class="fas fa-exclamation-triangle text-3xl text-red-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Stock Crítico</span></div>
+                        <div class="flex justify-between items-center"><i
+                                class="fas fa-exclamation-triangle text-3xl text-red-400"></i><span
+                                class="text-sm font-semibold uppercase text-gray-400">Stock Crítico</span></div>
                         <p class="text-4xl font-extrabold mt-3">3</p>
                         <p class="text-sm text-gray-400 mt-1">Productos que reordenar</p>
                     </div>
+
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-green-500">
-                        <div class="flex justify-between items-center"><i class="fas fa-shopping-cart text-3xl text-green-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Conversión</span></div>
+                        <div class="flex justify-between items-center"><i
+                                class="fas fa-shopping-cart text-3xl text-green-400"></i><span
+                                class="text-sm font-semibold uppercase text-gray-400">Conversión</span></div>
                         <p class="text-4xl font-extrabold mt-3">3.4%</p>
                         <p class="text-sm text-green-400 mt-1">Objetivo mensual: 4.0%</p>
                     </div>
                 </section>
+
                 <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-2xl font-bold uppercase text-yellow-400">Análisis Predictivo de IA</h3>
-                            <span class="bg-yellow-400 text-black text-xs font-bold py-1 px-3 rounded-full">Modelo Activo</span>
+                            <span class="bg-yellow-400 text-black text-xs font-bold py-1 px-3 rounded-full">Modelo
+                                Activo</span>
                         </div>
-                        <p class="text-gray-400 mb-4">Proyección de ventas y demanda para el próximo mes, impulsada por Machine Learning.</p>
+                        <p class="text-gray-400 mb-4">Proyección de ventas y demanda para el próximo mes, impulsada por
+                            Machine Learning.</p>
                         <div class="grid grid-cols-2 gap-4 border-t border-b border-gray-800 py-4">
                             <div>
                                 <p class="text-sm uppercase text-gray-500">Ventas Proyectadas (30 días)</p>
@@ -151,101 +170,116 @@
                             [Placeholder para Gráfico de Tendencias de Ventas y Predicción]
                         </div>
                     </div>
+
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <h3 class="text-2xl font-bold uppercase mb-4">Actividad Reciente</h3>
                         <ul class="space-y-4">
-                            <li class="border-b border-gray-800 pb-3"><p class="font-semibold">Nuevo Pedido #1008</p><p class="text-sm text-gray-400 flex justify-between"><span>Cliente: J. Guzmán</span><span class="text-yellow-400 font-bold">$75.99</span></p></li>
-                            <li class="border-b border-gray-800 pb-3"><p class="font-semibold">Producto Agotado</p><p class="text-sm text-gray-400 flex justify-between"><span>Jeans 'Midnight Slim'</span><span class="text-red-400">¡Alerta!</span></p></li>
-                            <li class="border-b border-gray-800 pb-3"><p class="font-semibold">Devolución Procesada</p><p class="text-sm text-gray-400 flex justify-between"><span>Pedido #1005</span><span class="text-white font-bold">$25.00</span></p></li>
+                            <li class="border-b border-gray-800 pb-3">
+                                <p class="font-semibold">Nuevo Pedido #1008</p>
+                                <p class="text-sm text-gray-400 flex justify-between"><span>Cliente: J.
+                                        Guzmán</span><span class="text-yellow-400 font-bold">$75.99</span></p>
+                            </li>
+                            <li class="border-b border-gray-800 pb-3">
+                                <p class="font-semibold">Producto Agotado</p>
+                                <p class="text-sm text-gray-400 flex justify-between"><span>Jeans 'Midnight
+                                        Slim'</span><span class="text-red-400">¡Alerta!</span></p>
+                            </li>
+                            <li class="border-b border-gray-800 pb-3">
+                                <p class="font-semibold">Devolución Procesada</p>
+                                <p class="text-sm text-gray-400 flex justify-between"><span>Pedido #1005</span><span
+                                        class="text-white font-bold">$25.00</span></p>
+                            </li>
                         </ul>
-                        <a href="#" class="mt-4 block text-center text-yellow-400 hover:text-white transition">Ver todos los eventos</a>
+                        <a href="#" class="mt-4 block text-center text-yellow-400 hover:text-white transition">Ver todos
+                            los eventos</a>
                     </div>
                 </section>
             </section>
 
             <section id="products-view" class="view-content" style="display: none;">
                 <h1 class="text-4xl uppercase mb-8">Gestión de Productos</h1>
-                
-                <section class="mb-8 bg-gray-800 p-6 rounded-lg shadow-lg">
-                    <h2 id="form-title" class="text-2xl mb-4 uppercase">Añadir Nuevo Producto</h2>
-                    <form id="product-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <input type="hidden" id="product-id">
-                        <div class="md:col-span-2">
-                            <label for="product-name" class="block text-sm font-bold mb-2">Nombre del Producto</label>
-                            <input type="text" id="product-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="product-description" class="block text-sm font-bold mb-2">Descripción</label>
-                            <textarea id="product-description" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600"></textarea>
-                        </div>
-                        <div>
-                            <label for="product-category" class="block text-sm font-bold mb-2">Categoría</label>
-                            <select id="product-category" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                                <option value="">-- Seleccionar Categoría --</option>
-                                <optgroup label="Partes de Arriba">
-                                    <option value="T-Shirts">T-Shirts (Camisetas)</option>
-                                    <option value="Hoodies">Hoodies (Sudaderas)</option>
-                                    <option value="Jackets">Jackets (Chaquetas)</option>
-                                    <option value="Shirts">Camisas</option>
-                                </optgroup>
-                                <optgroup label="Partes de Abajo">
-                                    <option value="Pants">Pants (Pantalones)</option>
-                                    <option value="Jeans">Jeans</option>
-                                    <option value="Shorts">Shorts (Pantalones Cortos)</option>
-                                </optgroup>
-                                <optgroup label="Accesorios">
-                                    <option value="Accessories">Accesorios (General)</option>
-                                    <option value="Caps">Gorras</option>
-                                    <option value="Bags">Bolsos / Riñoneras</option>
-                                </optgroup>
-                                <optgroup label="Calzado">
-                                    <option value="Footwear">Calzado / Sneakers</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="product-price" class="block text-sm font-bold mb-2">Precio</label>
-                            <input type="number" id="product-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                        </div>
-                        <div>
-                            <label for="product-stock" class="block text-sm font-bold mb-2">Stock</label>
-                            <input type="number" id="product-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                        </div>
-                        <div>
-                            <label for="product-sizes" class="block text-sm font-bold mb-2">Tallas Disponibles (Selección Única)</label>
-                            <select id="product-sizes" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                                <option value="">-- Seleccionar Talla --</option>
-                                </select>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="product-images" class="block text-sm font-bold mb-2">URLs de Imágenes (una por línea)</label>
-                            <textarea id="product-images" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"></textarea>
-                        </div>
-                        <div class="md:col-span-2 flex justify-end gap-4">
-                            <button type="button" id="cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar</button>
-                            <button type="submit" id="save-btn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar Producto</button>
-                        </div>
-                    </form>
-                </section>
+                <h2 id="form-title" class="text-2xl font-bold mb-4">Añadir Nuevo Producto</h2>
+                <form id="product-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="hidden" id="product-id">
 
+                    <div class="md:col-span-2">
+                        <label for="product-name" class="block text-sm font-bold mb-2">Nombre del Producto</label>
+                        <input type="text" id="product-name"
+                            class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="product-description" class="block text-sm font-bold mb-2">Descripción</label>
+                        <textarea id="product-description" rows="3"
+                            class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="product-category-select" class="block text-sm font-bold mb-2">Categoría</label>
+                        <select id="product-category-select" required
+                            class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
+                            <option value="">Cargando Categorías...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="product-price" class="block text-sm font-bold mb-2">Precio</label>
+                        <input type="number" id="product-price" step="0.01"
+                            class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                    </div>
+
+                    <div>
+                        <label for="product-stock" class="block text-sm font-bold mb-2">Stock</label>
+                        <input type="number" id="product-stock"
+                            class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Tallas Disponibles</label>
+                        <div id="product-sizes-container"
+                            class="flex flex-wrap gap-4 p-3 bg-gray-700 rounded-lg border border-gray-600">
+                            <p class="text-sm text-gray-500">Cargando tallas...</p>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="product-images" class="block text-sm font-bold mb-2">URLs de Imágenes (una por
+                            línea - Temporal)</label>
+                        <textarea id="product-images" rows="3"
+                            class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600"
+                            placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2 flex justify-end gap-4">
+                        <button type="button" id="cancel-btn"
+                            class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+                            style="display: none;">Cancelar</button>
+                        <button type="submit" id="save-btn"
+                            class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar
+                            Producto</button>
+                    </div>
+                </form>
                 <section class="mb-4 bg-gray-800 p-4 rounded-lg">
                     <label for="product-search-input" class="block text-sm font-bold mb-2">Buscar Producto</label>
-                    <input 
-                        type="text" 
-                        id="product-search-input" 
+                    <input type="text" id="product-search-input"
                         placeholder="Escribe el nombre o categoría del producto..."
-                        class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 focus:ring-yellow-400 focus:border-yellow-400"
-                    >
+                        class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 focus:ring-yellow-400 focus:border-yellow-400">
                 </section>
+
+
+
+
+
                 <section>
                     <h2 class="text-2xl mb-4 uppercase">Inventario de Productos</h2>
                     <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        </div>
+                    </div>
                 </section>
             </section>
 
             <section id="orders-view" class="view-content" style="display: none;">
                 <h1 class="text-4xl uppercase mb-8">Gestión de Pedidos</h1>
+
                 <section class="mb-8 bg-gray-800 p-6 rounded-lg shadow-lg">
                     <h2 id="order-form-title" class="text-2xl mb-4 uppercase">Añadir Nuevo Pedido (Manual)</h2>
                     <form id="order-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -253,16 +287,23 @@
                         <div>
                             <h3 class="text-xl font-bold mb-3 text-yellow-400">Detalles del Cliente</h3>
                             <label for="customer-name" class="block text-sm font-bold mb-2">Nombre del Cliente</label>
-                            <input type="text" id="customer-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required>
+                            <input type="text" id="customer-name"
+                                class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required>
                             <label for="customer-email" class="block text-sm font-bold mb-2">Email del Cliente</label>
-                            <input type="email" id="customer-email" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required>
-                            <label for="customer-address" class="block text-sm font-bold mb-2">Dirección de Envío</label>
-                            <textarea id="customer-address" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required></textarea>
+                            <input type="email" id="customer-email"
+                                class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required>
+                            <label for="customer-address" class="block text-sm font-bold mb-2">Dirección de
+                                Envío</label>
+                            <textarea id="customer-address" rows="3"
+                                class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4"
+                                required></textarea>
                             <h3 class="text-xl font-bold mb-3 text-yellow-400 mt-6">Estado y Seguimiento</h3>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label for="order-status" class="block text-sm font-bold mb-2">Estado del Pedido</label>
-                                    <select id="order-status" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                    <label for="order-status" class="block text-sm font-bold mb-2">Estado del
+                                        Pedido</label>
+                                    <select id="order-status"
+                                        class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
                                         <option value="pendiente">Pendiente</option>
                                         <option value="procesando">Procesando</option>
                                         <option value="enviado">Enviado</option>
@@ -271,37 +312,77 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="tracking-number" class="block text-sm font-bold mb-2">Número de Seguimiento</label>
-                                    <input type="text" id="tracking-number" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
+                                    <label for="tracking-number" class="block text-sm font-bold mb-2">Número de
+                                        Seguimiento</label>
+                                    <input type="text" id="tracking-number"
+                                        class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
                                 </div>
                             </div>
-                            <label for="order-total" class="block text-sm font-bold mb-2 mt-4">Total del Pedido ($)</label>
-                            <input type="number" id="order-total" step="0.01" class="w-full bg-gray-600 p-2 rounded-lg border border-gray-500 cursor-not-allowed" required readonly>
+                            <label for="order-total" class="block text-sm font-bold mb-2 mt-4">Total del Pedido
+                                ($)</label>
+                            <input type="number" id="order-total" step="0.01"
+                                class="w-full bg-gray-600 p-2 rounded-lg border border-gray-500 cursor-not-allowed"
+                                required readonly>
                         </div>
                         <div>
                             <h3 class="text-xl font-bold mb-3 text-yellow-400">Artículos</h3>
-                            <div id="order-items-container" class="space-y-3 mb-4 p-3 bg-gray-700 rounded-lg max-h-96 overflow-y-auto border border-gray-600">
-                                <p class="text-sm text-gray-400 text-center" id="empty-order-placeholder">Usa el botón "Añadir Artículo" para empezar.</p>
+                            <div id="order-items-container"
+                                class="space-y-3 mb-4 p-3 bg-gray-700 rounded-lg max-h-96 overflow-y-auto border border-gray-600">
+                                <p class="text-sm text-gray-400 text-center" id="empty-order-placeholder">Usa el botón
+                                    "Añadir Artículo" para empezar.</p>
                             </div>
-                            <button type="button" id="add-order-item-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg mb-6">
+                            <button type="button" id="add-order-item-btn"
+                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg mb-6">
                                 <i class="fas fa-plus mr-2"></i> Añadir Artículo
                             </button>
                             <div class="flex justify-end gap-4 mt-6 border-t border-gray-700 pt-6">
-                                <button type="button" id="cancel-order-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar</button>
-                                <button type="submit" id="save-order-btn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar Pedido</button>
+                                <button type="button" id="cancel-order-btn"
+                                    class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+                                    style="display: none;">Cancelar</button>
+                                <button type="submit" id="save-order-btn"
+                                    class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar
+                                    Pedido</button>
                             </div>
                         </div>
                     </form>
                 </section>
+
                 <section>
-                    <h2 class="text-2xl mb-4 uppercase">Lista de Pedidos</h2>
-                    <div id="order-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <h2 class="text-2xl mb-4 uppercase">Listado de Pedidos</h2>
+                    <div id="order-list" class="space-y-4">
+                        <div
+                            class="bg-card-bg p-4 rounded-lg shadow flex justify-between items-center border-l-4 border-indigo-500">
+                            <div>
+                                <p class="font-bold text-lg">Pedido #1009</p>
+                                <p class="text-sm text-gray-400">Cliente: María Solís</p>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="bg-indigo-500 text-white text-xs font-bold py-1 px-3 rounded-full uppercase">Procesando</span>
+                                <p class="text-xl font-extrabold mt-1">$155.00</p>
+                            </div>
                         </div>
+                        <div
+                            class="bg-card-bg p-4 rounded-lg shadow flex justify-between items-center border-l-4 border-yellow-400">
+                            <div>
+                                <p class="font-bold text-lg">Pedido #1008</p>
+                                <p class="text-sm text-gray-400">Cliente: Juan Pérez</p>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="bg-yellow-400 text-black text-xs font-bold py-1 px-3 rounded-full uppercase">Pendiente</span>
+                                <p class="text-xl font-extrabold mt-1">$75.99</p>
+                            </div>
+                        </div>
+                        <p class="text-center text-gray-500 mt-8">La lista completa de pedidos se cargará con
+                            JavaScript.</p>
+                    </div>
                 </section>
             </section>
         </div>
     </main>
-    
+
     <script type="module" src="admin.js"></script>
 </body>
+
 </html>
