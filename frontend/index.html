@@ -223,7 +223,7 @@
         }
     }
 
-    // ✅ NUEVO: Función para obtener categorías de la API
+    // Función para obtener categorías de la API
     async function getCategories() {
          try {
             const response = await fetch('/api/categories'); // Ruta del backend
@@ -543,7 +543,7 @@
         cards.forEach(card => cardObserver.observe(card));
     }
     
-    // ✅ NUEVO: Función para obtener tallas (copiada de admin.js)
+    // Función para obtener tallas (copiada de admin.js)
     async function getSizes() {
         try {
             const response = await fetch('/api/sizes');
@@ -555,7 +555,7 @@
         }
     }
     
-    // ✅ NUEVO: Llenar el <select> de categorías del cliente
+    // Llenar el <select> de categorías del cliente
     async function populateCategoryFilter() {
         const categories = await getCategories();
         
@@ -609,7 +609,7 @@
         resizeCanvas(); 
         window.addEventListener('resize', resizeCanvas);
         
-        // ✅ Cargar categorías y productos al inicio
+        // Cargar categorías y productos al inicio
         await populateCategoryFilter();
         await renderProducts(); 
         

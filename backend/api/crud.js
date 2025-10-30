@@ -2,12 +2,10 @@
 
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
-import Category from '../models/Category.js'; // Nuevo
-import Size from '../models/Size.js';         // Nuevo
+import Category from '../models/Category.js'; 
+import Size from '../models/Size.js'; 
 
-// --- Lógica de IDs para compatibilidad y simplicidad ---
-// Aunque Mongo usa _id, mantenemos el 'id' numérico para facilitar la transición del frontend
-
+// --- Lógica de IDs ---
 const getNextId = async (Model) => {
     const lastDoc = await Model.findOne().sort({ id: -1 }).exec();
     return lastDoc ? lastDoc.id + 1 : (Model.modelName === 'Product' ? 1 : 1001);
@@ -18,12 +16,10 @@ const getNextId = async (Model) => {
  * FUNCIONES CRUD DE PRODUCTOS
  */
 export async function getProducts() {
-    // Buscar todos los documentos
     return await Product.find({}).sort({ id: 1 }).exec();
 }
 
 export const getCategories = async () => {
-    // Ordenar por nombre para el SELECT del frontend
     return await Category.find().sort({ name: 1 }).exec();
 };
 
@@ -53,7 +49,6 @@ export async function saveProduct(productData) {
 }
 
 export async function deleteProduct(productId) {
-    // Usamos deleteOne para eliminar un documento por el campo 'id'
     const result = await Product.deleteOne({ id: productId });
     return result.deletedCount > 0;
 }
@@ -63,32 +58,78 @@ export async function deleteProduct(productId) {
  * FUNCIONES CRUD DE PEDIDOS
  */
 export async function getOrders() {
-    // Buscar todos los documentos
-    return await Order.find({}).sort({ id: -1 }).exec();
+    return await Order.find({}).sort({ id: -1 }).exec(); // Ordenar por ID (más nuevos primero)
 }
 
+// FUNCIÓN 'saveOrder' TOTALMENTE ACTUALIZADA
 export async function saveOrder(orderData) {
+    
+    // --- 1. Validar Stock (SOLO PARA PEDIDOS NUEVOS) ---
+    // (Asumimos que la edición de un pedido no descuenta stock, solo la creación)
+    if (!orderData.id) {
+        let stockError = null;
+        for (const item of orderData.items) {
+            const product = await Product.findOne({ id: item.productId });
+            
+            if (!product) {
+                throw new Error(`Producto con ID ${item.productId} no encontrado.`);
+            }
+            if (product.stock < item.quantity) {
+                // Error si no hay suficiente stock
+                stockError = `Stock insuficiente para ${product.name}. Solo quedan ${product.stock} unidades.`;
+                break; // Detener el bucle
+            }
+        }
+        
+        // Si hubo un error de stock, detener todo y enviar el mensaje
+        if (stockError) {
+            // Esto será atrapado por el bloque .catch() en server.js
+            throw new Error(stockError);
+        }
+    }
+
+    // --- 2. Guardar/Actualizar Pedido ---
     if (orderData.id) {
-        // Editar
+        // --- EDITAR Pedido Existente ---
         const updatedOrder = await Order.findOneAndUpdate(
             { id: orderData.id },
-            { $set: orderData },
+            // Asegurarse de que el N° de seguimiento se actualice si se envía
+            { $set: orderData }, 
             { new: true, runValidators: true }
         );
         return updatedOrder;
+
     } else {
-        // Añadir nuevo
+        // --- CREAR Pedido Nuevo ---
+        
+        // 3. Descontar Stock
+        await Promise.all(orderData.items.map(item => 
+            Product.updateOne(
+                { id: item.productId },
+                // $inc decrementa el campo 'stock'
+                { $inc: { stock: -item.quantity } } 
+            )
+        ));
+
+        // 4. Generar ID y N de Seguimiento Automático
         const newId = await getNextId(Order);
+        // Si el admin escribió algo, se usa; si no, se genera.
+        const newTrackingNumber = orderData.trackingNumber || `TRK-${newId}`; 
+
         const newOrder = new Order({
             ...orderData,
-            id: newId
+            id: newId,
+            trackingNumber: newTrackingNumber // Asignar el nuevo número
         });
+        
         await newOrder.save();
         return newOrder;
     }
 }
 
+
 export async function deleteOrder(orderId) {
+    // (Opcional: Faltaría lógica para reponer stock si se elimina un pedido)
     const result = await Order.deleteOne({ id: orderId });
     return result.deletedCount > 0;
 }
