@@ -94,6 +94,13 @@ const DOMElements = {
     toggleSidebarBtn: document.getElementById('toggle-sidebar-btn'),
     toggleSidebarIcon: document.getElementById('toggle-sidebar-icon'),
     sidebarTexts: document.querySelectorAll('.sidebar-text'),
+
+    // IA Predictivo
+    iaPredictionBtn: document.getElementById('ia-predicion'),
+    iaProducto: document.getElementById('ia-producto'),
+    iaText: document.getElementById('ia-text'),
+    iaMonto: document.getElementById('ia-monto'),
+    idVariacion: document.getElementById('ia-variacion'),
 };
 
 
@@ -449,7 +456,7 @@ async function renderProductList() {
         productCard.innerHTML = `
             <img src="${product.images[0] || 'https://placehold.co/600x800/111827/FFFFFF?text=No+Image'}" alt="${product.name}" class="w-full h-48 object-cover">
             <div class="p-4">
-                <h3 class="font-bold text-lg truncate">${product.name}</h3>
+                <h3 class="font-bold text-lg truncate"> ${product.name}</h3>
                 <p class="text-gray-400 text-sm">${getCategoryName(product.categoryId)}</p>
                 <div class="flex justify-between items-center mt-2">
                     <span class="text-xl font-bold text-yellow-400">$${product.price.toFixed(2)}</span>
@@ -908,6 +915,7 @@ async function loadReferenceData() {
     AppState.sizes = await getSizes();
     fillCategorySelect();
     createSizeCheckboxes();
+    getPredicion();
 }
 
 function fillCategorySelect(selectedCategoryId = null) {
@@ -1054,6 +1062,35 @@ async function init() {
     } else {
         showLogin();
     }
+
+
+
+
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ----------------------------------------------------
+// 8. LÓGICA DE IA PARA PREDICCIONES
+// ----------------------------------------------------
+
+
+document.getElementById('ia-predicion').addEventListener('click', loadAIPredictions);
+
+async function loadAIPredictions() {
+  const res = await fetch('/api/ai/predict');
+  const data = await res.json(); 
+  localStorage.setItem('aiPrediction', JSON.stringify(data));
+  getPredicion();
+}
+
+
+function getPredicion() {
+    const predictionData = JSON.parse(localStorage.getItem('aiPrediction'));
+    if (!predictionData) return;
+    DOMElements.iaMonto.textContent = '$'+`${predictionData.prediction.ventasProyectadas}.00`;
+    DOMElements.iaProducto.textContent = predictionData.prediction.productoAltaDemanda;
+    DOMElements.iaText.textContent = predictionData.prediction.recomendacion;
+    DOMElements.idVariacion.textContent = `Aumento potencial del ${predictionData.prediction.variacionPorcentual}%`;
+    
+}

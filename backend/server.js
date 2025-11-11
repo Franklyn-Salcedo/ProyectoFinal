@@ -13,6 +13,8 @@ import {
 } from './api/crud.js'; 
 import dotenv from 'dotenv';
 
+import { getAiPrediction } from './api/ai/predict.js';
+
 
 // --- Conexión a la Base de Datos ---
 connectDB(); // Llama a la función para conectar a MongoDB
@@ -142,6 +144,10 @@ app.get('/', (req, res) => {
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(frontendPath, 'admin.html'));
 });
+
+
+app.get('/api/ai/predict', getAiPrediction);
+
 
 
 // Iniciar el servidor

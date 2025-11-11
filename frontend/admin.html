@@ -158,19 +158,24 @@
                     <div class="lg:col-span-2 bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-2xl font-bold uppercase text-yellow-400">Análisis Predictivo de IA</h3>
-                            <span class="bg-yellow-400 text-black text-xs font-bold py-1 px-3 rounded-full">Modelo Activo</span>
+                            <!-- <span class="bg-yellow-400 text-black text-xs font-bold py-1 px-3 rounded-full">Modelo Activo</span> -->
+                            <button id="ia-predicion" class="bg-yellow-400 text-black text-2xl font-bold py-1 px-3 rounded-full 
+                                hover:bg-yellow-500 hover:shadow-md transition-all duration-200 ease-in-out">
+                                <i class="fas fa-robot text-2xl text-black-400"></i>
+                                IA
+                            </button>
                         </div>
-                        <p class="text-gray-400 mb-4">Proyección de ventas y demanda para el próximo mes, impulsada por Machine Learning.</p>
+                        <p class="text-gray-400 mb-4 text-justify" id="ia-text"></p>
                         <div class="grid grid-cols-2 gap-4 border-t border-b border-gray-800 py-4">
                             <div>
                                 <p class="text-sm uppercase text-gray-500">Ventas Proyectadas (30 días)</p>
-                                <p class="text-3xl font-extrabold text-white mt-1">$14,500.00</p>
-                                <p class="text-sm text-indigo-400 mt-1">Aumento potencial del 13%</p>
+                                <p class="text-3xl font-extrabold text-white mt-1" id="ia-monto">$0</p>
+                                <p class="text-sm text-indigo-400 mt-1" id="ia-variacion"></p>
                             </div>
                             <div>
                                 <p class="text-sm uppercase text-gray-500">Producto de Alta Demanda</p>
-                                <p class="text-2xl font-bold text-white mt-1">T-Shirt 'Urban Explorer'</p>
-                                <p class="text-sm text-yellow-400 mt-1">Recomendación: Aumentar Stock</p>
+                                <p class="text-2xl font-bold text-white mt-1" id="ia-producto">--</p>
+                                <!-- <p class="text-sm text-yellow-400 mt-1">Recomendación: Aumentar Stock</p> -->
                             </div>
                         </div>
                         <div class="mt-4 h-64 bg-gray-800 flex items-center justify-center rounded-lg text-gray-500">
