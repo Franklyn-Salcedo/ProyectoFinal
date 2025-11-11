@@ -1,5 +1,3 @@
-// admin.js (Frontend - Usando Fetch)
-
 // ==========================================================
 // CONFIGURACIÓN Y ESTADO GLOBAL
 // ==========================================================
@@ -8,6 +6,7 @@ const ADMIN_PASSWORD = "1234";
 const AppState = {
     editingProductId: null,
     editingOrderId: null,
+    editingOrderCreatedAt: null, // Para preservar la fecha al editar
     currentView: 'dashboard-view',
     categories: [],
     sizes: [],
@@ -16,6 +15,7 @@ const AppState = {
 
 const STOCK_THRESHOLD = 5; 
 let toastTimer; 
+let monthlySalesChart = null; // Instancia del gráfico
 
 // --- DOMElements ---
 const DOMElements = {
@@ -27,9 +27,11 @@ const DOMElements = {
     
     // Dashboard KPIs
     kpiTotalSales: document.getElementById('kpi-total-sales'),
+    kpiTotalSalesSub: document.getElementById('kpi-total-sales-sub'), // ¡NUEVO!
     kpiPendingOrders: document.getElementById('kpi-pending-orders'),
     kpiCriticalStock: document.getElementById('kpi-critical-stock'),
-    kpiConversion: document.getElementById('kpi-conversion'),
+    kpiCancellationRate: document.getElementById('kpi-cancellation-rate'), // ¡NUEVO! (reemplaza conversion)
+    kpiCancellationRateSub: document.getElementById('kpi-cancellation-rate-sub'), // ¡NUEVO!
     recentActivityList: document.getElementById('recent-activity-list'),
     
     // Login
@@ -95,12 +97,43 @@ const DOMElements = {
     toggleSidebarIcon: document.getElementById('toggle-sidebar-icon'),
     sidebarTexts: document.querySelectorAll('.sidebar-text'),
 
-    // IA Predictivo
+    // IA Predictivo (Dashboard)
     iaPredictionBtn: document.getElementById('ia-predicion'),
     iaProducto: document.getElementById('ia-producto'),
     iaText: document.getElementById('ia-text'),
     iaMonto: document.getElementById('ia-monto'),
     idVariacion: document.getElementById('ia-variacion'),
+
+    // ELEMENTOS DE REPORTES
+    kpiTotalOrdersMonth: document.getElementById('kpi-total-orders-month'), // ¡NUEVO! (reemplaza new-customers)
+    kpiTotalOrdersMonthSub: document.getElementById('kpi-total-orders-month-sub'), // ¡NUEVO!
+    kpiAvgTicket: document.getElementById('kpi-avg-ticket'),
+    kpiReturnRate: document.getElementById('kpi-return-rate'),
+    kpiReturnRateSub: document.getElementById('kpi-return-rate-sub'), 
+    topProductsList: document.getElementById('top-products-list'),
+    monthlySalesChartCanvas: document.getElementById('monthly-sales-chart'), 
+
+    // IA Predictivo (Reportes - Categorías)
+    iaCat1: {
+        icon: document.getElementById('ia-cat-1-icon'),
+        name: document.getElementById('ia-cat-1-name'),
+        status: document.getElementById('ia-cat-1-status'),
+    },
+    iaCat2: {
+        icon: document.getElementById('ia-cat-2-icon'),
+        name: document.getElementById('ia-cat-2-name'),
+        status: document.getElementById('ia-cat-2-status'),
+    },
+    iaCat3: {
+        icon: document.getElementById('ia-cat-3-icon'),
+        name: document.getElementById('ia-cat-3-name'),
+        status: document.getElementById('ia-cat-3-status'),
+    },
+    iaCat4: {
+        icon: document.getElementById('ia-cat-4-icon'),
+        name: document.getElementById('ia-cat-4-name'),
+        status: document.getElementById('ia-cat-4-status'),
+    },
 };
 
 
@@ -147,7 +180,6 @@ function showPopup(message, type = 'success') {
     // Ocultar después de 3 segundos
     toastTimer = setTimeout(() => {
         toastPopup.classList.remove('opacity-100', 'translate-x-0');
-        //  Usar 'translate-x-full' para ocultar
         toastPopup.classList.add('opacity-0', 'translate-x-full'); 
         setTimeout(() => {
             toastPopup.classList.add('invisible');
@@ -158,7 +190,6 @@ function showPopup(message, type = 'success') {
 function showConfirmationModal(message, onConfirm) {
     const { confirmationModal, confirmationMessage, confirmDeleteBtn, confirmCancelBtn } = DOMElements;
     if (!confirmationModal) {
-        // Fallback si el HTML del modal no existe
         if (confirm(message)) {
             onConfirm();
         }
@@ -167,19 +198,16 @@ function showConfirmationModal(message, onConfirm) {
     confirmationMessage.textContent = message;
     confirmationModal.classList.remove('hidden');
     
-    // Clonar botones para limpiar listeners viejos
-    // Esto es crucial para que el botón no ejecute acciones antiguas
     const newConfirmBtn = confirmDeleteBtn.cloneNode(true);
     confirmDeleteBtn.parentNode.replaceChild(newConfirmBtn, confirmDeleteBtn);
-    DOMElements.confirmDeleteBtn = newConfirmBtn; // Actualizar la referencia en DOMElements
+    DOMElements.confirmDeleteBtn = newConfirmBtn; 
 
     const newCancelBtn = confirmCancelBtn.cloneNode(true);
     confirmCancelBtn.parentNode.replaceChild(newCancelBtn, confirmCancelBtn);
-    DOMElements.confirmCancelBtn = newCancelBtn; // Actualizar la referencia
+    DOMElements.confirmCancelBtn = newCancelBtn; 
 
-    // Añadir nuevos listeners
     DOMElements.confirmDeleteBtn.addEventListener('click', () => {
-        onConfirm(); // Ejecuta la acción (ej. deleteProduct)
+        onConfirm();
         confirmationModal.classList.add('hidden');
     });
     DOMElements.confirmCancelBtn.addEventListener('click', () => {
@@ -236,6 +264,8 @@ async function switchView(viewId) {
         }
     });
     
+    // Cargar datos para la vista seleccionada
+    // (Ahora las funciones de carga de datos obtienen los datos ellas mismas)
     if (viewId === 'dashboard-view') {
         await loadDashboardData(); 
     }
@@ -247,6 +277,9 @@ async function switchView(viewId) {
     if (viewId === 'orders-view') {
         await renderOrderList();
         resetOrderForm();
+    }
+    if (viewId === 'reports-view') {
+        await loadReportsData();
     }
 }
 
@@ -313,7 +346,7 @@ async function getProducts() {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Error al obtener productos');
         const products = await response.json();
-        AppState.products = products; // Actualizar caché
+        AppState.products = products; 
         return products;
     } catch (error) {
         console.error("Error fetching products:", error);
@@ -582,6 +615,7 @@ function getStatusColor(status) {
         case 'procesando': return { bg: 'bg-indigo-500', text: 'text-white', border: 'border-indigo-500', label: 'Procesando' };
         case 'enviado': return { bg: 'bg-blue-500', text: 'text-white', border: 'border-blue-500', label: 'Enviado' };
         case 'entregado': return { bg: 'bg-green-500', text: 'text-white', border: 'border-green-500', label: 'Entregado' };
+        case 'devuelto': return { bg: 'bg-orange-500', text: 'text-white', border: 'border-orange-500', label: 'Devuelto' };
         case 'cancelado': return { bg: 'bg-red-500', text: 'text-white', border: 'border-red-500', label: 'Cancelado' };
         default: return { bg: 'bg-gray-500', text: 'text-white', border: 'border-gray-500', label: 'Desconocido' };
     }
@@ -589,7 +623,7 @@ function getStatusColor(status) {
 
 async function calculateOrderTotal() {
     const itemRows = DOMElements.orderItemsSelectionContainer.querySelectorAll('.order-item-row');
-    const products = AppState.products; // Usar caché
+    const products = AppState.products; 
     let total = 0;
     let validItems = 0;
     itemRows.forEach(row => {
@@ -614,11 +648,23 @@ async function renderOrderList() {
         DOMElements.orderList.innerHTML = `<p class="col-span-full text-center text-gray-500">No hay pedidos registrados.</p>`;
         return;
     }
+    orders.sort((a, b) => b.id - a.id); 
+
     orders.forEach(order => {
         const { bg, text, border, label } = getStatusColor(order.status);
         const itemDetails = order.items && order.items.length > 0
             ? order.items.map(item => `${item.quantity}x ${item.name} (${item.size || 'N/A'})`).join(' | ')
             : 'Sin Artículos Registrados';
+        
+        let orderDate = '';
+        if (order.createdAt) {
+            try {
+                orderDate = new Date(order.createdAt).toLocaleDateString('es-ES', {
+                    day: '2-digit', month: '2-digit', year: 'numeric'
+                });
+            } catch (e) { /* ignorar fecha inválida */ }
+        }
+
         const orderCard = document.createElement('div');
         orderCard.className = `bg-card-bg p-4 rounded-lg shadow flex justify-between items-start transition hover:bg-gray-800 border-l-4 ${border}`;
         orderCard.innerHTML = `
@@ -626,6 +672,7 @@ async function renderOrderList() {
                 <p class="font-bold text-lg">Pedido #${order.id}</p>
                 <p class="text-sm text-gray-400 mb-1">Cliente: ${order.customerName}</p>
                 <p class="text-xs text-gray-500 truncate w-64">Artículos: ${itemDetails}</p>
+                <p class="text-xs text-gray-400 mt-2">${orderDate}</p> 
             </div>
             <div class="text-right flex flex-col items-end">
                 <span class="${bg} ${text} text-xs font-bold py-1 px-3 rounded-full uppercase">${label}</span>
@@ -641,7 +688,7 @@ async function renderOrderList() {
 }
 
 function createOrderItemRow(productItem = {}) {
-    const products = AppState.products; // Usar caché
+    const products = AppState.products; 
     const row = document.createElement('div');
     row.className = 'order-item-row flex gap-3 items-center bg-gray-700 p-2 rounded-lg'; 
     
@@ -653,7 +700,8 @@ function createOrderItemRow(productItem = {}) {
     defaultOption.textContent = 'Selecciona Producto';
     productSelect.appendChild(defaultOption);
     
-    products.filter(p => p.stock > 0).forEach(p => {
+    const availableProducts = products.filter(p => p.stock > 0 || (productItem.productId && p.id == productItem.productId));
+    availableProducts.forEach(p => {
         const option = document.createElement('option');
         option.value = String(p.id); 
         option.textContent = `${p.name} (Stock: ${p.stock}) ($${p.price.toFixed(2)})`;
@@ -763,6 +811,7 @@ function resetOrderForm() {
     DOMElements.orderForm.reset();
     DOMElements.orderIdInput.value = '';
     AppState.editingOrderId = null; 
+    AppState.editingOrderCreatedAt = null; // Limpiar fecha guardada
     DOMElements.orderFormTitle.textContent = 'Añadir Nuevo Pedido (Manual)';
     DOMElements.saveOrderBtn.textContent = 'Guardar Pedido';
     DOMElements.cancelOrderBtn.style.display = 'none';
@@ -787,15 +836,17 @@ async function fillFormForEditOrder(orderId) {
     DOMElements.cancelOrderBtn.style.display = 'inline-block';
     DOMElements.orderItemsSelectionContainer.innerHTML = '';
     
+    AppState.editingOrderCreatedAt = order.createdAt || null;
+
     if (order.items && order.items.length > 0) {
         for (const item of order.items) {
-             const product = AppState.products.find(p => p.name === item.name); // Usar caché
-             const itemForEdit = {
-                 productId: product ? product.id : null,
-                 size: item.size,
-                 quantity: item.quantity
-             };
-             DOMElements.orderItemsSelectionContainer.appendChild(createOrderItemRow(itemForEdit));
+            const product = AppState.products.find(p => p.name === item.name);
+            const itemForEdit = {
+                productId: product ? product.id : null,
+                size: item.size,
+                quantity: item.quantity
+            };
+            DOMElements.orderItemsSelectionContainer.appendChild(createOrderItemRow(itemForEdit));
         }
     } else {
         DOMElements.orderItemsSelectionContainer.innerHTML = '<p class="text-sm text-gray-400 text-center" id="empty-order-placeholder">Usa el botón "Añadir Artículo" para empezar.</p>';
@@ -809,7 +860,7 @@ async function handleOrderFormSubmit(e) {
     calculateOrderTotal(); 
     const itemRows = DOMElements.orderItemsSelectionContainer.querySelectorAll('.order-item-row');
     const items = [];
-    const products = AppState.products; // Usar caché
+    const products = AppState.products; 
     const finalTotal = parseFloat(DOMElements.orderTotalInput.value);
 
     if (itemRows.length === 0 || finalTotal === 0) {
@@ -827,8 +878,7 @@ async function handleOrderFormSubmit(e) {
         if (!isNaN(productId) && quantity > 0 && productId > 0) {
             const product = products.find(p => p.id === productId);
             if (product) {
-                // Validación de Stock (Frontend)
-                if (!AppState.editingOrderId && quantity > product.stock) { // Solo validar stock en pedidos NUEVOS
+                if (!AppState.editingOrderId && quantity > product.stock) {
                     showPopup(`Stock insuficiente para ${product.name}. Solo quedan ${product.stock}.`, 'error');
                     stockError = true;
                     return; 
@@ -859,7 +909,8 @@ async function handleOrderFormSubmit(e) {
         status: DOMElements.orderStatusInput.value,
         total: finalTotal, 
         trackingNumber: AppState.editingOrderId ? DOMElements.trackingNumberInput.value : undefined,
-        items: items 
+        items: items,
+        createdAt: AppState.editingOrderId ? AppState.editingOrderCreatedAt : new Date().toISOString()
     };
     
     const savedOrder = await saveOrder(orderData); 
@@ -868,19 +919,21 @@ async function handleOrderFormSubmit(e) {
         const message = AppState.editingOrderId ? 'Pedido actualizado' : 'Pedido añadido';
         showPopup(`${message} con éxito: #${savedOrder.id}`, 'success');
         
+        // ¡Importante! Recargar la lista de productos para ver el stock actualizado
         await getProducts(); 
-        await renderProductList();
+        
+        // Si estamos en la vista de productos, actualizarla
+        if (AppState.currentView === 'products-view') {
+            await renderProductList();
+        }
         
         resetOrderForm(); 
         await renderOrderList(); 
     }
 }
 
-
-// Esta función AHORA usa el modal personalizado
 async function handleOrderListClick(e) {
     const target = e.target;
-    // Asegurarse de que el target sea el botón (a veces se hace clic en el ícono)
     const deleteButton = target.closest('.delete-order-btn');
     const editButton = target.closest('.edit-order-btn');
 
@@ -891,15 +944,18 @@ async function handleOrderListClick(e) {
     
     if (deleteButton) {
         const orderId = parseInt(deleteButton.dataset.id, 10);
-        // Usar el modal personalizado en lugar de confirm()
         showConfirmationModal(
-            `¿Estás seguro de que quieres eliminar el pedido #${orderId}?`, 
+            `¿Estás seguro de que quieres eliminar este pedido #${orderId}? Esto repondrá el stock.`, 
             async () => {
                 const result = await deleteOrder(orderId);
                 if (result) {
-                    showPopup('Pedido eliminado.', 'success');
+                    showPopup('Pedido eliminado y stock repuesto.', 'success');
                     await renderOrderList();
                     resetOrderForm();
+                    // Actualizar el stock en la vista de productos si estamos ahí
+                    if (AppState.currentView === 'products-view') {
+                        await renderProductList();
+                    }
                 }
             }
         );
@@ -915,7 +971,7 @@ async function loadReferenceData() {
     AppState.sizes = await getSizes();
     fillCategorySelect();
     createSizeCheckboxes();
-    getPredicion();
+    getPredicion(); // Carga la predicción del Dashboard
 }
 
 function fillCategorySelect(selectedCategoryId = null) {
@@ -938,7 +994,7 @@ function fillCategorySelect(selectedCategoryId = null) {
 function createSizeCheckboxes() {
     DOMElements.productSizesContainer.innerHTML = '';
     if (AppState.sizes.length === 0) {
-        DOMElements.productSizesContainer.innerHTML = `<p class="text-sm text-gray-500 col-span-3">No hay tallas definidas en la base de datos.</p>`;
+        DOMElements.productSizesContainer.innerHTML = `<p class="text-sm text-gray-500 col-span-3">No hay tallas definidas.</p>`;
         return;
     }
     AppState.sizes.forEach(size => {
@@ -961,26 +1017,73 @@ function createSizeCheckboxes() {
 }
 
 // ----------------------------------------------------
-// 7. LÓGICA DEL DASHBOARD (KPIs)
+// 7. LÓGICA DEL DASHBOARD (KPIs) - ¡ACTUALIZADA!
 // ----------------------------------------------------
 
 async function loadDashboardData() {
+    // Obtener todos los pedidos y productos
     const orders = await getOrders();
     const products = await getProducts(); 
+    
+    // --- 1. Ventas Totales y Comparación (¡NUEVO!) ---
+    const now = new Date();
+    const date30DaysAgo = new Date(new Date().setDate(now.getDate() - 30));
+    const date60DaysAgo = new Date(new Date().setDate(now.getDate() - 60));
 
-    const totalSales = orders
-        .filter(o => o.status === 'entregado')
+    // Ventas de los últimos 30 días
+    const recentSales = orders
+        .filter(o => o.status === 'entregado' && new Date(o.createdAt) >= date30DaysAgo)
         .reduce((sum, o) => sum + o.total, 0);
-    DOMElements.kpiTotalSales.textContent = `$${totalSales.toFixed(2)}`;
 
+    // Ventas de los 30 días anteriores (días 30-60)
+    const previousSales = orders
+        .filter(o => o.status === 'entregado' && new Date(o.createdAt) < date30DaysAgo && new Date(o.createdAt) >= date60DaysAgo)
+        .reduce((sum, o) => sum + o.total, 0);
+
+    DOMElements.kpiTotalSales.textContent = `$${recentSales.toFixed(2)}`;
+
+    // Calcular porcentaje de cambio
+    if (previousSales > 0) {
+        const percentChange = ((recentSales - previousSales) / previousSales) * 100;
+        if (percentChange > 0) {
+            DOMElements.kpiTotalSalesSub.textContent = `▲ ${percentChange.toFixed(0)}% vs. mes anterior`;
+            DOMElements.kpiTotalSalesSub.className = 'text-sm text-green-400 mt-1';
+        } else {
+            DOMElements.kpiTotalSalesSub.textContent = `▼ ${percentChange.toFixed(0)}% vs. mes anterior`;
+            DOMElements.kpiTotalSalesSub.className = 'text-sm text-red-400 mt-1';
+        }
+    } else if (recentSales > 0) {
+        DOMElements.kpiTotalSalesSub.textContent = `▲ vs. mes anterior`;
+        DOMElements.kpiTotalSalesSub.className = 'text-sm text-green-400 mt-1';
+    } else {
+        DOMElements.kpiTotalSalesSub.textContent = `Sin ventas vs. mes anterior`;
+        DOMElements.kpiTotalSalesSub.className = 'text-sm text-gray-400 mt-1';
+    }
+
+    // --- 2. Pedidos Pendientes ---
     const pendingOrders = orders.filter(o => o.status === 'pendiente' || o.status === 'procesando').length;
     DOMElements.kpiPendingOrders.textContent = pendingOrders;
 
+    // --- 3. Stock Crítico ---
     const criticalStock = products.filter(p => p.stock > 0 && p.stock <= STOCK_THRESHOLD).length;
     DOMElements.kpiCriticalStock.textContent = criticalStock;
 
+    // --- 4. Tasa de Cancelación (¡NUEVO!) ---
+    const cancelledOrders = orders.filter(o => o.status === 'cancelado').length;
+    const finalizedOrders = orders.filter(o => ['entregado', 'devuelto', 'cancelado'].includes(o.status)).length;
+    
+    let cancellationRate = 0;
+    if (finalizedOrders > 0) {
+        cancellationRate = (cancelledOrders / finalizedOrders) * 100;
+    }
+    DOMElements.kpiCancellationRate.textContent = `${cancellationRate.toFixed(1)}%`;
+    const plural = finalizedOrders === 1 ? 'pedido' : 'pedidos';
+    DOMElements.kpiCancellationRateSub.textContent = `${cancelledOrders} de ${finalizedOrders} ${plural} finalizados`;
+
+    // --- 5. Actividad Reciente ---
     DOMElements.recentActivityList.innerHTML = '';
-    const recentOrders = orders.slice(0, 5); 
+    const recentOrders = orders.slice(0, 5); // Ya vienen ordenados por ID desc. desde la API
+
     if (recentOrders.length === 0) {
         DOMElements.recentActivityList.innerHTML = `<p class="text-sm text-gray-500">No hay actividad reciente.</p>`;
     } else {
@@ -1000,8 +1103,154 @@ async function loadDashboardData() {
             `;
         });
     }
+}
+
+// --- FUNCIÓN DE REPORTES (¡ACTUALIZADA!) ---
+async function loadReportsData() {
+    const orders = await getOrders();
+    const now = new Date();
+    const date30DaysAgo = new Date(new Date().setDate(now.getDate() - 30));
+
+    // 1. Total Pedidos (Mes) (¡NUEVO!)
+    const totalOrdersMonth = orders.filter(o => new Date(o.createdAt) >= date30DaysAgo).length;
+    DOMElements.kpiTotalOrdersMonth.textContent = totalOrdersMonth;
+    const pluralOrders = totalOrdersMonth === 1 ? 'pedido' : 'pedidos';
+    DOMElements.kpiTotalOrdersMonthSub.textContent = `${pluralOrders} en los últimos 30 días`;
+
+
+    // 2. Calcular Ticket Promedio
+    const deliveredOrders = orders.filter(o => o.status === 'entregado');
+    let avgTicket = 0;
+    if (deliveredOrders.length > 0) {
+        const totalRevenue = deliveredOrders.reduce((sum, o) => sum + o.total, 0);
+        avgTicket = totalRevenue / deliveredOrders.length;
+    }
+    DOMElements.kpiAvgTicket.textContent = `$${avgTicket.toFixed(2)}`;
+
+    // 3. Calcular Tasa de Devolución
+    const returnedOrdersCount = orders.filter(o => o.status === 'devuelto').length;
+    const finalizedOrdersCount = deliveredOrders.length + returnedOrdersCount; 
+    let returnRate = 0;
+    if (finalizedOrdersCount > 0) {
+        returnRate = (returnedOrdersCount / finalizedOrdersCount) * 100;
+    }
+    DOMElements.kpiReturnRate.textContent = `${returnRate.toFixed(1)}%`;
     
-    DOMElements.kpiConversion.textContent = "3.4%"; 
+    const label = returnedOrdersCount === 1 ? 'pedido devuelto' : 'pedidos devueltos';
+    const label2 = finalizedOrdersCount === 1 ? 'pedido finalizado' : 'pedidos finalizados';
+    DOMElements.kpiReturnRateSub.textContent = `${returnedOrdersCount} ${label} de ${finalizedOrdersCount} ${label2}`;
+
+    // 4. Calcular Top Productos
+    const productSales = {}; 
+    deliveredOrders.forEach(order => { 
+        if (order.items) {
+            order.items.forEach(item => {
+                productSales[item.name] = (productSales[item.name] || 0) + item.quantity;
+            });
+        }
+    });
+    
+    const sortedTopProducts = Object.entries(productSales)
+        .sort(([, qtyA], [, qtyB]) => qtyB - qtyA)
+        .slice(0, 3); 
+
+    // 5. Renderizar Top Productos
+    DOMElements.topProductsList.innerHTML = '';
+    if (sortedTopProducts.length === 0) {
+        DOMElements.topProductsList.innerHTML = `<li class="p-3 bg-gray-800 rounded-lg text-gray-500 text-center">No hay datos de ventas.</li>`;
+    } else {
+        sortedTopProducts.forEach(([name, quantity], index) => {
+            const li = document.createElement('li');
+            li.className = 'flex justify-between items-center p-3 bg-gray-800 rounded-lg';
+            li.innerHTML = `
+                <span class="font-semibold">${index + 1}. ${name}</span>
+                <span class="font-bold text-lg">${quantity} <span class="text-sm text-gray-400">unid.</span></span>
+            `;
+            DOMElements.topProductsList.appendChild(li);
+        });
+    }
+
+    // 6. Lógica del Gráfico de Ventas Mensuales
+    if (monthlySalesChart) {
+        monthlySalesChart.destroy();
+        monthlySalesChart = null;
+    }
+
+    const salesByMonth = {};
+    const monthLabels = [];
+
+    for (let i = 11; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthYear = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        monthLabels.push(d.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }));
+        salesByMonth[monthYear] = 0;
+    }
+
+    deliveredOrders.forEach(order => {
+        if (!order.createdAt) return; 
+        try {
+            const orderDate = new Date(order.createdAt);
+            const monthYear = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
+            if (salesByMonth.hasOwnProperty(monthYear)) {
+                salesByMonth[monthYear] += order.total;
+            }
+        } catch (e) { /* Ignorar fecha inválida */ }
+    });
+
+    const salesData = Object.values(salesByMonth);
+    const ctx = DOMElements.monthlySalesChartCanvas.getContext('2d');
+    if (!ctx) return;
+
+    monthlySalesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: 'Ventas ($)',
+                data: salesData,
+                backgroundColor: 'rgba(255, 255, 0, 0.6)', 
+                borderColor: 'rgba(255, 255, 0, 1)', 
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#9CA3AF' },
+                    grid: { color: '#374151' }
+                },
+                x: {
+                    ticks: { color: '#9CA3AF' },
+                    // *** ESTA ES LA LÍNEA CORREGIDA ***
+                    grid: { color: '#374151' } 
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: { color: '#F3F4F6' }
+                }
+            }
+        }
+    });
+
+    // 7. Lógica de IA (Categorías)
+    try {
+        const response = await fetch('/api/ai/category-demand');
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || 'Error de red al cargar predicción');
+        }
+        const categoryDemand = await response.json();
+        renderCategoryDemand(categoryDemand); 
+    } catch (error) {
+        console.error("Error al cargar predicción de demanda IA:", error);
+        showPopup(`Error IA: ${error.message}`, 'error');
+        renderCategoryDemand([]); 
+    }
 }
 
 
@@ -1062,28 +1311,32 @@ async function init() {
     } else {
         showLogin();
     }
-
-
-
-
 }
 
 document.addEventListener('DOMContentLoaded', init);
 
 // ----------------------------------------------------
-// 8. LÓGICA DE IA PARA PREDICCIONES
+// 9. LÓGICA DE IA (Dashboard y Reportes)
 // ----------------------------------------------------
 
-
+// --- IA Dashboard (Ventas Totales) ---
 document.getElementById('ia-predicion').addEventListener('click', loadAIPredictions);
 
 async function loadAIPredictions() {
-  const res = await fetch('/api/ai/predict');
-  const data = await res.json(); 
-  localStorage.setItem('aiPrediction', JSON.stringify(data));
-  getPredicion();
+  try {
+    const res = await fetch('/api/ai/predict');
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Error de red');
+    }
+    const data = await res.json(); 
+    localStorage.setItem('aiPrediction', JSON.stringify(data));
+    getPredicion();
+  } catch (error) {
+    console.error("Error al cargar predicción IA:", error);
+    showPopup(`Error IA: ${error.message}`, "error");
+  }
 }
-
 
 function getPredicion() {
     const predictionData = JSON.parse(localStorage.getItem('aiPrediction'));
@@ -1092,5 +1345,67 @@ function getPredicion() {
     DOMElements.iaProducto.textContent = predictionData.prediction.productoAltaDemanda;
     DOMElements.iaText.textContent = predictionData.prediction.recomendacion;
     DOMElements.idVariacion.textContent = `Aumento potencial del ${predictionData.prediction.variacionPorcentual}%`;
-    
+}
+
+// --- IA Reportes (Demanda por Categoría) ---
+
+/**
+ * Renderiza los datos de demanda de categoría en la UI.
+ */
+function renderCategoryDemand(demandData) {
+    const domMap = [DOMElements.iaCat1, DOMElements.iaCat2, DOMElements.iaCat3, DOMElements.iaCat4];
+
+    // Llenar con los datos recibidos
+    demandData.forEach((item, index) => {
+        if (domMap[index]) {
+            const { name, demand, icon } = item;
+            const { text, textClass, iconClass } = getDemandStyling(demand);
+            
+            domMap[index].name.textContent = name;
+            domMap[index].status.textContent = text;
+            domMap[index].status.className = `text-sm font-bold ${textClass}`;
+            domMap[index].icon.className = `fas ${icon} text-4xl mb-2 ${iconClass}`;
+        }
+    });
+
+    // Limpiar los slots restantes si la API devuelve menos de 4
+    for (let i = demandData.length; i < domMap.length; i++) {
+        domMap[i].name.textContent = 'N/A';
+        domMap[i].status.textContent = '...';
+        domMap[i].status.className = 'text-sm font-bold text-gray-500';
+        // *** ESTA ES LA LÍNEA CORREGIDA ***
+        domMap[i].icon.className = 'fas fa-box-open text-4xl mb-2 text-gray-600'; 
+    }
+}
+
+/**
+ * Ayudante para obtener las clases CSS correctas según el nivel de demanda.
+ */
+function getDemandStyling(demand) {
+    switch (demand) {
+        case 'alta':
+            return {
+                text: '▲ Alta Demanda',
+                textClass: 'text-green-400',
+                iconClass: 'text-indigo-400', // Color para íconos de alta demanda
+            };
+        case 'estable':
+            return {
+                text: '▬ Estable',
+                textClass: 'text-gray-400',
+                iconClass: 'text-gray-500', // Color para íconos de demanda estable
+            };
+        case 'baja':
+            return {
+                text: '▼ Baja Demanda',
+                textClass: 'text-red-400',
+                iconClass: 'text-red-500', // Color para íconos de baja demanda
+            };
+        default:
+            return {
+                text: '...',
+                textClass: 'text-gray-500',
+                iconClass: 'text-gray-600',
+            };
+    }
 }

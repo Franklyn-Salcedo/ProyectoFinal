@@ -1,3 +1,4 @@
+// backend/models/Order.js
 import mongoose from 'mongoose';
 
 const OrderItemSchema = new mongoose.Schema({
@@ -14,7 +15,8 @@ const OrderSchema = new mongoose.Schema({
     customerAddress: { type: String, required: true },
     status: {
         type: String,
-        enum: ['pendiente', 'procesando', 'enviado', 'entregado', 'cancelado'],
+        // *** CORRECCIÓN: 'devuelto' AÑADIDO AL ENUM ***
+        enum: ['pendiente', 'procesando', 'enviado', 'entregado', 'cancelado', 'devuelto'],
         default: 'pendiente'
     },
     total: { type: Number, required: true, min: 0 },

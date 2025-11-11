@@ -3,9 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// 1. Importar el conector de MongoDB (se llama una vez)
 import connectDB from './config/db.js'; 
-// 2. Importar la nueva lógica CRUD ASÍNCRONA
 import { 
     getProducts, saveProduct, deleteProduct, 
     getOrders, saveOrder, deleteOrder,
@@ -13,18 +11,17 @@ import {
 } from './api/crud.js'; 
 import dotenv from 'dotenv';
 
+// --- IMPORTAR AMBAS RUTAS DE IA ---
 import { getAiPrediction } from './api/ai/predict.js';
-
+import { getCategoryDemandPrediction } from './api/ai/categoryDemand.js'; // <-- ¡ESTA ES LA NUEVA LÍNEA!
 
 // --- Conexión a la Base de Datos ---
-connectDB(); // Llama a la función para conectar a MongoDB
+connectDB(); 
 
-// Configuración de __dirname para módulos ES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-// Usar el puerto de las variables de entorno o 3000 por defecto
 dotenv.config();
 const PORT = process.env.PORT || 4000;
 
@@ -41,7 +38,7 @@ app.use(express.static(rootPath));
 
 
 // -------------------------------------------------------------------
-// RUTAS DE LA API (Ahora son ASÍNCRONAS)
+// RUTAS DE LA API
 // -------------------------------------------------------------------
 
 // PRODUCTOS
@@ -57,7 +54,7 @@ app.get('/api/products', async (req, res) => {
 app.post('/api/products', async (req, res) => {
     try {
         const product = await saveProduct(req.body);
-        res.status(201).json(product); // 201 Created o OK si es edición
+        res.status(201).json(product); 
     } catch (error) {
         res.status(400).json({ message: 'Error al guardar producto', error: error.message });
     }
@@ -132,22 +129,27 @@ app.get('/api/sizes', async (req, res) => {
 });
 
 // -------------------------------------------------------------------
-// RUTAS DE VISTA (Front-end serving) - Sin cambios
+// RUTAS DE IA (CONECTADAS A MONGODB)
 // -------------------------------------------------------------------
 
-// Ruta principal: sirve el index.html
+// IA Para el Dashboard (Ventas Totales)
+app.get('/api/ai/predict', getAiPrediction);
+
+// IA Para Reportes (Demanda por Categoría)
+app.get('/api/ai/category-demand', getCategoryDemandPrediction); // <-- ¡RUTA AÑADIDA!
+
+
+// -------------------------------------------------------------------
+// RUTAS DE VISTA (Front-end serving)
+// -------------------------------------------------------------------
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-// Ruta para el panel de administración
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(frontendPath, 'admin.html'));
 });
-
-
-app.get('/api/ai/predict', getAiPrediction);
-
 
 
 // Iniciar el servidor

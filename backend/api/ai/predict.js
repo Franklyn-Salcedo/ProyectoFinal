@@ -1,3 +1,4 @@
+// backend/api/ai/predict.js
 import Order from '../../models/Order.js';
 import Product from '../../models/Product.js';
 import dotenv from 'dotenv';
@@ -7,17 +8,16 @@ dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// import axios from 'axios'; // o fetch
-
 export async function getAiPrediction(req, res) {
 
     try {
-        // 1️⃣ Ventas del último mes
+        // Ventas del último mes
         const lastMonthOrders = await Order.find({
+            status: 'entregado', // Solo contar ventas completadas
             createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
         });
 
-        // 2️⃣ Calcular métricas básicas
+        // Calcular métricas básicas
         const totalSales = lastMonthOrders.reduce((acc, order) => acc + order.total, 0);
         const allItems = lastMonthOrders.flatMap(order => order.items);
 
@@ -38,50 +38,57 @@ export async function getAiPrediction(req, res) {
             bestSeller = await Product.findOne({ id: bestProductId });
         }
 
-        // 3️⃣ Crear resumen de métricas
+        // Crear resumen de métricas
         const summary = {
-            totalVentas: totalSales,
+            totalVentas: totalSales.toFixed(2),
             cantidadOrdenes: lastMonthOrders.length,
             productoMasVendido: bestSeller ? bestSeller.name : "Sin ventas recientes",
             cantidadVendida: bestProductQty
         };
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        // const models = await genAI.listModels();
-   
+        // Configurar el modelo para salida JSON
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash", 
+            generationConfig: { 
+                responseMimeType: "application/json"
+            }
+        });
 
-        // 4️⃣ Armar prompt para IA (usando las variables correctas)
+        // Armar prompt para IA
         const prompt = `
-        Analiza estas ventas de una tienda online:
-        - Total de ventas: ${summary.totalVentas}
+        Eres un analista de ventas senior para una tienda de ropa urbana.
+        Analiza estos datos de ventas del último mes:
+        - Total de ventas: $${summary.totalVentas}
         - Órdenes registradas: ${summary.cantidadOrdenes}
-        - Producto más vendido: ${summary.productoMasVendido} (${summary.cantidadVendida} unidades)
+        - Producto más vendido: "${summary.productoMasVendido}" (${summary.cantidadVendida} unidades)
 
-        Genera una proyección de ventas y una recomendación.
-        Responde en formato JSON con:
+        Genera una proyección de ventas realista y una recomendación breve (máximo 2 frases).
+        
+        Responde únicamente con el JSON.
+        El JSON debe tener la siguiente estructura exacta:
         {
-        "ventasProyectadas": number,
-        "variacionPorcentual": number,
-        "productoAltaDemanda": string,
-        "recomendacion": string
-        }`;
+            "ventasProyectadas": number,
+            "variacionPorcentual": number,
+            "productoAltaDemanda": string,
+            "recomendacion": string
+        }
+        
+        - "ventasProyectadas": Una proyección numérica (ej. ${Math.round(summary.totalVentas * 1.15)})
+        - "variacionPorcentual": Un número de 1 a 20 (ej. 15)
+        - "productoAltaDemanda": El nombre del producto más vendido.
+        - "recomendacion": Una recomendación de 1-2 frases basada en los datos.
+        `;
 
         const result = await model.generateContent(prompt);
-        const response = result.response.text();
+        const response = result.response;
+        
+        // Parsear la respuesta JSON de forma segura
+        const prediction = JSON.parse(response.text());
 
-        const match = response.match(/\{[\s\S]*\}/);
-    
-        // 2️⃣ Si hay bloque JSON, parsearlo; si no, devolver texto original
-        const prediction = match ? JSON.parse(match[0]) : { raw: response };
-
-        // console.log(JSON.parse(response));
         return res.status(200).json({ prediction });
 
-
-
     } catch (err) {
-        console.error(err);
+        console.error("Error en getAiPrediction:", err); // Log de error más genérico
         res.status(500).json({ error: "Error en el análisis predictivo." });
     }
 }
-
