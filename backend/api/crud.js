@@ -51,10 +51,8 @@ export async function deleteProduct(productId) {
  */
 export async function getOrders() {
     return await Order.find({}).sort({ id: -1 }).exec();
-    return await Order.find({}).sort({ id: -1 }).exec();
 }
 
-// *** LÓGICA DE STOCK MEJORADA DENTRO DE saveOrder ***
 // *** LÓGICA DE STOCK MEJORADA DENTRO DE saveOrder ***
 export async function saveOrder(orderData) {
 
@@ -135,26 +133,11 @@ export async function saveOrder(orderData) {
         }
 
         // 4. Crear pedido
-        // ✅ Ahora sí podemos loguear con un ID real
-        if (stockDeductedStates.includes(orderData.status)) {
-            console.log(`Nuevo pedido #${newId} creado con estado ${orderData.status}. Descontando stock...`);
-        } else {
-            console.log(`Nuevo pedido #${newId} creado con estado ${orderData.status}. No se descuenta stock.`);
-        }
-
-        // 2. Ajustar stock SOLO después de saber el ID
-        if (stockDeductedStates.includes(orderData.status)) {
-            await adjustStock(orderData.items, 'dec');
-        }
-
-        // 4. Crear pedido
         const newOrder = new Order({
             ...orderData,
             id: newId,
             trackingNumber: newTrackingNumber
-            trackingNumber: newTrackingNumber
         });
-
 
         await newOrder.save();
         return newOrder;
