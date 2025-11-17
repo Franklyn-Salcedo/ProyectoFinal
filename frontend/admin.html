@@ -11,6 +11,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -24,6 +26,83 @@
             }
         }
     </script>
+ <style>
+/* 🌈 Estética general moderna */
+body {
+  background: radial-gradient(circle at 20% 20%, #0f0f0f, #090909 80%);
+  color: #f1f1f1;
+  font-family: 'Inter', sans-serif;
+}
+
+/* 🧭 Sidebar moderno */
+#admin-sidebar {
+  background: linear-gradient(160deg, #111 0%, #0b0b0b 100%);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#admin-sidebar button.view-btn {
+  transition: all 0.3s ease;
+}
+
+#admin-sidebar button.view-btn:hover {
+  background: linear-gradient(90deg, rgba(255,255,0,0.2), transparent);
+  transform: translateX(3px);
+}
+
+/* 🧱 KPI Cards */
+.bg-card-bg {
+  background: linear-gradient(145deg, #1b1b1b, #141414);
+  box-shadow: 3px 3px 12px rgba(0,0,0,0.4), inset 0 0 10px rgba(255,255,255,0.02);
+  transition: all 0.3s ease;
+}
+.bg-card-bg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255,255,0,0.1);
+}
+
+/* ✨ IA Highlight */
+#ia-product-highlight {
+  background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 25px rgba(255, 255, 0, 0.08);
+  backdrop-filter: blur(12px);
+}
+#ia-product-highlight.glow-animate {
+  animation: glowPulse 2s ease-in-out;
+}
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 0px rgba(255, 255, 0, 0); }
+  50% { box-shadow: 0 0 25px rgba(255, 255, 0, 0.4); }
+  100% { box-shadow: 0 0 0px rgba(255, 255, 0, 0); }
+}
+
+/* 🧭 Transiciones del dashboard */
+.view-btn.active {
+  background-color: #facc15;
+  color: #111;
+  box-shadow: 0 0 10px rgba(255, 255, 0, 0.4);
+}
+
+/* 🧁 Botones globales */
+button {
+  transition: all 0.3s ease-in-out;
+}
+button:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* 🧠 Animación de IA */
+#ia-product-image {
+  transition: opacity 0.4s ease, transform 0.3s ease;
+}
+#ia-product-image:not(.hidden) {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+</style>
+
  <style>
 /* 🌈 Estética general moderna */
 body {
@@ -210,10 +289,12 @@ button:hover {
                         <div class="flex justify-between items-center"><i class="fas fa-dollar-sign text-3xl text-yellow-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Ventas Totales</span></div>
                         <p id="kpi-total-sales" class="text-4xl font-extrabold mt-3">$0.00</p>
                         <p id="kpi-total-sales-sub" class="text-sm text-gray-400 mt-1">vs. mes anterior</p>
+                        <p id="kpi-total-sales-sub" class="text-sm text-gray-400 mt-1">vs. mes anterior</p>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-indigo-500">
                         <div class="flex justify-between items-center"><i class="fas fa-truck text-3xl text-indigo-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Pedidos Pendientes</span></div>
                         <p id="kpi-pending-orders" class="text-4xl font-extrabold mt-3">0</p>
+                        <p class="text-sm text-gray-400 mt-1">Órdenes por procesar</p>
                         <p class="text-sm text-gray-400 mt-1">Órdenes por procesar</p>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-red-500">
@@ -221,6 +302,10 @@ button:hover {
                         <p id="kpi-critical-stock" class="text-4xl font-extrabold mt-3">0</p>
                         <p class="text-sm text-gray-400 mt-1">Productos que reordenar</p>
                     </div>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-pink-500">
+                        <div class="flex justify-between items-center"><i class="fas fa-ban text-3xl text-pink-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Tasa de Cancelación</span></div>
+                        <p id="kpi-cancellation-rate" class="text-4xl font-extrabold mt-3">0%</p>
+                        <p id="kpi-cancellation-rate-sub" class="text-sm text-gray-400 mt-1">de pedidos finalizados</p>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-pink-500">
                         <div class="flex justify-between items-center"><i class="fas fa-ban text-3xl text-pink-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Tasa de Cancelación</span></div>
                         <p id="kpi-cancellation-rate" class="text-4xl font-extrabold mt-3">0%</p>
@@ -400,6 +485,7 @@ button:hover {
                                         <option value="enviado">Enviado</option>
                                         <option value="entregado">Entregado</option>
                                         <option value="devuelto">Devuelto</option> 
+                                        <option value="devuelto">Devuelto</option> 
                                         <option value="cancelado">Cancelado</option>
                                     </select>
                                 </div>
@@ -447,10 +533,15 @@ button:hover {
                 </header>
                 <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-teal-500">
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-teal-500">
                         <div class="flex justify-between items-center">
                             <i class="fas fa-box text-3xl text-teal-400"></i>
                             <span class="text-sm font-semibold uppercase text-gray-400">Total Pedidos (Mes)</span>
+                            <i class="fas fa-box text-3xl text-teal-400"></i>
+                            <span class="text-sm font-semibold uppercase text-gray-400">Total Pedidos (Mes)</span>
                         </div>
+                        <p id="kpi-total-orders-month" class="text-4xl font-extrabold mt-3">0</p>
+                        <p id="kpi-total-orders-month-sub" class="text-sm text-gray-400 mt-1">En los últimos 30 días</p>
                         <p id="kpi-total-orders-month" class="text-4xl font-extrabold mt-3">0</p>
                         <p id="kpi-total-orders-month-sub" class="text-sm text-gray-400 mt-1">En los últimos 30 días</p>
                     </div>
@@ -461,12 +552,16 @@ button:hover {
                         </div>
                         <p id="kpi-avg-ticket" class="text-4xl font-extrabold mt-3">$0.00</p>
                         <p class="text-sm text-gray-400 mt-1">Pedidos entregados</p>
+                        <p id="kpi-avg-ticket" class="text-4xl font-extrabold mt-3">$0.00</p>
+                        <p class="text-sm text-gray-400 mt-1">Pedidos entregados</p>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-purple-500">
                         <div class="flex justify-between items-center">
                             <i class="fas fa-undo-alt text-3xl text-purple-400"></i>
                             <span class="text-sm font-semibold uppercase text-gray-400">Tasa de Devolución</span>
                         </div>
+                        <p id="kpi-return-rate" class="text-4xl font-extrabold mt-3">0.0%</p>
+                        <p id="kpi-return-rate-sub" class="text-sm text-gray-400 mt-1">0 de 0 pedidos</p>
                         <p id="kpi-return-rate" class="text-4xl font-extrabold mt-3">0.0%</p>
                         <p id="kpi-return-rate-sub" class="text-sm text-gray-400 mt-1">0 de 0 pedidos</p>
                     </div>
@@ -476,12 +571,17 @@ button:hover {
                         <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Ventas Mensuales</h3>
                         <div class="h-80 bg-gray-800 p-4 rounded-lg">
                             <canvas id="monthly-sales-chart"></canvas>
+                        <div class="h-80 bg-gray-800 p-4 rounded-lg">
+                            <canvas id="monthly-sales-chart"></canvas>
                         </div>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Top Productos (Ventas Totales)</h3>
                         <ul id="top-products-list" class="space-y-3">
+                        <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Top Productos (Ventas Totales)</h3>
+                        <ul id="top-products-list" class="space-y-3">
                             <li class="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+                                <span class="font-semibold">Cargando...</span>
                                 <span class="font-semibold">Cargando...</span>
                             </li>
                         </ul>
@@ -494,8 +594,14 @@ button:hover {
                                 <i id="ia-cat-1-icon" class="fas fa-tshirt text-4xl text-gray-500 mb-2"></i>
                                 <p id="ia-cat-1-name" class="font-semibold">Cargando...</p>
                                 <p id="ia-cat-1-status" class="text-sm text-gray-400 font-bold">...</p>
+                                <i id="ia-cat-1-icon" class="fas fa-tshirt text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-1-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-1-status" class="text-sm text-gray-400 font-bold">...</p>
                             </div>
                             <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                <i id="ia-cat-2-icon" class="fas fa-user-secret text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-2-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-2-status" class="text-sm text-gray-400 font-bold">...</p>
                                 <i id="ia-cat-2-icon" class="fas fa-user-secret text-4xl text-gray-500 mb-2"></i>
                                 <p id="ia-cat-2-name" class="font-semibold">Cargando...</p>
                                 <p id="ia-cat-2-status" class="text-sm text-gray-400 font-bold">...</p>
@@ -504,8 +610,14 @@ button:hover {
                                 <i id="ia-cat-3-icon" class="fas fa-redhat text-4xl text-gray-500 mb-2"></i>
                                 <p id="ia-cat-3-name" class="font-semibold">Cargando...</p>
                                 <p id="ia-cat-3-status" class="text-sm text-gray-400 font-bold">...</p>
+                                <i id="ia-cat-3-icon" class="fas fa-redhat text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-3-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-3-status" class="text-sm text-gray-400 font-bold">...</p>
                             </div>
                             <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                <i id="ia-cat-4-icon" class="fas fa-running text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-4-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-4-status" class="text-sm text-gray-400 font-bold">...</p>
                                 <i id="ia-cat-4-icon" class="fas fa-running text-4xl text-gray-500 mb-2"></i>
                                 <p id="ia-cat-4-name" class="font-semibold">Cargando...</p>
                                 <p id="ia-cat-4-status" class="text-sm text-gray-400 font-bold">...</p>

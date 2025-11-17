@@ -1,8 +1,11 @@
 // backend/api/ai/predict.js
+// backend/api/ai/predict.js
 import Order from '../../models/Order.js';
 import Product from '../../models/Product.js';
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { callGeminiWithRetry } from './aiUtils.js';
+import { safeJsonParse } from './safeJson.js';
 import { callGeminiWithRetry } from './aiUtils.js';
 import { safeJsonParse } from './safeJson.js';
 
@@ -14,6 +17,7 @@ export async function getAiPrediction(req, res) {
     try {
         // 1. Obtener ventas del último mes
         const lastMonthOrders = await Order.find({
+            status: 'entregado', // Solo contar ventas completadas
             status: 'entregado',
             createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
         });
@@ -21,6 +25,7 @@ export async function getAiPrediction(req, res) {
         const totalSales = lastMonthOrders.reduce((acc, order) => acc + order.total, 0);
         const allItems = lastMonthOrders.flatMap(order => order.items);
 
+        // Ventas por producto
         // Ventas por producto
         const productSales = {};
         for (const item of allItems) {
@@ -37,6 +42,7 @@ export async function getAiPrediction(req, res) {
         }
 
         const summary = {
+            totalVentas: totalSales.toFixed(2),
             totalVentas: totalSales.toFixed(2),
             cantidadOrdenes: lastMonthOrders.length,
             productoMasVendido: bestSeller ? bestSeller.name : "Sin ventas recientes",
@@ -65,6 +71,14 @@ export async function getAiPrediction(req, res) {
             "recomendacion": string
         }
         `;
+
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        
+        // Parsear la respuesta JSON de forma segura
+        const prediction = JSON.parse(response.text());
+
+        return res.status(200).json({ prediction });
 
         // 3. Llamada con retry automático
         const result = await callGeminiWithRetry(() => model.generateContent(prompt))
