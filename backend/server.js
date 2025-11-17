@@ -4,33 +4,6 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-<<<<<<< HEAD
-import dotenv from 'dotenv';
-
-// Conexión BD
-import connectDB from './config/db.js';
-
-// CRUD
-import {
-  getProducts,
-  saveProduct,
-  deleteProduct,
-  getOrders,
-  saveOrder,
-  deleteOrder,
-  getCategories,
-  getSizes,
-} from './api/crud.js';
-
-// IA
-import { getAiPrediction } from './api/ai/predict.js';
-import { getCategoryDemandPrediction } from './api/ai/categoryDemand.js';
-
-dotenv.config();
-connectDB();
-
-const app = express();
-=======
 import connectDB from './config/db.js'; 
 import { 
     getProducts, saveProduct, deleteProduct, 
@@ -46,12 +19,8 @@ import { getCategoryDemandPrediction } from './api/ai/categoryDemand.js'; // <--
 // --- Conexión a la Base de Datos ---
 connectDB(); 
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 dotenv.config();
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 const PORT = process.env.PORT || 4000;
 
 // Paths
@@ -67,11 +36,7 @@ app.use(express.static(frontendPath));
 app.use(express.static(rootPath));
 
 // -------------------------------------------------------------------
-<<<<<<< HEAD
-// ✅ RUTAS CRUD con try/catch restaurados
-=======
 // RUTAS DE LA API
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 // -------------------------------------------------------------------
 
 // ✅ PRODUCTOS
@@ -85,21 +50,12 @@ app.get('/api/products', async (req, res) => {
 });
 
 app.post('/api/products', async (req, res) => {
-<<<<<<< HEAD
-  try {
-    const product = await saveProduct(req.body);
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(400).json({ message: 'Error al guardar producto', error: error.message });
-  }
-=======
     try {
         const product = await saveProduct(req.body);
         res.status(201).json(product); 
     } catch (error) {
         res.status(400).json({ message: 'Error al guardar producto', error: error.message });
     }
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 });
 
 app.delete('/api/products/:id', async (req, res) => {
@@ -239,32 +195,6 @@ app.get('/api/sizes', async (req, res) => {
 });
 
 // -------------------------------------------------------------------
-<<<<<<< HEAD
-// ✅ IA con try/catch garantizado
-// -------------------------------------------------------------------
-
-app.get('/api/ai/predict', async (req, res) => {
-  try {
-    await getAiPrediction(req, res);
-  } catch (error) {
-    console.error('Error en IA /predict:', error.message);
-    res.status(503).json({ message: 'IA no disponible, intenta luego', error: error.message });
-  }
-});
-
-app.get('/api/ai/category-demand', async (req, res) => {
-  try {
-    await getCategoryDemandPrediction(req, res);
-  } catch (error) {
-    console.error('Error en IA /category-demand:', error.message);
-    res.status(503).json({ message: 'IA no disponible, intenta luego', error: error.message });
-  }
-});
-
-// -------------------------------------------------------------------
-// ✅ FRONTEND
-// -------------------------------------------------------------------
-=======
 // RUTAS DE IA (CONECTADAS A MONGODB)
 // -------------------------------------------------------------------
 
@@ -279,7 +209,6 @@ app.get('/api/ai/category-demand', getCategoryDemandPrediction); // <-- ¡RUTA A
 // RUTAS DE VISTA (Front-end serving)
 // -------------------------------------------------------------------
 
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 app.get('/', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
@@ -288,14 +217,8 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(frontendPath, 'admin.html'));
 });
 
-<<<<<<< HEAD
-// -------------------------------------------------------------------
-// ✅ INICIAR SERVIDOR
-// -------------------------------------------------------------------
-=======
 
 // Iniciar el servidor
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 app.listen(PORT, () => {
   console.log(`🚀 Servidor en funcionamiento en http://localhost:${PORT}`);
   console.log(`Panel de Administración: http://localhost:${PORT}/admin`);

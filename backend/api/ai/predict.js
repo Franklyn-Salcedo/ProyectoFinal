@@ -12,14 +12,6 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 export async function getAiPrediction(req, res) {
     try {
-<<<<<<< HEAD
-        // 1. Obtener ventas del último mes
-        const lastMonthOrders = await Order.find({
-            status: 'entregado',
-            createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
-        });
-
-=======
         // Ventas del último mes
         const lastMonthOrders = await Order.find({
             status: 'entregado', // Solo contar ventas completadas
@@ -27,7 +19,6 @@ export async function getAiPrediction(req, res) {
         });
 
         // Calcular métricas básicas
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
         const totalSales = lastMonthOrders.reduce((acc, order) => acc + order.total, 0);
         const allItems = lastMonthOrders.flatMap(order => order.items);
 
@@ -46,10 +37,7 @@ export async function getAiPrediction(req, res) {
             bestSeller = await Product.findOne({ id: bestProductId });
         }
 
-<<<<<<< HEAD
-=======
         // Crear resumen de métricas
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
         const summary = {
             totalVentas: totalSales.toFixed(2),
             cantidadOrdenes: lastMonthOrders.length,
@@ -57,23 +45,6 @@ export async function getAiPrediction(req, res) {
             cantidadVendida: bestProductQty
         };
 
-<<<<<<< HEAD
-        // 2. Configurar modelo con fallback
-        const createModel = (modelName) => genAI.getGenerativeModel({
-            model: modelName,
-            generationConfig: { responseMimeType: "application/json" }
-        });
-
-        let model = createModel("gemini-2.5-flash");
-
-        const prompt = `
-        Eres un analista de ventas. Analiza estos datos:
-        - Ventas: $${summary.totalVentas}
-        - Órdenes: ${summary.cantidadOrdenes}
-        - Producto más vendido: ${summary.productoMasVendido} (${summary.cantidadVendida})
-
-        Responde solo con JSON:
-=======
         // Configurar el modelo para salida JSON
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash", 
@@ -94,36 +65,12 @@ export async function getAiPrediction(req, res) {
         
         Responde únicamente con el JSON.
         El JSON debe tener la siguiente estructura exacta:
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
         {
             "ventasProyectadas": number,
             "variacionPorcentual": number,
             "productoAltaDemanda": string,
             "recomendacion": string
         }
-<<<<<<< HEAD
-        `;
-
-        // 3. Llamada con retry automático
-        const result = await callGeminiWithRetry(() => model.generateContent(prompt))
-            .catch(async (err) => {
-                // Intentar fallback solo si 503 o fallo de servicio
-                console.warn("⚠️ Pasando a gemini-1.5-flash por error:", err.message);
-                model = createModel("gemini-1.5-flash");
-                return callGeminiWithRetry(() => model.generateContent(prompt));
-            });
-
-        const textResponse = result.response.text();
-
-        // 4. Parse seguro
-        const prediction = safeJsonParse(textResponse);
-
-        res.json({ prediction });
-
-    } catch (err) {
-        console.error("Error en getAiPrediction:", err);
-        res.status(500).json({ error: "Error en el análisis predictivo", details: err.message });
-=======
         
         - "ventasProyectadas": Una proyección numérica (ej. ${Math.round(summary.totalVentas * 1.15)})
         - "variacionPorcentual": Un número de 1 a 20 (ej. 15)
@@ -142,6 +89,5 @@ export async function getAiPrediction(req, res) {
     } catch (err) {
         console.error("Error en getAiPrediction:", err); // Log de error más genérico
         res.status(500).json({ error: "Error en el análisis predictivo." });
->>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
     }
 }
