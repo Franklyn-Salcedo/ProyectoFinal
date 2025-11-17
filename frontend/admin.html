@@ -9,6 +9,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -22,12 +24,83 @@
             }
         }
     </script>
-    <style>
-        /* Transiciones suaves para el sidebar y el contenido */
-        #admin-sidebar, #main-content {
-            transition: all 0.3s ease-in-out;
-        }
-    </style>
+ <style>
+/* 🌈 Estética general moderna */
+body {
+  background: radial-gradient(circle at 20% 20%, #0f0f0f, #090909 80%);
+  color: #f1f1f1;
+  font-family: 'Inter', sans-serif;
+}
+
+/* 🧭 Sidebar moderno */
+#admin-sidebar {
+  background: linear-gradient(160deg, #111 0%, #0b0b0b 100%);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#admin-sidebar button.view-btn {
+  transition: all 0.3s ease;
+}
+
+#admin-sidebar button.view-btn:hover {
+  background: linear-gradient(90deg, rgba(255,255,0,0.2), transparent);
+  transform: translateX(3px);
+}
+
+/* 🧱 KPI Cards */
+.bg-card-bg {
+  background: linear-gradient(145deg, #1b1b1b, #141414);
+  box-shadow: 3px 3px 12px rgba(0,0,0,0.4), inset 0 0 10px rgba(255,255,255,0.02);
+  transition: all 0.3s ease;
+}
+.bg-card-bg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255,255,0,0.1);
+}
+
+/* ✨ IA Highlight */
+#ia-product-highlight {
+  background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 25px rgba(255, 255, 0, 0.08);
+  backdrop-filter: blur(12px);
+}
+#ia-product-highlight.glow-animate {
+  animation: glowPulse 2s ease-in-out;
+}
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 0px rgba(255, 255, 0, 0); }
+  50% { box-shadow: 0 0 25px rgba(255, 255, 0, 0.4); }
+  100% { box-shadow: 0 0 0px rgba(255, 255, 0, 0); }
+}
+
+/* 🧭 Transiciones del dashboard */
+.view-btn.active {
+  background-color: #facc15;
+  color: #111;
+  box-shadow: 0 0 10px rgba(255, 255, 0, 0.4);
+}
+
+/* 🧁 Botones globales */
+button {
+  transition: all 0.3s ease-in-out;
+}
+button:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* 🧠 Animación de IA */
+#ia-product-image {
+  transition: opacity 0.4s ease, transform 0.3s ease;
+}
+#ia-product-image:not(.hidden) {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+</style>
+
 </head>
 
 <body class="bg-gray-900 text-white min-h-screen">
@@ -136,51 +209,93 @@
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-yellow-400">
                         <div class="flex justify-between items-center"><i class="fas fa-dollar-sign text-3xl text-yellow-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Ventas Totales</span></div>
                         <p id="kpi-total-sales" class="text-4xl font-extrabold mt-3">$0.00</p>
-                        <p class="text-sm text-green-400 mt-1">▲ 15% vs. mes anterior</p>
+                        <p id="kpi-total-sales-sub" class="text-sm text-gray-400 mt-1">vs. mes anterior</p>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-indigo-500">
                         <div class="flex justify-between items-center"><i class="fas fa-truck text-3xl text-indigo-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Pedidos Pendientes</span></div>
                         <p id="kpi-pending-orders" class="text-4xl font-extrabold mt-3">0</p>
-                        <p class="text-sm text-red-400 mt-1">▼ 5% vs. semana anterior</p>
+                        <p class="text-sm text-gray-400 mt-1">Órdenes por procesar</p>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-red-500">
                         <div class="flex justify-between items-center"><i class="fas fa-exclamation-triangle text-3xl text-red-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Stock Crítico</span></div>
                         <p id="kpi-critical-stock" class="text-4xl font-extrabold mt-3">0</p>
                         <p class="text-sm text-gray-400 mt-1">Productos que reordenar</p>
                     </div>
-                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-green-500">
-                        <div class="flex justify-between items-center"><i class="fas fa-shopping-cart text-3xl text-green-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Conversión</span></div>
-                        <p id="kpi-conversion" class="text-4xl font-extrabold mt-3">0%</p>
-                        <p class="text-sm text-green-400 mt-1">Objetivo mensual: 4.0%</p>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-pink-500">
+                        <div class="flex justify-between items-center"><i class="fas fa-ban text-3xl text-pink-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Tasa de Cancelación</span></div>
+                        <p id="kpi-cancellation-rate" class="text-4xl font-extrabold mt-3">0%</p>
+                        <p id="kpi-cancellation-rate-sub" class="text-sm text-gray-400 mt-1">de pedidos finalizados</p>
                     </div>
                 </section>
                 <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-2xl font-bold uppercase text-yellow-400">Análisis Predictivo de IA</h3>
-                            <!-- <span class="bg-yellow-400 text-black text-xs font-bold py-1 px-3 rounded-full">Modelo Activo</span> -->
                             <button id="ia-predicion" class="bg-yellow-400 text-black text-2xl font-bold py-1 px-3 rounded-full 
                                 hover:bg-yellow-500 hover:shadow-md transition-all duration-200 ease-in-out">
                                 <i class="fas fa-robot text-2xl text-black-400"></i>
                                 IA
                             </button>
                         </div>
-                        <p class="text-gray-400 mb-4 text-justify" id="ia-text"></p>
-                        <div class="grid grid-cols-2 gap-4 border-t border-b border-gray-800 py-4">
-                            <div>
-                                <p class="text-sm uppercase text-gray-500">Ventas Proyectadas (30 días)</p>
-                                <p class="text-3xl font-extrabold text-white mt-1" id="ia-monto">$0</p>
-                                <p class="text-sm text-indigo-400 mt-1" id="ia-variacion"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm uppercase text-gray-500">Producto de Alta Demanda</p>
-                                <p class="text-2xl font-bold text-white mt-1" id="ia-producto">--</p>
-                                <!-- <p class="text-sm text-yellow-400 mt-1">Recomendación: Aumentar Stock</p> -->
-                            </div>
-                        </div>
-                        <div class="mt-4 h-64 bg-gray-800 flex items-center justify-center rounded-lg text-gray-500">
-                            [Placeholder para Gráfico de Tendencias de Ventas y Predicción]
-                        </div>
+<p class="text-gray-400 mb-4 text-justify" id="ia-text"></p>
+
+<!-- 🔮 Producto de Alta Demanda generado por IA -->
+<div id="ia-product-highlight"
+     class="mt-6 flex flex-col md:flex-row items-center md:items-start gap-6 p-6 
+            bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 
+            rounded-2xl shadow-lg border border-gray-700/50 transition-all duration-500 min-h-[220px]">
+
+    <!-- 🧠 Imagen o placeholder -->
+    <div class="relative flex-shrink-0 flex items-center justify-center w-36 h-36 md:w-44 md:h-44 
+                bg-gray-800/70 rounded-2xl border border-gray-700 shadow-inner overflow-hidden">
+
+        <!-- Imagen IA -->
+        <img id="ia-product-image"
+             src=""
+             alt="Producto de alta demanda"
+             class="absolute inset-0 object-cover w-full h-full rounded-2xl shadow-md ring-2 ring-yellow-500/20 
+                    transition-transform duration-300 hover:scale-105 hidden z-10">
+
+        <!-- 🧠 Etiqueta -->
+        <span class="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded-full shadow-md z-20">
+            🧠 Predicción IA
+        </span>
+
+        <!-- 🕓 Placeholder visible mientras no haya imagen -->
+        <span id="ia-placeholder" 
+              class="absolute inset-0 flex items-center justify-center text-gray-500 text-sm font-medium text-center z-0">
+            Imagen no disponible
+        </span>
+    </div>
+
+    <!-- 📊 Datos del producto -->
+    <div class="flex flex-col justify-center text-center md:text-left w-full">
+
+        <!-- Nombre del producto -->
+        <h4 id="ia-product-name" class="text-2xl font-extrabold text-yellow-400 tracking-wide mb-2">
+            [Producto de alta demanda]
+        </h4>
+
+        <!-- Precio y unidades -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-gray-300 mb-3">
+            <p id="ia-product-price" class="text-lg font-semibold">Precio: --</p>
+            <span class="hidden sm:block w-1 h-1 bg-yellow-500 rounded-full"></span>
+            <p id="ia-product-units" class="text-sm text-gray-400">Unidades vendidas este mes: --</p>
+        </div>
+
+        <!-- Ventas proyectadas -->
+        <div class="mt-2 bg-gray-700/40 px-4 py-3 rounded-lg text-gray-100 text-base 
+                    border border-gray-600/40 shadow-inner">
+            <p class="font-semibold text-yellow-400 text-lg mb-1">
+                📈 Ventas proyectadas en 30 días:
+            </p>
+            <p id="ia-monto" class="text-2xl font-bold text-white tracking-wide">--</p>
+            <p id="ia-variacion" class="text-sm text-gray-400 mt-1">Variación estimada: --</p>
+        </div>
+    </div>
+</div>
+
+
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <h3 class="text-2xl font-bold uppercase mb-4">Actividad Reciente</h3>
@@ -284,6 +399,7 @@
                                         <option value="procesando">Procesando</option>
                                         <option value="enviado">Enviado</option>
                                         <option value="entregado">Entregado</option>
+                                        <option value="devuelto">Devuelto</option> 
                                         <option value="cancelado">Cancelado</option>
                                     </select>
                                 </div>
@@ -330,52 +446,43 @@
                     <h2 class="text-4xl font-extrabold uppercase text-white">Reportes y Análisis Predictivo</h2>
                 </header>
                 <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-green-500">
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-teal-500">
                         <div class="flex justify-between items-center">
-                            <i class="fas fa-users text-3xl text-green-400"></i>
-                            <span class="text-sm font-semibold uppercase text-gray-400">Nuevos Clientes (Mes)</span>
+                            <i class="fas fa-box text-3xl text-teal-400"></i>
+                            <span class="text-sm font-semibold uppercase text-gray-400">Total Pedidos (Mes)</span>
                         </div>
-                        <p class="text-4xl font-extrabold mt-3">124</p>
-                        <p class="text-sm text-green-400 mt-1">▲ 8% vs. mes anterior</p>
+                        <p id="kpi-total-orders-month" class="text-4xl font-extrabold mt-3">0</p>
+                        <p id="kpi-total-orders-month-sub" class="text-sm text-gray-400 mt-1">En los últimos 30 días</p>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-blue-500">
                         <div class="flex justify-between items-center">
                             <i class="fas fa-dollar-sign text-3xl text-blue-400"></i>
                             <span class="text-sm font-semibold uppercase text-gray-400">Ticket Promedio</span>
                         </div>
-                        <p class="text-4xl font-extrabold mt-3">$85.50</p>
-                        <p class="text-sm text-gray-400 mt-1">Últimos 30 días</p>
+                        <p id="kpi-avg-ticket" class="text-4xl font-extrabold mt-3">$0.00</p>
+                        <p class="text-sm text-gray-400 mt-1">Pedidos entregados</p>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-purple-500">
                         <div class="flex justify-between items-center">
                             <i class="fas fa-undo-alt text-3xl text-purple-400"></i>
                             <span class="text-sm font-semibold uppercase text-gray-400">Tasa de Devolución</span>
                         </div>
-                        <p class="text-4xl font-extrabold mt-3">2.1%</p>
-                        <p class="text-sm text-green-400 mt-1">▼ 0.5% vs. mes anterior</p>
+                        <p id="kpi-return-rate" class="text-4xl font-extrabold mt-3">0.0%</p>
+                        <p id="kpi-return-rate-sub" class="text-sm text-gray-400 mt-1">0 de 0 pedidos</p>
                     </div>
                 </section>
                 <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Ventas Mensuales</h3>
-                        <div class="h-80 bg-gray-800 flex items-center justify-center rounded-lg text-gray-500">
-                            [Placeholder para Gráfico de Barras - Ventas]
+                        <div class="h-80 bg-gray-800 p-4 rounded-lg">
+                            <canvas id="monthly-sales-chart"></canvas>
                         </div>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
-                        <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Top Productos (Este Mes)</h3>
-                        <ul class="space-y-3">
+                        <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Top Productos (Ventas Totales)</h3>
+                        <ul id="top-products-list" class="space-y-3">
                             <li class="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
-                                <span class="font-semibold">1. T-Shirt 'Urban Canvas'</span>
-                                <span class="font-bold text-lg">120 <span class="text-sm text-gray-400">unid.</span></span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
-                                <span class="font-semibold">2. Gorra 'KO Signature'</span>
-                                <span class="font-bold text-lg">95 <span class="text-sm text-gray-400">unid.</span></span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
-                                <span class="font-semibold">3. Jeans 'Midnight Rider'</span>
-                                <span class="font-bold text-lg">88 <span class="text-sm text-gray-400">unid.</span></span>
+                                <span class="font-semibold">Cargando...</span>
                             </li>
                         </ul>
                     </div>
@@ -384,24 +491,24 @@
                         <p class="text-gray-400 mb-4">El modelo predice una alta demanda para las siguientes categorías en los próximos 30 días...</p>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="text-center p-4 bg-gray-800 rounded-lg">
-                                <i class="fas fa-tshirt text-4xl text-indigo-400 mb-2"></i>
-                                <p class="font-semibold">T-Shirts</p>
-                                <p class="text-sm text-green-400 font-bold">▲ Alta Demanda</p>
+                                <i id="ia-cat-1-icon" class="fas fa-tshirt text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-1-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-1-status" class="text-sm text-gray-400 font-bold">...</p>
                             </div>
                             <div class="text-center p-4 bg-gray-800 rounded-lg">
-                                <i class="fas fa-user-secret text-4xl text-gray-500 mb-2"></i>
-                                <p class="font-semibold">Jackets</p>
-                                <p class="text-sm text-gray-400">▬ Estable</p>
+                                <i id="ia-cat-2-icon" class="fas fa-user-secret text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-2-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-2-status" class="text-sm text-gray-400 font-bold">...</p>
                             </div>
                             <div class="text-center p-4 bg-gray-800 rounded-lg">
-                                <i class="fas fa-redhat text-4xl text-indigo-400 mb-2"></i>
-                                <p class="font-semibold">Accessories</p>
-                                <p class="text-sm text-green-400 font-bold">▲ Alta Demanda</p>
+                                <i id="ia-cat-3-icon" class="fas fa-redhat text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-3-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-3-status" class="text-sm text-gray-400 font-bold">...</p>
                             </div>
                             <div class="text-center p-4 bg-gray-800 rounded-lg">
-                                <i class="fas fa-running text-4xl text-red-500 mb-2"></i>
-                                <p class="font-semibold">Footwear</p>
-                                <p class="text-sm text-red-400 font-bold">▼ Baja Demanda</p>
+                                <i id="ia-cat-4-icon" class="fas fa-running text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-4-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-4-status" class="text-sm text-gray-400 font-bold">...</p>
                             </div>
                         </div>
                     </div>
