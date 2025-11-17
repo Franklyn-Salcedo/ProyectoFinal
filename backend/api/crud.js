@@ -1,5 +1,3 @@
-// backend/api/crud.js (La nueva lógica de base de datos)
-
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import Category from '../models/Category.js'; 
@@ -11,22 +9,18 @@ const getNextId = async (Model) => {
     return lastDoc ? lastDoc.id + 1 : (Model.modelName === 'Product' ? 1 : 1001);
 };
 
-
 /**
  * FUNCIONES CRUD DE PRODUCTOS
  */
 export async function getProducts() {
     return await Product.find({}).sort({ id: 1 }).exec();
 }
-
 export const getCategories = async () => {
     return await Category.find().sort({ name: 1 }).exec();
 };
-
 export const getSizes = async () => {
     return await Size.find().sort({ name: 1 }).exec();
 };
-
 export async function saveProduct(productData) {
     if (productData.id) {
         // Editar
@@ -47,89 +41,124 @@ export async function saveProduct(productData) {
         return newProduct;
     }
 }
-
 export async function deleteProduct(productId) {
     const result = await Product.deleteOne({ id: productId });
     return result.deletedCount > 0;
 }
 
-
 /**
  * FUNCIONES CRUD DE PEDIDOS
  */
 export async function getOrders() {
-    return await Order.find({}).sort({ id: -1 }).exec(); // Ordenar por ID (más nuevos primero)
+    return await Order.find({}).sort({ id: -1 }).exec();
 }
 
-// FUNCIÓN 'saveOrder' TOTALMENTE ACTUALIZADA
+// *** LÓGICA DE STOCK MEJORADA DENTRO DE saveOrder ***
 export async function saveOrder(orderData) {
-    
-    // --- 1. Validar Stock (SOLO PARA PEDIDOS NUEVOS) ---
-    // (Asumimos que la edición de un pedido no descuenta stock, solo la creación)
-    if (!orderData.id) {
-        let stockError = null;
-        for (const item of orderData.items) {
-            const product = await Product.findOne({ id: item.productId });
-            
-            if (!product) {
-                throw new Error(`Producto con ID ${item.productId} no encontrado.`);
-            }
-            if (product.stock < item.quantity) {
-                // Error si no hay suficiente stock
-                stockError = `Stock insuficiente para ${product.name}. Solo quedan ${product.stock} unidades.`;
-                break; // Detener el bucle
-            }
-        }
-        
-        // Si hubo un error de stock, detener todo y enviar el mensaje
-        if (stockError) {
-            // Esto será atrapado por el bloque .catch() en server.js
-            throw new Error(stockError);
-        }
-    }
+
+    // --- 1. Definir estados de stock ---
+    const stockDeductedStates = ['pendiente', 'procesando', 'enviado', 'entregado'];
+    const stockRestoredStates = ['cancelado', 'devuelto'];
+
+    // Función de ayuda para ajustar el stock
+    const adjustStock = async (items, operation) => {
+        const factor = operation === 'inc' ? 1 : -1;
+        await Promise.all(items.map(item => 
+            Product.updateOne(
+                { id: item.productId },
+                { $inc: { stock: item.quantity * factor } }
+            )
+        ));
+    };
 
     // --- 2. Guardar/Actualizar Pedido ---
     if (orderData.id) {
         // --- EDITAR Pedido Existente ---
+        const originalOrder = await Order.findOne({ id: orderData.id });
+        if (!originalOrder) throw new Error("No se encontró el pedido original para editar.");
+
+        const originalStatus = originalOrder.status;
+        const newStatus = orderData.status;
+
+        const wasDeducted = stockDeductedStates.includes(originalStatus);
+        const isNowRestored = stockRestoredStates.includes(newStatus);
+        const wasRestored = stockRestoredStates.includes(originalStatus);
+        const isNowDeducted = stockDeductedStates.includes(newStatus);
+
+        if (wasDeducted && isNowRestored) {
+            console.log(`Pedido #${orderData.id} movido a ${newStatus}. Reponiendo stock...`);
+            await adjustStock(originalOrder.items, 'inc');
+        } else if (wasRestored && isNowDeducted) {
+            console.log(`Pedido #${orderData.id} movido a ${newStatus}. Descontando stock...`);
+            for (const item of originalOrder.items) {
+                const product = await Product.findOne({ id: item.productId });
+                if (product.stock < item.quantity) {
+                    throw new Error(`Stock insuficiente para ${product.name} al reactivar el pedido.`);
+                }
+            }
+            await adjustStock(originalOrder.items, 'dec');
+        }
+
         const updatedOrder = await Order.findOneAndUpdate(
             { id: orderData.id },
-            // Asegurarse de que el N° de seguimiento se actualice si se envía
-            { $set: orderData }, 
+            { $set: orderData },
             { new: true, runValidators: true }
         );
         return updatedOrder;
 
     } else {
         // --- CREAR Pedido Nuevo ---
-        
-        // 3. Descontar Stock
-        await Promise.all(orderData.items.map(item => 
-            Product.updateOne(
-                { id: item.productId },
-                // $inc decrementa el campo 'stock'
-                { $inc: { stock: -item.quantity } } 
-            )
-        ));
+        for (const item of orderData.items) {
+            const product = await Product.findOne({ id: item.productId });
+            if (!product) throw new Error(`Producto con ID ${item.productId} no encontrado.`);
+            if (product.stock < item.quantity) {
+                throw new Error(`Stock insuficiente para ${product.name}. Solo quedan ${product.stock} unidades.`);
+            }
+        }
 
-        // 4. Generar ID y N de Seguimiento Automático
+        // 3. Generar ID y Número de Seguimiento
         const newId = await getNextId(Order);
-        // Si el admin escribió algo, se usa; si no, se genera.
-        const newTrackingNumber = orderData.trackingNumber || `TRK-${newId}`; 
+        const newTrackingNumber = orderData.trackingNumber || `TRK-${newId}`;
 
+        // ✅ Ahora sí podemos loguear con un ID real
+        if (stockDeductedStates.includes(orderData.status)) {
+            console.log(`Nuevo pedido #${newId} creado con estado ${orderData.status}. Descontando stock...`);
+        } else {
+            console.log(`Nuevo pedido #${newId} creado con estado ${orderData.status}. No se descuenta stock.`);
+        }
+
+        // 2. Ajustar stock SOLO después de saber el ID
+        if (stockDeductedStates.includes(orderData.status)) {
+            await adjustStock(orderData.items, 'dec');
+        }
+
+        // 4. Crear pedido
         const newOrder = new Order({
             ...orderData,
             id: newId,
-            trackingNumber: newTrackingNumber // Asignar el nuevo número
+            trackingNumber: newTrackingNumber
         });
-        
+
         await newOrder.save();
         return newOrder;
     }
 }
 
-
 export async function deleteOrder(orderId) {
-    // (Opcional: Faltaría lógica para reponer stock si se elimina un pedido)
+    const order = await Order.findOne({ id: orderId });
+    if (order) {
+        const stockDeductedStates = ['pendiente', 'procesando', 'enviado', 'entregado'];
+        if (stockDeductedStates.includes(order.status)) {
+            console.log(`Eliminando pedido #${orderId}. Reponiendo stock...`);
+            await Promise.all(order.items.map(item => 
+                Product.updateOne(
+                    { id: item.productId },
+                    { $inc: { stock: item.quantity } }
+                )
+            ));
+        }
+    }
+
     const result = await Order.deleteOne({ id: orderId });
     return result.deletedCount > 0;
 }
