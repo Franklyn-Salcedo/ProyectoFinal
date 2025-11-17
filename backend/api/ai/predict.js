@@ -12,12 +12,22 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 export async function getAiPrediction(req, res) {
     try {
+<<<<<<< HEAD
         // 1. Obtener ventas del último mes
         const lastMonthOrders = await Order.find({
             status: 'entregado',
             createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
         });
 
+=======
+        // Ventas del último mes
+        const lastMonthOrders = await Order.find({
+            status: 'entregado', // Solo contar ventas completadas
+            createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+        });
+
+        // Calcular métricas básicas
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
         const totalSales = lastMonthOrders.reduce((acc, order) => acc + order.total, 0);
         const allItems = lastMonthOrders.flatMap(order => order.items);
 
@@ -36,6 +46,10 @@ export async function getAiPrediction(req, res) {
             bestSeller = await Product.findOne({ id: bestProductId });
         }
 
+<<<<<<< HEAD
+=======
+        // Crear resumen de métricas
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
         const summary = {
             totalVentas: totalSales.toFixed(2),
             cantidadOrdenes: lastMonthOrders.length,
@@ -43,6 +57,7 @@ export async function getAiPrediction(req, res) {
             cantidadVendida: bestProductQty
         };
 
+<<<<<<< HEAD
         // 2. Configurar modelo con fallback
         const createModel = (modelName) => genAI.getGenerativeModel({
             model: modelName,
@@ -58,12 +73,35 @@ export async function getAiPrediction(req, res) {
         - Producto más vendido: ${summary.productoMasVendido} (${summary.cantidadVendida})
 
         Responde solo con JSON:
+=======
+        // Configurar el modelo para salida JSON
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash", 
+            generationConfig: { 
+                responseMimeType: "application/json"
+            }
+        });
+
+        // Armar prompt para IA
+        const prompt = `
+        Eres un analista de ventas senior para una tienda de ropa urbana.
+        Analiza estos datos de ventas del último mes:
+        - Total de ventas: $${summary.totalVentas}
+        - Órdenes registradas: ${summary.cantidadOrdenes}
+        - Producto más vendido: "${summary.productoMasVendido}" (${summary.cantidadVendida} unidades)
+
+        Genera una proyección de ventas realista y una recomendación breve (máximo 2 frases).
+        
+        Responde únicamente con el JSON.
+        El JSON debe tener la siguiente estructura exacta:
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
         {
             "ventasProyectadas": number,
             "variacionPorcentual": number,
             "productoAltaDemanda": string,
             "recomendacion": string
         }
+<<<<<<< HEAD
         `;
 
         // 3. Llamada con retry automático
@@ -85,5 +123,25 @@ export async function getAiPrediction(req, res) {
     } catch (err) {
         console.error("Error en getAiPrediction:", err);
         res.status(500).json({ error: "Error en el análisis predictivo", details: err.message });
+=======
+        
+        - "ventasProyectadas": Una proyección numérica (ej. ${Math.round(summary.totalVentas * 1.15)})
+        - "variacionPorcentual": Un número de 1 a 20 (ej. 15)
+        - "productoAltaDemanda": El nombre del producto más vendido.
+        - "recomendacion": Una recomendación de 1-2 frases basada en los datos.
+        `;
+
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        
+        // Parsear la respuesta JSON de forma segura
+        const prediction = JSON.parse(response.text());
+
+        return res.status(200).json({ prediction });
+
+    } catch (err) {
+        console.error("Error en getAiPrediction:", err); // Log de error más genérico
+        res.status(500).json({ error: "Error en el análisis predictivo." });
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
     }
 }

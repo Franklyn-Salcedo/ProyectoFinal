@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+<<<<<<< HEAD
 import dotenv from 'dotenv';
 
 // Conexión BD
@@ -29,6 +30,28 @@ dotenv.config();
 connectDB();
 
 const app = express();
+=======
+import connectDB from './config/db.js'; 
+import { 
+    getProducts, saveProduct, deleteProduct, 
+    getOrders, saveOrder, deleteOrder,
+    getCategories, getSizes
+} from './api/crud.js'; 
+import dotenv from 'dotenv';
+
+// --- IMPORTAR AMBAS RUTAS DE IA ---
+import { getAiPrediction } from './api/ai/predict.js';
+import { getCategoryDemandPrediction } from './api/ai/categoryDemand.js'; // <-- ¡ESTA ES LA NUEVA LÍNEA!
+
+// --- Conexión a la Base de Datos ---
+connectDB(); 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+dotenv.config();
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 const PORT = process.env.PORT || 4000;
 
 // Paths
@@ -44,7 +67,11 @@ app.use(express.static(frontendPath));
 app.use(express.static(rootPath));
 
 // -------------------------------------------------------------------
+<<<<<<< HEAD
 // ✅ RUTAS CRUD con try/catch restaurados
+=======
+// RUTAS DE LA API
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 // -------------------------------------------------------------------
 
 // ✅ PRODUCTOS
@@ -58,12 +85,21 @@ app.get('/api/products', async (req, res) => {
 });
 
 app.post('/api/products', async (req, res) => {
+<<<<<<< HEAD
   try {
     const product = await saveProduct(req.body);
     res.status(201).json(product);
   } catch (error) {
     res.status(400).json({ message: 'Error al guardar producto', error: error.message });
   }
+=======
+    try {
+        const product = await saveProduct(req.body);
+        res.status(201).json(product); 
+    } catch (error) {
+        res.status(400).json({ message: 'Error al guardar producto', error: error.message });
+    }
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 });
 
 app.delete('/api/products/:id', async (req, res) => {
@@ -203,6 +239,7 @@ app.get('/api/sizes', async (req, res) => {
 });
 
 // -------------------------------------------------------------------
+<<<<<<< HEAD
 // ✅ IA con try/catch garantizado
 // -------------------------------------------------------------------
 
@@ -227,6 +264,22 @@ app.get('/api/ai/category-demand', async (req, res) => {
 // -------------------------------------------------------------------
 // ✅ FRONTEND
 // -------------------------------------------------------------------
+=======
+// RUTAS DE IA (CONECTADAS A MONGODB)
+// -------------------------------------------------------------------
+
+// IA Para el Dashboard (Ventas Totales)
+app.get('/api/ai/predict', getAiPrediction);
+
+// IA Para Reportes (Demanda por Categoría)
+app.get('/api/ai/category-demand', getCategoryDemandPrediction); // <-- ¡RUTA AÑADIDA!
+
+
+// -------------------------------------------------------------------
+// RUTAS DE VISTA (Front-end serving)
+// -------------------------------------------------------------------
+
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 app.get('/', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
@@ -235,9 +288,14 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(frontendPath, 'admin.html'));
 });
 
+<<<<<<< HEAD
 // -------------------------------------------------------------------
 // ✅ INICIAR SERVIDOR
 // -------------------------------------------------------------------
+=======
+
+// Iniciar el servidor
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 app.listen(PORT, () => {
   console.log(`🚀 Servidor en funcionamiento en http://localhost:${PORT}`);
   console.log(`Panel de Administración: http://localhost:${PORT}/admin`);

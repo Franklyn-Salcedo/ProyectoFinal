@@ -1379,6 +1379,7 @@ async function loadAIPredictions() {
     console.error("Error al cargar predicción IA:", error);
     showPopup(`Error IA: ${error.message}`, "error");
   }
+<<<<<<< HEAD
 }
 async function getPredicion() {
     const products = await getProducts();
@@ -1566,6 +1567,18 @@ if (refreshButton) {
 
 
 
+=======
+}
+
+function getPredicion() {
+    const predictionData = JSON.parse(localStorage.getItem('aiPrediction'));
+    if (!predictionData) return;
+    DOMElements.iaMonto.textContent = '$'+`${predictionData.prediction.ventasProyectadas}.00`;
+    DOMElements.iaProducto.textContent = predictionData.prediction.productoAltaDemanda;
+    DOMElements.iaText.textContent = predictionData.prediction.recomendacion;
+    DOMElements.idVariacion.textContent = `Aumento potencial del ${predictionData.prediction.variacionPorcentual}%`;
+}
+>>>>>>> bf0fd7e25e6271c8cc9ff550b38b26467d56dd86
 
 // --- IA Reportes (Demanda por Categoría) ---
 
