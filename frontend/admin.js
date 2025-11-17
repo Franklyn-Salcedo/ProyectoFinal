@@ -7,7 +7,6 @@ const AppState = {
     editingProductId: null,
     editingOrderId: null,
     editingOrderCreatedAt: null, // Para preservar la fecha al editar
-    editingOrderCreatedAt: null, // Para preservar la fecha al editar
     currentView: 'dashboard-view',
     categories: [],
     sizes: [],
@@ -16,7 +15,6 @@ const AppState = {
 
 const STOCK_THRESHOLD = 5; 
 let toastTimer; 
-let monthlySalesChart = null; // Instancia del gráfico
 let monthlySalesChart = null; // Instancia del gráfico
 
 // --- DOMElements ---
@@ -30,11 +28,8 @@ const DOMElements = {
     // Dashboard KPIs
     kpiTotalSales: document.getElementById('kpi-total-sales'),
     kpiTotalSalesSub: document.getElementById('kpi-total-sales-sub'), // ¡NUEVO!
-    kpiTotalSalesSub: document.getElementById('kpi-total-sales-sub'), // ¡NUEVO!
     kpiPendingOrders: document.getElementById('kpi-pending-orders'),
     kpiCriticalStock: document.getElementById('kpi-critical-stock'),
-    kpiCancellationRate: document.getElementById('kpi-cancellation-rate'), // ¡NUEVO! (reemplaza conversion)
-    kpiCancellationRateSub: document.getElementById('kpi-cancellation-rate-sub'), // ¡NUEVO!
     kpiCancellationRate: document.getElementById('kpi-cancellation-rate'), // ¡NUEVO! (reemplaza conversion)
     kpiCancellationRateSub: document.getElementById('kpi-cancellation-rate-sub'), // ¡NUEVO!
     recentActivityList: document.getElementById('recent-activity-list'),
@@ -103,43 +98,11 @@ const DOMElements = {
     sidebarTexts: document.querySelectorAll('.sidebar-text'),
 
     // IA Predictivo (Dashboard)
-    // IA Predictivo (Dashboard)
     iaPredictionBtn: document.getElementById('ia-predicion'),
     iaProducto: document.getElementById('ia-producto'),
     iaText: document.getElementById('ia-text'),
     iaMonto: document.getElementById('ia-monto'),
     idVariacion: document.getElementById('ia-variacion'),
-
-    // ELEMENTOS DE REPORTES
-    kpiTotalOrdersMonth: document.getElementById('kpi-total-orders-month'), // ¡NUEVO! (reemplaza new-customers)
-    kpiTotalOrdersMonthSub: document.getElementById('kpi-total-orders-month-sub'), // ¡NUEVO!
-    kpiAvgTicket: document.getElementById('kpi-avg-ticket'),
-    kpiReturnRate: document.getElementById('kpi-return-rate'),
-    kpiReturnRateSub: document.getElementById('kpi-return-rate-sub'), 
-    topProductsList: document.getElementById('top-products-list'),
-    monthlySalesChartCanvas: document.getElementById('monthly-sales-chart'), 
-
-    // IA Predictivo (Reportes - Categorías)
-    iaCat1: {
-        icon: document.getElementById('ia-cat-1-icon'),
-        name: document.getElementById('ia-cat-1-name'),
-        status: document.getElementById('ia-cat-1-status'),
-    },
-    iaCat2: {
-        icon: document.getElementById('ia-cat-2-icon'),
-        name: document.getElementById('ia-cat-2-name'),
-        status: document.getElementById('ia-cat-2-status'),
-    },
-    iaCat3: {
-        icon: document.getElementById('ia-cat-3-icon'),
-        name: document.getElementById('ia-cat-3-name'),
-        status: document.getElementById('ia-cat-3-status'),
-    },
-    iaCat4: {
-        icon: document.getElementById('ia-cat-4-icon'),
-        name: document.getElementById('ia-cat-4-name'),
-        status: document.getElementById('ia-cat-4-status'),
-    },
 
     // ELEMENTOS DE REPORTES
     kpiTotalOrdersMonth: document.getElementById('kpi-total-orders-month'), // ¡NUEVO! (reemplaza new-customers)
@@ -238,15 +201,12 @@ function showConfirmationModal(message, onConfirm) {
     const newConfirmBtn = confirmDeleteBtn.cloneNode(true);
     confirmDeleteBtn.parentNode.replaceChild(newConfirmBtn, confirmDeleteBtn);
     DOMElements.confirmDeleteBtn = newConfirmBtn; 
-    DOMElements.confirmDeleteBtn = newConfirmBtn; 
 
     const newCancelBtn = confirmCancelBtn.cloneNode(true);
     confirmCancelBtn.parentNode.replaceChild(newCancelBtn, confirmCancelBtn);
     DOMElements.confirmCancelBtn = newCancelBtn; 
-    DOMElements.confirmCancelBtn = newCancelBtn; 
 
     DOMElements.confirmDeleteBtn.addEventListener('click', () => {
-        onConfirm();
         onConfirm();
         confirmationModal.classList.add('hidden');
     });
@@ -306,8 +266,6 @@ async function switchView(viewId) {
     
     // Cargar datos para la vista seleccionada
     // (Ahora las funciones de carga de datos obtienen los datos ellas mismas)
-    // Cargar datos para la vista seleccionada
-    // (Ahora las funciones de carga de datos obtienen los datos ellas mismas)
     if (viewId === 'dashboard-view') {
         await loadDashboardData(); 
     }
@@ -319,9 +277,6 @@ async function switchView(viewId) {
     if (viewId === 'orders-view') {
         await renderOrderList();
         resetOrderForm();
-    }
-    if (viewId === 'reports-view') {
-        await loadReportsData();
     }
     if (viewId === 'reports-view') {
         await loadReportsData();
@@ -391,7 +346,6 @@ async function getProducts() {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Error al obtener productos');
         const products = await response.json();
-        AppState.products = products; 
         AppState.products = products; 
         return products;
     } catch (error) {
@@ -662,7 +616,6 @@ function getStatusColor(status) {
         case 'enviado': return { bg: 'bg-blue-500', text: 'text-white', border: 'border-blue-500', label: 'Enviado' };
         case 'entregado': return { bg: 'bg-green-500', text: 'text-white', border: 'border-green-500', label: 'Entregado' };
         case 'devuelto': return { bg: 'bg-orange-500', text: 'text-white', border: 'border-orange-500', label: 'Devuelto' };
-        case 'devuelto': return { bg: 'bg-orange-500', text: 'text-white', border: 'border-orange-500', label: 'Devuelto' };
         case 'cancelado': return { bg: 'bg-red-500', text: 'text-white', border: 'border-red-500', label: 'Cancelado' };
         default: return { bg: 'bg-gray-500', text: 'text-white', border: 'border-gray-500', label: 'Desconocido' };
     }
@@ -670,7 +623,6 @@ function getStatusColor(status) {
 
 async function calculateOrderTotal() {
     const itemRows = DOMElements.orderItemsSelectionContainer.querySelectorAll('.order-item-row');
-    const products = AppState.products; 
     const products = AppState.products; 
     let total = 0;
     let validItems = 0;
@@ -698,23 +650,11 @@ async function renderOrderList() {
     }
     orders.sort((a, b) => b.id - a.id); 
 
-    orders.sort((a, b) => b.id - a.id); 
-
     orders.forEach(order => {
         const { bg, text, border, label } = getStatusColor(order.status);
         const itemDetails = order.items && order.items.length > 0
             ? order.items.map(item => `${item.quantity}x ${item.name} (${item.size || 'N/A'})`).join(' | ')
             : 'Sin Artículos Registrados';
-        
-        let orderDate = '';
-        if (order.createdAt) {
-            try {
-                orderDate = new Date(order.createdAt).toLocaleDateString('es-ES', {
-                    day: '2-digit', month: '2-digit', year: 'numeric'
-                });
-            } catch (e) { /* ignorar fecha inválida */ }
-        }
-
         
         let orderDate = '';
         if (order.createdAt) {
@@ -733,7 +673,6 @@ async function renderOrderList() {
                 <p class="text-sm text-gray-400 mb-1">Cliente: ${order.customerName}</p>
                 <p class="text-xs text-gray-500 truncate w-64">Artículos: ${itemDetails}</p>
                 <p class="text-xs text-gray-400 mt-2">${orderDate}</p> 
-                <p class="text-xs text-gray-400 mt-2">${orderDate}</p> 
             </div>
             <div class="text-right flex flex-col items-end">
                 <span class="${bg} ${text} text-xs font-bold py-1 px-3 rounded-full uppercase">${label}</span>
@@ -750,7 +689,6 @@ async function renderOrderList() {
 
 function createOrderItemRow(productItem = {}) {
     const products = AppState.products; 
-    const products = AppState.products; 
     const row = document.createElement('div');
     row.className = 'order-item-row flex gap-3 items-center bg-gray-700 p-2 rounded-lg'; 
     
@@ -762,8 +700,6 @@ function createOrderItemRow(productItem = {}) {
     defaultOption.textContent = 'Selecciona Producto';
     productSelect.appendChild(defaultOption);
     
-    const availableProducts = products.filter(p => p.stock > 0 || (productItem.productId && p.id == productItem.productId));
-    availableProducts.forEach(p => {
     const availableProducts = products.filter(p => p.stock > 0 || (productItem.productId && p.id == productItem.productId));
     availableProducts.forEach(p => {
         const option = document.createElement('option');
@@ -876,7 +812,6 @@ function resetOrderForm() {
     DOMElements.orderIdInput.value = '';
     AppState.editingOrderId = null; 
     AppState.editingOrderCreatedAt = null; // Limpiar fecha guardada
-    AppState.editingOrderCreatedAt = null; // Limpiar fecha guardada
     DOMElements.orderFormTitle.textContent = 'Añadir Nuevo Pedido (Manual)';
     DOMElements.saveOrderBtn.textContent = 'Guardar Pedido';
     DOMElements.cancelOrderBtn.style.display = 'none';
@@ -903,18 +838,8 @@ async function fillFormForEditOrder(orderId) {
     
     AppState.editingOrderCreatedAt = order.createdAt || null;
 
-    
-    AppState.editingOrderCreatedAt = order.createdAt || null;
-
     if (order.items && order.items.length > 0) {
         for (const item of order.items) {
-            const product = AppState.products.find(p => p.name === item.name);
-            const itemForEdit = {
-                productId: product ? product.id : null,
-                size: item.size,
-                quantity: item.quantity
-            };
-            DOMElements.orderItemsSelectionContainer.appendChild(createOrderItemRow(itemForEdit));
             const product = AppState.products.find(p => p.name === item.name);
             const itemForEdit = {
                 productId: product ? product.id : null,
@@ -936,7 +861,6 @@ async function handleOrderFormSubmit(e) {
     const itemRows = DOMElements.orderItemsSelectionContainer.querySelectorAll('.order-item-row');
     const items = [];
     const products = AppState.products; 
-    const products = AppState.products; 
     const finalTotal = parseFloat(DOMElements.orderTotalInput.value);
 
     if (itemRows.length === 0 || finalTotal === 0) {
@@ -954,7 +878,6 @@ async function handleOrderFormSubmit(e) {
         if (!isNaN(productId) && quantity > 0 && productId > 0) {
             const product = products.find(p => p.id === productId);
             if (product) {
-                if (!AppState.editingOrderId && quantity > product.stock) {
                 if (!AppState.editingOrderId && quantity > product.stock) {
                     showPopup(`Stock insuficiente para ${product.name}. Solo quedan ${product.stock}.`, 'error');
                     stockError = true;
@@ -988,8 +911,6 @@ async function handleOrderFormSubmit(e) {
         trackingNumber: AppState.editingOrderId ? DOMElements.trackingNumberInput.value : undefined,
         items: items,
         createdAt: AppState.editingOrderId ? AppState.editingOrderCreatedAt : new Date().toISOString()
-        items: items,
-        createdAt: AppState.editingOrderId ? AppState.editingOrderCreatedAt : new Date().toISOString()
     };
     
     const savedOrder = await saveOrder(orderData); 
@@ -999,13 +920,7 @@ async function handleOrderFormSubmit(e) {
         showPopup(`${message} con éxito: #${savedOrder.id}`, 'success');
         
         // ¡Importante! Recargar la lista de productos para ver el stock actualizado
-        // ¡Importante! Recargar la lista de productos para ver el stock actualizado
         await getProducts(); 
-        
-        // Si estamos en la vista de productos, actualizarla
-        if (AppState.currentView === 'products-view') {
-            await renderProductList();
-        }
         
         // Si estamos en la vista de productos, actualizarla
         if (AppState.currentView === 'products-view') {
@@ -1031,18 +946,12 @@ async function handleOrderListClick(e) {
         const orderId = parseInt(deleteButton.dataset.id, 10);
         showConfirmationModal(
             `¿Estás seguro de que quieres eliminar este pedido #${orderId}? Esto repondrá el stock.`, 
-            `¿Estás seguro de que quieres eliminar este pedido #${orderId}? Esto repondrá el stock.`, 
             async () => {
                 const result = await deleteOrder(orderId);
                 if (result) {
                     showPopup('Pedido eliminado y stock repuesto.', 'success');
-                    showPopup('Pedido eliminado y stock repuesto.', 'success');
                     await renderOrderList();
                     resetOrderForm();
-                    // Actualizar el stock en la vista de productos si estamos ahí
-                    if (AppState.currentView === 'products-view') {
-                        await renderProductList();
-                    }
                     // Actualizar el stock en la vista de productos si estamos ahí
                     if (AppState.currentView === 'products-view') {
                         await renderProductList();
@@ -1062,7 +971,6 @@ async function loadReferenceData() {
     AppState.sizes = await getSizes();
     fillCategorySelect();
     createSizeCheckboxes();
-    getPredicion(); // Carga la predicción del Dashboard
     getPredicion(); // Carga la predicción del Dashboard
 }
 
@@ -1087,7 +995,6 @@ function createSizeCheckboxes() {
     DOMElements.productSizesContainer.innerHTML = '';
     if (AppState.sizes.length === 0) {
         DOMElements.productSizesContainer.innerHTML = `<p class="text-sm text-gray-500 col-span-3">No hay tallas definidas.</p>`;
-        DOMElements.productSizesContainer.innerHTML = `<p class="text-sm text-gray-500 col-span-3">No hay tallas definidas.</p>`;
         return;
     }
     AppState.sizes.forEach(size => {
@@ -1111,46 +1018,7 @@ function createSizeCheckboxes() {
 
 // ----------------------------------------------------
 // 7. LÓGICA DEL DASHBOARD (KPIs) - ¡ACTUALIZADA!
-// 7. LÓGICA DEL DASHBOARD (KPIs) - ¡ACTUALIZADA!
 // ----------------------------------------------------
-
-
-function renderRecentActivity(orders) {
-    const container = DOMElements.recentActivityList;
-    container.innerHTML = "";
-
-    if (!orders || orders.length === 0) {
-        container.innerHTML = '<p class="text-sm text-gray-500">No hay actividad reciente.</p>';
-        return;
-    }
-
-    orders.slice(0, 6).forEach(order => {
-        const { bg, text } = getStatusColor(order.status);
-        const icon = order.status === 'entregado'
-            ? '<i class="fas fa-check-circle text-green-400 mr-2"></i>'
-            : order.status === 'cancelado'
-                ? '<i class="fas fa-times-circle text-red-400 mr-2"></i>'
-                : '<i class="fas fa-hourglass-half text-yellow-400 mr-2"></i>';
-
-        const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) : '';
-
-        container.innerHTML += `
-            <li class="relative pl-6 border-l-4 border-yellow-400 hover:bg-gray-800 transition-all rounded-lg py-3 px-2">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center">
-                        ${icon}
-                        <p class="font-semibold text-white">Pedido #${order.id}</p>
-                    </div>
-                    <span class="text-xs text-gray-400">${date}</span>
-                </div>
-                <p class="text-sm text-gray-400 mt-1 flex justify-between">
-                    <span>${order.customerName}</span>
-                    <span class="text-yellow-400 font-bold">$${order.total.toFixed(2)}</span>
-                </p>
-                <span class="${bg} ${text} text-xs font-bold py-1 px-2 rounded-full uppercase mt-2 inline-block">${order.status}</span>
-            </li>`;
-    });
-}
 
 
 function renderRecentActivity(orders) {
@@ -1192,7 +1060,6 @@ function renderRecentActivity(orders) {
 
 async function loadDashboardData() {
     // Obtener todos los pedidos y productos
-    // Obtener todos los pedidos y productos
     const orders = await getOrders();
     const products = await getProducts(); 
     
@@ -1204,43 +1071,7 @@ async function loadDashboardData() {
     // Ventas de los últimos 30 días
     const recentSales = orders
         .filter(o => o.status === 'entregado' && new Date(o.createdAt) >= date30DaysAgo)
-    
-    // --- 1. Ventas Totales y Comparación (¡NUEVO!) ---
-    const now = new Date();
-    const date30DaysAgo = new Date(new Date().setDate(now.getDate() - 30));
-    const date60DaysAgo = new Date(new Date().setDate(now.getDate() - 60));
-
-    // Ventas de los últimos 30 días
-    const recentSales = orders
-        .filter(o => o.status === 'entregado' && new Date(o.createdAt) >= date30DaysAgo)
         .reduce((sum, o) => sum + o.total, 0);
-
-    // Ventas de los 30 días anteriores (días 30-60)
-    const previousSales = orders
-        .filter(o => o.status === 'entregado' && new Date(o.createdAt) < date30DaysAgo && new Date(o.createdAt) >= date60DaysAgo)
-        .reduce((sum, o) => sum + o.total, 0);
-
-    DOMElements.kpiTotalSales.textContent = `$${recentSales.toFixed(2)}`;
-
-    // Calcular porcentaje de cambio
-    if (previousSales > 0) {
-        const percentChange = ((recentSales - previousSales) / previousSales) * 100;
-        if (percentChange > 0) {
-            DOMElements.kpiTotalSalesSub.textContent = `▲ ${percentChange.toFixed(0)}% vs. mes anterior`;
-            DOMElements.kpiTotalSalesSub.className = 'text-sm text-green-400 mt-1';
-        } else {
-            DOMElements.kpiTotalSalesSub.textContent = `▼ ${percentChange.toFixed(0)}% vs. mes anterior`;
-            DOMElements.kpiTotalSalesSub.className = 'text-sm text-red-400 mt-1';
-        }
-    } else if (recentSales > 0) {
-        DOMElements.kpiTotalSalesSub.textContent = `▲ vs. mes anterior`;
-        DOMElements.kpiTotalSalesSub.className = 'text-sm text-green-400 mt-1';
-    } else {
-        DOMElements.kpiTotalSalesSub.textContent = `Sin ventas vs. mes anterior`;
-        DOMElements.kpiTotalSalesSub.className = 'text-sm text-gray-400 mt-1';
-    }
-
-    // --- 2. Pedidos Pendientes ---
 
     // Ventas de los 30 días anteriores (días 30-60)
     const previousSales = orders
@@ -1272,7 +1103,6 @@ async function loadDashboardData() {
     DOMElements.kpiPendingOrders.textContent = pendingOrders;
 
     // --- 3. Stock Crítico ---
-    // --- 3. Stock Crítico ---
     const criticalStock = products.filter(p => p.stock > 0 && p.stock <= STOCK_THRESHOLD).length;
     DOMElements.kpiCriticalStock.textContent = criticalStock;
 
@@ -1289,22 +1119,7 @@ async function loadDashboardData() {
     DOMElements.kpiCancellationRateSub.textContent = `${cancelledOrders} de ${finalizedOrders} ${plural} finalizados`;
 
     // --- 5. Actividad Reciente ---
-    // --- 4. Tasa de Cancelación (¡NUEVO!) ---
-    const cancelledOrders = orders.filter(o => o.status === 'cancelado').length;
-    const finalizedOrders = orders.filter(o => ['entregado', 'devuelto', 'cancelado'].includes(o.status)).length;
-    
-    let cancellationRate = 0;
-    if (finalizedOrders > 0) {
-        cancellationRate = (cancelledOrders / finalizedOrders) * 100;
-    }
-    DOMElements.kpiCancellationRate.textContent = `${cancellationRate.toFixed(1)}%`;
-    const plural = finalizedOrders === 1 ? 'pedido' : 'pedidos';
-    DOMElements.kpiCancellationRateSub.textContent = `${cancelledOrders} de ${finalizedOrders} ${plural} finalizados`;
-
-    // --- 5. Actividad Reciente ---
     DOMElements.recentActivityList.innerHTML = '';
-    const recentOrders = orders.slice(0, 5); // Ya vienen ordenados por ID desc. desde la API
-
     const recentOrders = orders.slice(0, 5); // Ya vienen ordenados por ID desc. desde la API
 
     if (recentOrders.length === 0) {
@@ -1325,154 +1140,6 @@ async function loadDashboardData() {
                 </li>
             `;
         });
-    }
-}
-
-// --- FUNCIÓN DE REPORTES (¡ACTUALIZADA!) ---
-async function loadReportsData() {
-    const orders = await getOrders();
-    const now = new Date();
-    const date30DaysAgo = new Date(new Date().setDate(now.getDate() - 30));
-
-    // 1. Total Pedidos (Mes) (¡NUEVO!)
-    const totalOrdersMonth = orders.filter(o => new Date(o.createdAt) >= date30DaysAgo).length;
-    DOMElements.kpiTotalOrdersMonth.textContent = totalOrdersMonth;
-    const pluralOrders = totalOrdersMonth === 1 ? 'pedido' : 'pedidos';
-    DOMElements.kpiTotalOrdersMonthSub.textContent = `${pluralOrders} en los últimos 30 días`;
-
-
-    // 2. Calcular Ticket Promedio
-    const deliveredOrders = orders.filter(o => o.status === 'entregado');
-    let avgTicket = 0;
-    if (deliveredOrders.length > 0) {
-        const totalRevenue = deliveredOrders.reduce((sum, o) => sum + o.total, 0);
-        avgTicket = totalRevenue / deliveredOrders.length;
-    }
-    DOMElements.kpiAvgTicket.textContent = `$${avgTicket.toFixed(2)}`;
-
-    // 3. Calcular Tasa de Devolución
-    const returnedOrdersCount = orders.filter(o => o.status === 'devuelto').length;
-    const finalizedOrdersCount = deliveredOrders.length + returnedOrdersCount; 
-    let returnRate = 0;
-    if (finalizedOrdersCount > 0) {
-        returnRate = (returnedOrdersCount / finalizedOrdersCount) * 100;
-    }
-    DOMElements.kpiReturnRate.textContent = `${returnRate.toFixed(1)}%`;
-    
-    const label = returnedOrdersCount === 1 ? 'pedido devuelto' : 'pedidos devueltos';
-    const label2 = finalizedOrdersCount === 1 ? 'pedido finalizado' : 'pedidos finalizados';
-    DOMElements.kpiReturnRateSub.textContent = `${returnedOrdersCount} ${label} de ${finalizedOrdersCount} ${label2}`;
-
-    // 4. Calcular Top Productos
-    const productSales = {}; 
-    deliveredOrders.forEach(order => { 
-        if (order.items) {
-            order.items.forEach(item => {
-                productSales[item.name] = (productSales[item.name] || 0) + item.quantity;
-            });
-        }
-    });
-    
-    const sortedTopProducts = Object.entries(productSales)
-        .sort(([, qtyA], [, qtyB]) => qtyB - qtyA)
-        .slice(0, 3); 
-
-    // 5. Renderizar Top Productos
-    DOMElements.topProductsList.innerHTML = '';
-    if (sortedTopProducts.length === 0) {
-        DOMElements.topProductsList.innerHTML = `<li class="p-3 bg-gray-800 rounded-lg text-gray-500 text-center">No hay datos de ventas.</li>`;
-    } else {
-        sortedTopProducts.forEach(([name, quantity], index) => {
-            const li = document.createElement('li');
-            li.className = 'flex justify-between items-center p-3 bg-gray-800 rounded-lg';
-            li.innerHTML = `
-                <span class="font-semibold">${index + 1}. ${name}</span>
-                <span class="font-bold text-lg">${quantity} <span class="text-sm text-gray-400">unid.</span></span>
-            `;
-            DOMElements.topProductsList.appendChild(li);
-        });
-    }
-
-    // 6. Lógica del Gráfico de Ventas Mensuales
-    if (monthlySalesChart) {
-        monthlySalesChart.destroy();
-        monthlySalesChart = null;
-    }
-
-    const salesByMonth = {};
-    const monthLabels = [];
-
-    for (let i = 11; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthYear = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        monthLabels.push(d.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }));
-        salesByMonth[monthYear] = 0;
-    }
-
-    deliveredOrders.forEach(order => {
-        if (!order.createdAt) return; 
-        try {
-            const orderDate = new Date(order.createdAt);
-            const monthYear = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
-            if (salesByMonth.hasOwnProperty(monthYear)) {
-                salesByMonth[monthYear] += order.total;
-            }
-        } catch (e) { /* Ignorar fecha inválida */ }
-    });
-
-    const salesData = Object.values(salesByMonth);
-    const ctx = DOMElements.monthlySalesChartCanvas.getContext('2d');
-    if (!ctx) return;
-
-    monthlySalesChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: monthLabels,
-            datasets: [{
-                label: 'Ventas ($)',
-                data: salesData,
-                backgroundColor: 'rgba(255, 255, 0, 0.6)', 
-                borderColor: 'rgba(255, 255, 0, 1)', 
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: '#9CA3AF' },
-                    grid: { color: '#374151' }
-                },
-                x: {
-                    ticks: { color: '#9CA3AF' },
-                    // *** ESTA ES LA LÍNEA CORREGIDA ***
-                    grid: { color: '#374151' } 
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: { color: '#F3F4F6' }
-                }
-            }
-        }
-    });
-
-    // 7. Lógica de IA (Categorías)
-    try {
-        const response = await fetch('/api/ai/category-demand');
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.message || 'Error de red al cargar predicción');
-        }
-        const categoryDemand = await response.json();
-        renderCategoryDemand(categoryDemand); 
-    } catch (error) {
-        console.error("Error al cargar predicción de demanda IA:", error);
-        showPopup(`Error IA: ${error.message}`, 'error');
-        renderCategoryDemand([]); 
     }
 }
 
@@ -1681,12 +1348,6 @@ async function init() {
         iaBtn.addEventListener("click", loadRealAIPrediction);
     }
 
-    // 🧠 Conectar botón IA real con la función del análisis de Gemini
-    const iaBtn = document.getElementById("ia-predicion");
-    if (iaBtn) {
-        iaBtn.addEventListener("click", loadRealAIPrediction);
-    }
-
     // Comprobar la sesión al cargar la página
     if (sessionStorage.getItem('isAdminAuthenticated') === 'true') {
         showDashboard();
@@ -1699,10 +1360,8 @@ document.addEventListener('DOMContentLoaded', init);
 
 // ----------------------------------------------------
 // 9. LÓGICA DE IA (Dashboard y Reportes)
-// 9. LÓGICA DE IA (Dashboard y Reportes)
 // ----------------------------------------------------
 
-// --- IA Dashboard (Ventas Totales) ---
 // --- IA Dashboard (Ventas Totales) ---
 document.getElementById('ia-predicion').addEventListener('click', loadAIPredictions);
 
