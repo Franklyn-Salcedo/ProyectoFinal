@@ -560,37 +560,7 @@ h2, h3, .font-title {
             <div class="mt-4 border-t border-gray-700 pt-4">
     <p class="text-lg font-bold">Total: <span id="cart-total">$0.00</span></p>
 
-    <!-- MÉTODOS DE PAGO -->
     
-<div class="payment-method">
-    <h3>MÉTODO DE PAGO</h3>
-
-    <label class="payment-option">
-        <input type="radio" name="pago" value="tarjeta">
-        <i class="payment-icon fas fa-credit-card"></i>
-        <span>Tarjeta de crédito / débito</span>
-    </label>
-
-    <label class="payment-option">
-        <input type="radio" name="pago" value="paypal">
-        <i class="payment-icon fab fa-paypal"></i>
-        <span>PayPal</span>
-    </label>
-
-    <label class="payment-option">
-        <input type="radio" name="pago" value="transferencia">
-        <i class="payment-icon fas fa-university"></i>
-        <span>Transferencia bancaria</span>
-    </label>
-
-    <label class="payment-option">
-        <input type="radio" name="pago" value="efectivo">
-        <i class="payment-icon fas fa-hand-holding-usd"></i>
-        <span>Pago contra entrega</span>
-    </label>
-</div>
-
-    <!-- FIN MÉTODOS DE PAGO -->
 
     <button id="checkout-btn" class="mt-2 w-full bg-yellow-400 text-black py-2 rounded-lg font-bold hover:bg-yellow-300 transition">Finalizar Pedido por WhatsApp</button>
 </div>
@@ -1363,45 +1333,134 @@ Factura descargada. Quedo atento a la confirmación.`;
 
     document.addEventListener('DOMContentLoaded', initialize);
     </script>
-    <!-- MODAL DE CHECKOUT (Nombre, Email obligatorio, Dirección, Método de pago) -->
-<div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center z-50">
-  <div class="bg-white text-black rounded-lg p-6 w-96 shadow-lg relative">
-    <button id="closeCheckoutModal" class="absolute top-3 right-3 text-xl">×</button>
-    <h2 class="text-xl font-bold mb-4 text-center">Datos para Facturación</h2>
+    
+
+<!-- MODAL DE CHECKOUT (DARK THEME MATCHING INDEX) -->
+<div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex justify-center items-center z-50 billing-modal">
+  <style>
+    .billing-modal .modal-box{
+        width:420px;
+        background:linear-gradient(180deg,#161616,#0d0d0d);
+        border:1px solid #2a2a2a;
+        border-radius:16px;
+        padding:24px;
+        color:#f1f1f1;
+        font-family:'Inter',sans-serif;
+        box-shadow:0 20px 50px rgba(0,0,0,.6);
+    }
+    .billing-modal .modal-title{
+        font-family:"Carter One";
+        font-size:22px;
+        text-align:center;
+        color:#FFDE4D;
+        margin-bottom:18px;
+        letter-spacing:1px;
+    }
+    .billing-modal .bill-label{
+        font-weight:700;
+        margin:6px 0;
+        color:#fff;
+    }
+    .billing-modal .bill-input{
+        width:100%;
+        padding:12px;
+        border-radius:10px;
+        background:#1d1d1d;
+        border:1px solid #333;
+        color:#fff;
+        margin-bottom:12px;
+    }
+    .billing-modal .bill-input:focus{
+        border-color:#FFDE4D;
+        box-shadow:0 0 6px rgba(255,222,77,.6);
+        outline:none;
+    }
+    .billing-modal .bill-method{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+        margin:12px 0;
+    }
+    .billing-modal .bill-option{
+        display:flex;
+        align-items:center;
+        gap:14px;
+        padding:14px;
+        background:#111;
+        border:1px solid #2d2d2d;
+        border-radius:12px;
+        cursor:pointer;
+        transition:.2s;
+    }
+    .billing-modal .bill-option:hover{
+        border-color:#FFDE4D;
+    }
+    .billing-modal .bill-icon{
+        font-size:22px;
+        color:#FFDE4D;
+    }
+    .billing-modal .bill-btns{
+        display:flex;
+        justify-content:space-between;
+        margin-top:16px;
+    }
+    .billing-modal .cancel-btn{
+        background:#444;
+        padding:10px 18px;
+        border-radius:10px;
+        color:#fff;
+    }
+    .billing-modal .confirm-btn{
+        background:#16a34a;
+        padding:10px 18px;
+        border-radius:10px;
+        color:#fff;
+    }
+  </style>
+
+  <div class="modal-box relative">
+    <button id="closeCheckoutModal" class="absolute top-3 right-3 text-xl text-white">×</button>
+    <h2 class="modal-title">DATOS PARA FACTURACIÓN</h2>
 
     <form id="checkoutForm" novalidate>
-      <label class="block font-semibold">Nombre completo:</label>
-      <input required type="text" id="clientName" class="w-full border rounded p-2 mb-3" placeholder="Tu nombre">
+      <label class="bill-label">Nombre completo:</label>
+      <input class="bill-input" required type="text" id="clientName" placeholder="Tu nombre">
 
-      <label class="block font-semibold">Correo electrónico:</label>
-      <input required type="email" id="clientEmail" class="w-full border rounded p-2 mb-3" placeholder="correo@ejemplo.com">
+      <label class="bill-label">Correo electrónico:</label>
+      <input class="bill-input" required type="email" id="clientEmail" placeholder="correo@ejemplo.com">
 
-      <label class="block font-semibold">Dirección de envío:</label>
-      <textarea required id="clientAddress" class="w-full border rounded p-2 mb-3" placeholder="Ciudad, Sector, Calle..."></textarea>
+      <label class="bill-label">Dirección de envío:</label>
+      <textarea class="bill-input" required id="clientAddress" placeholder="Ciudad, Sector, Calle..."></textarea>
 
-      <label class="block font-semibold mb-1">Método de pago:</label>
-      <div class="space-y-2 mb-4">
-        <label class="flex gap-2 items-center p-2 border rounded cursor-pointer">
-          <input type="radio" name="pago" value="Tarjeta" required> Tarjeta de crédito / débito
+      <label class="bill-label">Método de pago:</label>
+      <div class="bill-method">
+        <label class="bill-option">
+          <input type="radio" name="pago" value="Tarjeta" required>
+          <i class="bill-icon fas fa-credit-card"></i> Tarjeta de crédito / débito
         </label>
-        <label class="flex gap-2 items-center p-2 border rounded cursor-pointer">
-          <input type="radio" name="pago" value="PayPal"> PayPal
+        <label class="bill-option">
+          <input type="radio" name="pago" value="PayPal">
+          <i class="bill-icon fab fa-paypal"></i> PayPal
         </label>
-        <label class="flex gap-2 items-center p-2 border rounded cursor-pointer">
-          <input type="radio" name="pago" value="Transferencia"> Transferencia bancaria
+        <label class="bill-option">
+          <input type="radio" name="pago" value="Transferencia">
+          <i class="bill-icon fas fa-university"></i> Transferencia bancaria
         </label>
-        <label class="flex gap-2 items-center p-2 border rounded cursor-pointer">
-          <input type="radio" name="pago" value="Contra entrega"> Pago contra entrega
+        <label class="bill-option">
+          <input type="radio" name="pago" value="Contra entrega">
+          <i class="bill-icon fas fa-hand-holding-usd"></i> Pago contra entrega
         </label>
       </div>
 
-      <div class="flex justify-between">
-        <button type="button" id="cancelCheckout" class="bg-gray-500 text-white py-2 px-4 rounded">Cancelar</button>
-        <button type="submit" id="confirmCheckout" class="bg-green-600 text-white py-2 px-4 rounded">Confirmar pedido</button>
+      <div class="bill-btns">
+        <button type="button" id="cancelCheckout" class="cancel-btn">Cancelar</button>
+        <button type="submit" id="confirmCheckout" class="confirm-btn">Confirmar pedido</button>
       </div>
     </form>
   </div>
 </div>
+
+
 
 </body>
 </html>
