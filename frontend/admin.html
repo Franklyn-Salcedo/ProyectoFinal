@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Key Option Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-accent': '#FFFF00',
+                        'dark-bg': '#0D0D0D',
+                        'card-bg': '#1A1A1A',
+                    },
+                }
+            }
+        }
+    </script>
+ <style>
+/* 🌈 Estética general moderna */
+body {
+  background: radial-gradient(circle at 20% 20%, #0f0f0f, #090909 80%);
+  color: #f1f1f1;
+  font-family: 'Inter', sans-serif;
+}
+
+/* 🧭 Sidebar moderno */
+#admin-sidebar {
+  background: linear-gradient(160deg, #111 0%, #0b0b0b 100%);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#admin-sidebar button.view-btn {
+  transition: all 0.3s ease;
+}
+
+#admin-sidebar button.view-btn:hover {
+  background: linear-gradient(90deg, rgba(255,255,0,0.2), transparent);
+  transform: translateX(3px);
+}
+
+/* 🧱 KPI Cards */
+.bg-card-bg {
+  background: linear-gradient(145deg, #1b1b1b, #141414);
+  box-shadow: 3px 3px 12px rgba(0,0,0,0.4), inset 0 0 10px rgba(255,255,255,0.02);
+  transition: all 0.3s ease;
+}
+.bg-card-bg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255,255,0,0.1);
+}
+
+/* ✨ IA Highlight */
+#ia-product-highlight {
+  background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 25px rgba(255, 255, 0, 0.08);
+  backdrop-filter: blur(12px);
+}
+#ia-product-highlight.glow-animate {
+  animation: glowPulse 2s ease-in-out;
+}
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 0px rgba(255, 255, 0, 0); }
+  50% { box-shadow: 0 0 25px rgba(255, 255, 0, 0.4); }
+  100% { box-shadow: 0 0 0px rgba(255, 255, 0, 0); }
+}
+
+/* 🧭 Transiciones del dashboard */
+.view-btn.active {
+  background-color: #facc15;
+  color: #111;
+  box-shadow: 0 0 10px rgba(255, 255, 0, 0.4);
+}
+
+/* 🧁 Botones globales */
+button {
+  transition: all 0.3s ease-in-out;
+}
+button:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* 🧠 Animación de IA */
+#ia-product-image {
+  transition: opacity 0.4s ease, transform 0.3s ease;
+}
+#ia-product-image:not(.hidden) {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+</style>
+
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <section id="login-section" class="min-h-screen flex items-center justify-center" style="display: none;">
+        <div class="max-w-md w-full bg-gray-800 p-8 rounded-lg shadow-lg">
+            <img src="/imagenes/logo.png" alt="Key Option Logo" class="h-20 mx-auto mb-6">
+            <h2 class="text-2xl text-center mb-6 uppercase">Panel de Administrador</h2>
+            <form id="login-form">
+
+                <div class="mb-4">
+                    <label for="username" class="block mb-2 text-sm font-bold text-gray-400">Usuario</label>
+                    <input type="text" id="username"
+                        class="w-full px-3 py-2 bg-white text-gray-900 border border-gray-600 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 transition"
+                        required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="block mb-2 text-sm font-bold text-gray-400">Contraseña</label>
+                    <div class="relative">
+                        <input type="password" id="password"
+                            class="w-full px-3 py-2 bg-white text-gray-900 border border-gray-600 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 pr-10 transition"
+                            required>
+                        <button type="button" id="toggle-password"
+                            class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 hover:text-gray-700 transition">
+                            <i id="eye-icon" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg hover:bg-yellow-500 transition duration-300">Acceder</button>
+                <p id="login-error" class="text-red-500 text-center mt-4 text-sm"></p>
+            </form>
+        </div>
+    </section>
+
+    <main id="admin-dashboard" class="relative min-h-screen" style="display: none;">
+
+        <aside id="admin-sidebar" class="w-64 bg-gray-900 min-h-screen p-4 shadow-xl border-r border-gray-800 flex flex-col fixed top-0 left-0 h-screen z-40">
+            <div class="flex items-center justify-between mb-8 px-2">
+                <h1 class="text-3xl font-bold uppercase text-yellow-400">
+                    <span class="sidebar-text">Key Option</span> 
+                    <span class="text-sm block leading-none text-white sidebar-text">Admin</span>
+                </h1>
+            </div>
+            
+            <nav class="flex-grow">
+                <ul>
+                    <li class="mb-4">
+                        <button data-view="dashboard-view"
+                            class="view-btn w-full flex items-center p-3 rounded-lg bg-yellow-400 text-black font-bold">
+                            <i class="fas fa-home w-6 text-center text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard</span>
+                        </button>
+                    </li>
+                    <li class="mb-4">
+                        <button data-view="products-view"
+                            class="view-btn w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-white">
+                            <i class="fas fa-box-open w-6 text-center text-lg"></i>
+                            <span class="sidebar-text ml-3">Productos</span>
+                        </button>
+                    </li>
+                    <li class="mb-4">
+                        <button data-view="orders-view"
+                            class="view-btn w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-white">
+                            <i class="fas fa-receipt w-6 text-center text-lg"></i>
+                            <span class="sidebar-text ml-3">Pedidos</span>
+                        </button>
+                    </li>
+                    <li class="mb-4">
+                        <button data-view="reports-view"
+                            class="view-btn w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-white">
+                            <i class="fas fa-chart-line w-6 text-center text-lg"></i>
+                            <span class="sidebar-text ml-3">Reportes y IA</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="border-t border-gray-800 pt-4">
+                <button id="logout-btn"
+                    class="w-full flex items-center p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold">
+                    <i class="fas fa-sign-out-alt w-6 text-center text-lg"></i>
+                    <span class="sidebar-text ml-3">Cerrar Sesión</span>
+                </button>
+
+                <button id="toggle-sidebar-btn" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-700 text-gray-400 mt-2">
+                    <i id="toggle-sidebar-icon" class="fas fa-chevron-left w-6 text-center text-lg"></i>
+                    <span class="sidebar-text ml-3">Colapsar Menú</span>
+                </button>
+            </div>
+        </aside>
+
+        <div id="main-content" class="flex-1 p-4 md:p-10 ml-64">
+
+            <section id="dashboard-view" class="view-content">
+                <header class="mb-8 flex justify-between items-center">
+                    <h2 class="text-4xl font-extrabold uppercase text-white">Resumen Ejecutivo</h2>
+                    <div class="text-right text-gray-400">
+                        <span id="current-date" class="block font-semibold">Cargando fecha...</span>
+                        <span id="current-time" class="block text-sm">Cargando hora...</span>
+                    </div>
+                </header>
+                <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-yellow-400">
+                        <div class="flex justify-between items-center"><i class="fas fa-dollar-sign text-3xl text-yellow-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Ventas Totales</span></div>
+                        <p id="kpi-total-sales" class="text-4xl font-extrabold mt-3">$0.00</p>
+                        <p id="kpi-total-sales-sub" class="text-sm text-gray-400 mt-1">vs. mes anterior</p>
+                    </div>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-indigo-500">
+                        <div class="flex justify-between items-center"><i class="fas fa-truck text-3xl text-indigo-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Pedidos Pendientes</span></div>
+                        <p id="kpi-pending-orders" class="text-4xl font-extrabold mt-3">0</p>
+                        <p class="text-sm text-gray-400 mt-1">Órdenes por procesar</p>
+                    </div>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-red-500">
+                        <div class="flex justify-between items-center"><i class="fas fa-exclamation-triangle text-3xl text-red-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Stock Crítico</span></div>
+                        <p id="kpi-critical-stock" class="text-4xl font-extrabold mt-3">0</p>
+                        <p class="text-sm text-gray-400 mt-1">Productos que reordenar</p>
+                    </div>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-pink-500">
+                        <div class="flex justify-between items-center"><i class="fas fa-ban text-3xl text-pink-400"></i><span class="text-sm font-semibold uppercase text-gray-400">Tasa de Cancelación</span></div>
+                        <p id="kpi-cancellation-rate" class="text-4xl font-extrabold mt-3">0%</p>
+                        <p id="kpi-cancellation-rate-sub" class="text-sm text-gray-400 mt-1">de pedidos finalizados</p>
+                    </div>
+                </section>
+                <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-bold uppercase text-yellow-400">Análisis Predictivo de IA</h3>
+                            <button id="ia-predicion" class="bg-yellow-400 text-black text-2xl font-bold py-1 px-3 rounded-full 
+                                hover:bg-yellow-500 hover:shadow-md transition-all duration-200 ease-in-out">
+                                <i class="fas fa-robot text-2xl text-black-400"></i>
+                                IA
+                            </button>
+                        </div>
+<p class="text-gray-400 mb-4 text-justify" id="ia-text"></p>
+
+<!-- 🔮 Producto de Alta Demanda generado por IA -->
+<div id="ia-product-highlight"
+     class="mt-6 flex flex-col md:flex-row items-center md:items-start gap-6 p-6 
+            bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 
+            rounded-2xl shadow-lg border border-gray-700/50 transition-all duration-500 min-h-[220px]">
+
+    <!-- 🧠 Imagen o placeholder -->
+    <div class="relative flex-shrink-0 flex items-center justify-center w-36 h-36 md:w-44 md:h-44 
+                bg-gray-800/70 rounded-2xl border border-gray-700 shadow-inner overflow-hidden">
+
+        <!-- Imagen IA -->
+        <img id="ia-product-image"
+             src=""
+             alt="Producto de alta demanda"
+             class="absolute inset-0 object-cover w-full h-full rounded-2xl shadow-md ring-2 ring-yellow-500/20 
+                    transition-transform duration-300 hover:scale-105 hidden z-10">
+
+        <!-- 🧠 Etiqueta -->
+        <span class="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded-full shadow-md z-20">
+            🧠 Predicción IA
+        </span>
+
+        <!-- 🕓 Placeholder visible mientras no haya imagen -->
+        <span id="ia-placeholder" 
+              class="absolute inset-0 flex items-center justify-center text-gray-500 text-sm font-medium text-center z-0">
+            Imagen no disponible
+        </span>
+    </div>
+
+    <!-- 📊 Datos del producto -->
+    <div class="flex flex-col justify-center text-center md:text-left w-full">
+
+        <!-- Nombre del producto -->
+        <h4 id="ia-product-name" class="text-2xl font-extrabold text-yellow-400 tracking-wide mb-2">
+            [Producto de alta demanda]
+        </h4>
+
+        <!-- Precio y unidades -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-gray-300 mb-3">
+            <p id="ia-product-price" class="text-lg font-semibold">Precio: --</p>
+            <span class="hidden sm:block w-1 h-1 bg-yellow-500 rounded-full"></span>
+            <p id="ia-product-units" class="text-sm text-gray-400">Unidades vendidas este mes: --</p>
+        </div>
+
+        <!-- Ventas proyectadas -->
+        <div class="mt-2 bg-gray-700/40 px-4 py-3 rounded-lg text-gray-100 text-base 
+                    border border-gray-600/40 shadow-inner">
+            <p class="font-semibold text-yellow-400 text-lg mb-1">
+                📈 Ventas proyectadas en 30 días:
+            </p>
+            <p id="ia-monto" class="text-2xl font-bold text-white tracking-wide">--</p>
+            <p id="ia-variacion" class="text-sm text-gray-400 mt-1">Variación estimada: --</p>
+        </div>
+    </div>
+</div>
+
+
+                    </div>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
+                        <h3 class="text-2xl font-bold uppercase mb-4">Actividad Reciente</h3>
+                        <ul id="recent-activity-list" class="space-y-4">
+                        </ul>
+                    </div>
+                </section>
+            </section>
+
+            <section id="products-view" class="view-content" style="display: none;">
+                <h1 class="text-4xl uppercase mb-8">Gestión de Productos</h1>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1">
+                        <section class="bg-gray-800 p-6 rounded-lg shadow-lg sticky top-10">
+                            <h2 id="form-title" class="text-2xl font-bold mb-6 uppercase text-yellow-400">Añadir Nuevo Producto</h2>
+                            <form id="product-form" class="space-y-4">
+                                <input type="hidden" id="product-id">
+                                <div>
+                                    <label for="product-name" class="block text-sm font-bold mb-2">Nombre del Producto</label>
+                                    <input type="text" id="product-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                </div>
+                                <div>
+                                    <label for="product-description" class="block text-sm font-bold mb-2">Descripción</label>
+                                    <textarea id="product-description" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600"></textarea>
+                                </div>
+                                <div>
+                                    <label for="product-category-select" class="block text-sm font-bold mb-2">Categoría</label>
+                                    <select id="product-category-select" required class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
+                                        <option value="">Cargando Categorías...</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="product-price" class="block text-sm font-bold mb-2">Precio</label>
+                                        <input type="number" id="product-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                    </div>
+                                    <div>
+                                        <label for="product-stock" class="block text-sm font-bold mb-2">Stock</label>
+                                        <input type="number" id="product-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Tallas Disponibles</label>
+                                    <div id="product-sizes-container" class="grid grid-cols-3 gap-2 p-3 bg-gray-700 rounded-lg border border-gray-600 h-28 overflow-y-auto">
+                                        <p class="text-sm text-gray-500 col-span-3">Cargando tallas...</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="product-images" class="block text-sm font-bold mb-2">URLs de Imágenes (una por línea)</label>
+                                    <textarea id="product-images" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"></textarea>
+                                </div>
+                                <div class="flex justify-end gap-4 pt-4">
+                                    <button type="button" id="cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar</button>
+                                    <button type="submit" id="save-btn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar Producto</button>
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <section class="mb-4 bg-gray-800 p-4 rounded-lg shadow-lg">
+                            <label for="product-search-input" class="block text-sm font-bold mb-2">Buscar Producto</label>
+                            <input type="text" id="product-search-input"
+                                placeholder="Escribe el nombre o categoría del producto..."
+                                class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 focus:ring-yellow-400 focus:border-yellow-400">
+                        </section>
+                        <section>
+                            <h2 class="text-2xl mb-4 uppercase">Inventario</h2>
+                            <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+            <section id="orders-view" class="view-content" style="display: none;">
+                <h1 class="text-4xl uppercase mb-8">Gestión de Pedidos</h1>
+                <section class="mb-8 bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <h2 id="order-form-title" class="text-2xl mb-4 uppercase text-yellow-400">Añadir Nuevo Pedido</h2>
+                    <form id="order-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <input type="hidden" id="order-id">
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-bold text-yellow-400 mb-2">Datos del Cliente</h3>
+                            <div>
+                                <label for="customer-name" class="block text-sm font-bold mb-2">Nombre del Cliente</label>
+                                <input type="text" id="customer-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required>
+                            </div>
+                            <div>
+                                <label for="customer-email" class="block text-sm font-bold mb-2">Email</label>
+                                <input type="email" id="customer-email" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4">
+                            </div>
+                            <div>
+                                <label for="customer-address" class="block text-sm font-bold mb-2">Dirección de Envío</label>
+                                <textarea id="customer-address" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600 mb-4" required></textarea>
+                            </div>
+                            <h3 class="text-lg font-bold text-yellow-400 mt-6 mb-2">Detalles del Pedido</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="order-status" class="block text-sm font-bold mb-2">Estado del Pedido</label>
+                                    <select id="order-status" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="procesando">Procesando</option>
+                                        <option value="enviado">Enviado</option>
+                                        <option value="entregado">Entregado</option>
+                                        <option value="devuelto">Devuelto</option> 
+                                        <option value="cancelado">Cancelado</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="tracking-number" class="block text-sm font-bold mb-2">N° de Seguimiento</label>
+                                    <input type="text" id="tracking-number" 
+                                           class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600"
+                                           placeholder="Se generará al guardar (si es nuevo)">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-lg font-bold text-yellow-400">Artículos del Pedido</h3>
+                                <button type="button" id="add-order-item-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-1 px-3 rounded-lg flex items-center">
+                                    <i class="fas fa-plus mr-1"></i> Añadir Artículo
+                                </button>
+                            </div>
+                            <div id="order-items-container" class="space-y-3 p-3 bg-gray-700 rounded-lg min-h-[150px] max-h-64 overflow-y-auto">
+                                <p class="text-sm text-gray-400 text-center" id="empty-order-placeholder">Usa el botón "Añadir Artículo" para empezar.</p>
+                            </div>
+                            <div>
+                                <label for="order-total" class="block text-sm font-bold mb-2">Monto Total (calculado)</label>
+                                <input type="number" id="order-total" step="0.01" class="w-full bg-gray-600 p-2 rounded-lg border border-gray-500 cursor-not-allowed" required readonly>
+                            </div>
+                            <input type="hidden" id="order-items-summary">
+                            <div class="flex justify-end gap-4 mt-6 border-t border-gray-700 pt-4">
+                                <button type="button" id="cancel-order-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar</button>
+                                <button type="submit" id="save-order-btn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar Pedido</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                <section>
+                    <h2 class="text-2xl mb-4 uppercase">Listado de Pedidos</h2>
+                    <div id="order-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <p class="text-center text-gray-500 col-span-full">Cargando pedidos...</p>
+                    </div>
+                </section>
+            </section>
+            
+            <section id="reports-view" class="view-content" style="display: none;">
+                <header class="mb-8">
+                    <h2 class="text-4xl font-extrabold uppercase text-white">Reportes y Análisis Predictivo</h2>
+                </header>
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-teal-500">
+                        <div class="flex justify-between items-center">
+                            <i class="fas fa-box text-3xl text-teal-400"></i>
+                            <span class="text-sm font-semibold uppercase text-gray-400">Total Pedidos (Mes)</span>
+                        </div>
+                        <p id="kpi-total-orders-month" class="text-4xl font-extrabold mt-3">0</p>
+                        <p id="kpi-total-orders-month-sub" class="text-sm text-gray-400 mt-1">En los últimos 30 días</p>
+                    </div>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-blue-500">
+                        <div class="flex justify-between items-center">
+                            <i class="fas fa-dollar-sign text-3xl text-blue-400"></i>
+                            <span class="text-sm font-semibold uppercase text-gray-400">Ticket Promedio</span>
+                        </div>
+                        <p id="kpi-avg-ticket" class="text-4xl font-extrabold mt-3">$0.00</p>
+                        <p class="text-sm text-gray-400 mt-1">Pedidos entregados</p>
+                    </div>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-purple-500">
+                        <div class="flex justify-between items-center">
+                            <i class="fas fa-undo-alt text-3xl text-purple-400"></i>
+                            <span class="text-sm font-semibold uppercase text-gray-400">Tasa de Devolución</span>
+                        </div>
+                        <p id="kpi-return-rate" class="text-4xl font-extrabold mt-3">0.0%</p>
+                        <p id="kpi-return-rate-sub" class="text-sm text-gray-400 mt-1">0 de 0 pedidos</p>
+                    </div>
+                </section>
+                <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
+                        <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Ventas Mensuales</h3>
+                        <div class="h-80 bg-gray-800 p-4 rounded-lg">
+                            <canvas id="monthly-sales-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
+                        <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Top Productos (Ventas Totales)</h3>
+                        <ul id="top-products-list" class="space-y-3">
+                            <li class="flex justify-between items-center p-3 bg-gray-800 rounded-lg">
+                                <span class="font-semibold">Cargando...</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="lg:col-span-2 bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
+                        <h3 class="text-2xl font-bold uppercase mb-4 text-yellow-400">Predicción de Demanda (IA)</h3>
+                        <p class="text-gray-400 mb-4">El modelo predice una alta demanda para las siguientes categorías en los próximos 30 días...</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                <i id="ia-cat-1-icon" class="fas fa-tshirt text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-1-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-1-status" class="text-sm text-gray-400 font-bold">...</p>
+                            </div>
+                            <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                <i id="ia-cat-2-icon" class="fas fa-user-secret text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-2-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-2-status" class="text-sm text-gray-400 font-bold">...</p>
+                            </div>
+                            <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                <i id="ia-cat-3-icon" class="fas fa-redhat text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-3-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-3-status" class="text-sm text-gray-400 font-bold">...</p>
+                            </div>
+                            <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                <i id="ia-cat-4-icon" class="fas fa-running text-4xl text-gray-500 mb-2"></i>
+                                <p id="ia-cat-4-name" class="font-semibold">Cargando...</p>
+                                <p id="ia-cat-4-status" class="text-sm text-gray-400 font-bold">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+            
+        </div>
+    </main>
+
+    <script type="module" src="admin.js"></script>
+
+    <div id="toast-popup" 
+         class="fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white max-w-sm z-[100] 
+                opacity-0 translate-x-full invisible transition-all duration-300 ease-in-out" 
+         role="alert">
+        <div class="flex items-center">
+            <i id="toast-icon" class="fas fa-check-circle mr-3 text-2xl"></i>
+            <span id="toast-message" class="font-semibold">Acción completada con éxito.</span>
+        </div>
+    </div>
+
+    <div id="confirmation-modal" class="fixed inset-0 z-[99] bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl max-w-sm w-full p-6">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-yellow-400 text-3xl mr-4"></i>
+                <div>
+                    <h3 class="text-xl font-bold">Confirmar Eliminación</h3>
+                    <p id="confirmation-message" class="text-gray-300 mt-2">¿Estás seguro de que quieres eliminar esto?</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-4 mt-6">
+                <button id="confirm-cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Cancelar
+                </button>
+                <button id="confirm-delete-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

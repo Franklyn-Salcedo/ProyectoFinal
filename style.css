@@ -1,0 +1,37 @@
+/* Usaremos este archivo para añadir estilos personalizados que complementen a Tailwind CSS */
+
+/* Por ejemplo, podemos definir nuestro color de acento como una variable */
+
+ @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Anton&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Anton', sans-serif; letter-spacing: 0.05em; }
+        
+:root {
+    --neon-accent: #FFFF00;
+}
+
+.neon-accent {
+    color: var(--neon-accent);
+}
+
+ body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Anton', sans-serif; text-transform: uppercase; }
+        .neon-accent { color: #FFFF00; }
+        .btn-neon {
+            background-color: #FFFF00;
+            color: #0D0D0D;
+            font-family: 'Inter', sans-serif;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+        }
+        /* Ocultar elementos por defecto */
+        #login-section, #admin-dashboard {
+            display: none;
+        }
+        /* Ocultar el botón de cancelar edición por defecto */
+        #cancel-btn {
+            display: none;
+        }
