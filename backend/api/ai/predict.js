@@ -70,8 +70,8 @@ export async function getAiPrediction(req, res) {
         const result = await callGeminiWithRetry(() => model.generateContent(prompt))
             .catch(async (err) => {
                 // Intentar fallback solo si 503 o fallo de servicio
-                console.warn("⚠️ Pasando a gemini-1.5-flash por error:", err.message);
-                model = createModel("gemini-1.5-flash");
+                console.warn("⚠️ Pasando a gemini-2.0-flash por error:", err.message);
+                model = createModel("gemini-2.0-flash");
                 return callGeminiWithRetry(() => model.generateContent(prompt));
             });
 

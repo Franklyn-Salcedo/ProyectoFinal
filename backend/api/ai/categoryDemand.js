@@ -141,8 +141,8 @@ export const getCategoryDemandPrediction = async (req, res) => {
         // 6. Llamada a IA con retry + fallback
         const result = await callGeminiWithRetry(() => model.generateContent(prompt))
             .catch(async (err) => {
-                console.warn("⚠️ Gemini 2.5 falló, cambiando a gemini-1.5-flash:", err.message);
-                model = createModel("gemini-1.5-flash");
+                console.warn("⚠️ Gemini 2.5 falló, cambiando a gemini-2.0-flash:", err.message);
+                model = createModel("gemini-2.0-flash");
                 return callGeminiWithRetry(() => model.generateContent(prompt));
             });
 
