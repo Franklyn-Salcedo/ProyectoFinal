@@ -51,6 +51,46 @@ app.use(express.static(rootPath));
 // ✅ RUTAS CRUD con try/catch restaurados
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+// 🤖 Chatbot con GPT
+// -------------------------------------------------------------------
+import { chatWithGPT } from './api/chat/chatbot.js';
+
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message || message.trim() === "") {
+      return res.status(400).json({ reply: "Por favor escribe un mensaje." });
+    }
+
+    const reply = await chatWithGPT(message);
+
+    // 🟦 Si es un objeto con productos → devuélvelo tal cual
+    if (reply && reply.isProduct) {
+      return res.json(reply);
+    }
+
+    // 🟦 Si es solo texto → devuélvelo como reply
+    if (typeof reply === "string") {
+      return res.json({ reply });
+    }
+
+    // 🟦 Por si acaso
+    return res.json({ reply: reply.reply || "No entendí tu pregunta." });
+
+  } catch (error) {
+    console.error("❌ Error en /api/chat:", error);
+    res.status(500).json({
+      reply: "Lo siento 😢 tuve un problema para responder. Por favor intenta de nuevo."
+    });
+  }
+});
+
+
+
+
+
 // ✅ PRODUCTOS
 app.get('/api/products', async (req, res) => {
   try {

@@ -8,19 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'neon-accent': '#FFDE4D',
-                        'dark-bg': '#0D0D0D',
-                        'card-bg': '#1A1A1A',
-                    },
-                }
-            }
-        }
-    </script>
+    
    <style>
     /* =========================
    FUENTES Y ESTILOS BASE
@@ -427,6 +415,209 @@ h2, h3, .font-title {
     color: #FFDE4D;
     font-weight: 600;
 }
+/* =========================
+   CHAT - Estilo Apple minimal (respeta colores del proyecto)
+   ========================= */
+
+/* Contenedor del botón flotante */
+#chatbot-button {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 6.25rem; /* arriba del whatsapp */
+  z-index: 60;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(255,222,77,0.95), #FFDE4D);
+  color: #0b0b0b;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+  font-weight: 700;
+}
+#chatbot-button:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.7); }
+
+/* Modal overlay */
+#chatbot-modal {
+  position: fixed;
+  inset: 0;
+  display: none; /* toggle via .open */
+  z-index: 70;
+  align-items: end;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(6px);
+}
+
+/* Panel del chat */
+.chat-panel {
+  width: 100%;
+  max-width: 420px;
+  height: min(88vh, 720px);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(17,17,17,0.85), rgba(12,12,12,0.9));
+  border: 1px solid rgba(255,222,77,0.06);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.chat-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+}
+.chat-header .avatar {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 10px;
+  background: linear-gradient(180deg,#fff,#f6f0d2);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #0d0d0d;
+}
+.chat-header .title {
+  font-weight: 700;
+  color: #FFDE4D;
+  font-size: 15px;
+  letter-spacing: 0.6px;
+}
+.chat-header .subtitle {
+  font-size: 12px;
+  color: #bdbdbd;
+}
+
+/* Messages area */
+.chat-body {
+  flex: 1 1 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(180deg, rgba(11,11,11,0.0), rgba(0,0,0,0.02));
+}
+
+/* Bubble base */
+.msg {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.35;
+  display: inline-block;
+  word-break: break-word;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+
+/* User bubble (derecha) */
+.msg.user {
+  margin-left: auto;
+  background: linear-gradient(180deg, rgba(255,222,77,0.95), #FFDE4D);
+  color: #0b0b0b;
+  border-bottom-right-radius: 6px;
+}
+
+/* Bot bubble (izquierda) */
+.msg.bot {
+  margin-right: auto;
+  background: linear-gradient(180deg, rgba(30,30,30,0.85), rgba(28,28,28,0.95));
+  color: #e8e8e8;
+  border-bottom-left-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.02);
+}
+
+/* Meta text (precio/stock etc) */
+.msg .meta {
+  display:block;
+  margin-top:8px;
+  font-size:12px;
+  color: #bdbdbd;
+  opacity: 0.95;
+}
+
+/* Producto dentro del chat (mini card) */
+.product-mini {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.product-mini img {
+  width: 56px; height: 64px; object-fit: cover; border-radius: 8px;
+}
+.product-mini .pinfo { font-size:13px; color:#f5f5f5; }
+.product-mini .pinfo .price { color: #FFDE4D; font-weight:700; margin-top:6px; display:block; }
+
+/* Input area */
+.chat-input {
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.02));
+}
+.chat-input input {
+  flex:1;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: #eaeaea;
+  outline: none;
+  font-size: 14px;
+}
+.chat-input input:focus {
+  box-shadow: 0 6px 20px rgba(255,222,77,0.06);
+  border-color: rgba(255,222,77,0.15);
+}
+
+/* Send button */
+.chat-input button.send {
+  background: #FFDE4D;
+  color: #0b0b0b;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(255,222,77,0.08);
+}
+
+/* Typing indicator */
+.typing {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.typing .dot {
+  width: 8px; height: 8px; border-radius:50%;
+  background: #cfcfcf; opacity:0.9;
+  animation: blink 1.2s infinite ease-in-out;
+}
+.typing .dot:nth-child(2){ animation-delay: 0.12s; }
+.typing .dot:nth-child(3){ animation-delay: 0.24s; }
+@keyframes blink { 0%{ transform: translateY(0); opacity:.25 } 50%{ transform: translateY(-4px); opacity:1 } 100%{ transform: translateY(0); opacity:.25 } }
+
+/* Small responsive tweak */
+@media (max-width: 520px) {
+  .chat-panel { max-width: 96%; height: 86vh; border-radius: 12px; }
+  #chatbot-button { right: 0.75rem; bottom: 5.5rem; }
+}
 
 </style>
 </head>
@@ -545,7 +736,8 @@ h2, h3, .font-title {
             <div id="cart-count" class="absolute -top-1 -right-1 neon-accent-bg text-black text-sm font-bold rounded-full h-6 w-6 flex items-center justify-center">0</div>
         </div>
     </div>
-    
+  
+
     <a id="whatsapp-button" href="#" class="fixed bottom-5 right-5 z-50" target="_blank">
         <svg class="w-16 h-16" viewBox="0 0 24 24"><path fill="#25D366" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.4 16.88L2.31 20.82L6.4 19.75C7.88 20.53 9.49 20.93 11.16 20.93H11.17C16.63 20.93 21.08 16.48 21.08 11.02C21.08 8.34 19.96 5.86 18.13 4.03C16.3 2.2 13.82 1.08 11.16 1.08L12.04 2"/></svg>
     </a>
@@ -1010,8 +1202,7 @@ h2, h3, .font-title {
                 removeFromCart(id, size);
             }
         });
-
-        // ==========================================================
+// ==========================================================
 // 6. FUNCIONES DE MICROINTERACCIÓN (Tarjetas)
 // ==========================================================
 
@@ -1330,8 +1521,7 @@ Factura descargada. Quedo atento a la confirmación.`;
         alert(`No se pudo crear el pedido: ${error.message}`);
     }
 });
-
-    document.addEventListener('DOMContentLoaded', initialize);
+document.addEventListener('DOMContentLoaded', initialize);
     </script>
     
 
@@ -1461,6 +1651,174 @@ Factura descargada. Quedo atento a la confirmación.`;
 </div>
 
 
+<!-- BOTÓN FLUTUANTE DEL CHAT -->
+<button id="chatbot-button" aria-label="Abrir chat">💬</button>
+
+<!-- MODAL DEL CHAT -->
+<div id="chatbot-modal" aria-hidden="true" role="dialog">
+  <div class="chat-panel" role="document" aria-label="Asistente Virtual">
+    <div class="chat-header">
+      <div class="avatar">K</div>
+      <div>
+        <div class="title">Asistente Key Option</div>
+        <div class="subtitle">Estoy aquí para ayudarte</div>
+      </div>
+      <div style="margin-left:auto;">
+        <button id="close-chatbot" class="text-gray-400 hover:text-white" style="background:none;border:none;font-size:20px;">×</button>
+      </div>
+    </div>
+
+    <div class="chat-body" id="chatbot-messages">
+      <!-- Mensajes cargarán aquí -->
+      <div class="msg bot">
+        ¡Hola! Soy el asistente de Key Option. ¿En qué puedo ayudarte hoy?
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input id="chatbot-input" type="text" placeholder="Escribe tu mensaje..." aria-label="Mensaje">
+      <button class="send" id="chatbot-send">Enviar</button>
+    </div>
+  </div>
+</div>
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-accent': '#FFDE4D',
+                        'dark-bg': '#0D0D0D',
+                        'card-bg': '#1A1A1A',
+                    },
+                }
+            }
+        }
+    // ---------------- Chat UI Logic ----------------
+const chatBtn = document.getElementById('chatbot-button');
+const chatModal = document.getElementById('chatbot-modal');
+const closeChat = document.getElementById('close-chatbot');
+const chatMessages = document.getElementById('chatbot-messages');
+const chatInput = document.getElementById('chatbot-input');
+const chatSend = document.getElementById('chatbot-send');
+
+function openChat() {
+  chatModal.style.display = 'flex';
+  chatModal.setAttribute('aria-hidden', 'false');
+  chatInput.focus();
+}
+function closeChatModal() {
+  chatModal.style.display = 'none';
+  chatModal.setAttribute('aria-hidden', 'true');
+}
+
+// add message (type: 'user' | 'bot')
+function addMessage(text, type = 'bot', opts = {}) {
+  const wrapper = document.createElement('div');
+  wrapper.className = `msg ${type}`;
+
+  if (opts.isProduct && opts.product) {
+    wrapper.innerHTML = `
+      <div class="product-mini">
+        <img src="${
+          opts.product.images?.[0] || 
+          'https://placehold.co/200x300/111827/fff?text=No+Image'
+        }" alt="${opts.product.name}">
+        <div class="pinfo">
+          <div>${opts.product.name}</div>
+          <div class="price">$${Number(opts.product.price).toFixed(2)}</div>
+          <div class="meta">Stock: ${opts.product.stock}</div>
+        </div>
+      </div>
+    `;
+  } else {
+    wrapper.innerHTML = text;
+    if (opts.meta) {
+      const m = document.createElement('span');
+      m.className = 'meta';
+      m.textContent = opts.meta;
+      wrapper.appendChild(m);
+    }
+  }
+
+  chatMessages.appendChild(wrapper);
+  chatMessages.scrollTop = chatMessages.scrollHeight + 100;
+}
+
+
+// typing indicator
+function addTyping() {
+  const t = document.createElement('div');
+  t.className = 'msg bot typing';
+  t.id = 'typing-indicator';
+  t.innerHTML = `<div class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+  chatMessages.appendChild(t);
+  chatMessages.scrollTop = chatMessages.scrollHeight + 100;
+}
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+// send to backend
+async function sendToBackend(message) {
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    if (!res.ok) throw new Error('Error en servidor');
+    return await res.json();
+  } catch (err) {
+    console.error('Chat error', err);
+    return { reply: 'Lo siento, hubo un problema con el servidor. Intenta más tarde.' };
+  }
+}
+
+async function handleSend() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  addMessage(text, 'user');
+  chatInput.value = '';
+  addTyping();
+
+  const data = await sendToBackend(text);
+  removeTyping();
+
+  // Si tu backend devuelve un objeto con products (opcional),
+  // dejamos que muestre tarjetas de producto automáticamente.
+  // Ejemplo: { reply: "ok", products: [{name, price, stock, image}, ...] }
+  if (data.products && Array.isArray(data.products) && data.products.length) {
+    addMessage(data.reply || 'Encontré estos productos:', 'bot');
+    data.products.forEach(p => addMessage('', 'bot', { isProduct: true, product: p }));
+    return;
+  }
+
+  // Si la respuesta es texto simple:
+  addMessage(data.reply ?? 'No obtuve respuesta.');
+}
+
+chatBtn.addEventListener('click', openChat);
+closeChat.addEventListener('click', closeChatModal);
+chatSend.addEventListener('click', handleSend);
+
+// enviar con Enter
+chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    handleSend();
+  }
+});
+
+// cerrar modal con ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && chatModal.style.display === 'flex') {
+    closeChatModal();
+  }
+});
+
+    </script>
+<script src="./chatbot.js"></script>
 
 </body>
 </html>
