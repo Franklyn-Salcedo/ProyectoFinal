@@ -415,29 +415,123 @@ h2, h3, .font-title {
     color: #FFDE4D;
     font-weight: 600;
 }
+
 /* =========================
-   CHAT - Estilo Apple minimal (respeta colores del proyecto)
+   CHAT BOT - Estilo Mejorado (similar a WhatsApp)
    ========================= */
 
 /* Contenedor del botón flotante */
 #chatbot-button {
   position: fixed;
   right: 1.25rem;
-  bottom: 6.25rem; /* arriba del whatsapp */
+  bottom: 6.25rem;
   z-index: 60;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, rgba(255,222,77,0.95), #FFDE4D);
+  background: linear-gradient(135deg, #FFDE4D, #FFD700);
   color: #0b0b0b;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 30px rgba(255, 222, 77, 0.4);
   cursor: pointer;
-  transition: transform .18s ease, box-shadow .18s ease;
-  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  animation: float 3s ease-in-out infinite;
 }
-#chatbot-button:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.7); }
+
+#chatbot-button:hover {
+  transform: translateY(-6px) scale(1.1);
+  box-shadow: 0 15px 40px rgba(255, 222, 77, 0.6);
+}
+
+.chatbot-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+#chatbot-button i {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease;
+}
+
+#chatbot-button:hover i {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.chatbot-pulse {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px solid #FFDE4D;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  opacity: 0;
+}
+
+/* Animación de flotación */
+@keyframes float {
+  0%, 100% {
+      transform: translateY(0px);
+  }
+  50% {
+      transform: translateY(-8px);
+  }
+}
+
+/* Animación de pulso */
+@keyframes pulse {
+  0% {
+      transform: scale(1);
+      opacity: 1;
+  }
+  70% {
+      transform: scale(1.3);
+      opacity: 0;
+  }
+  100% {
+      transform: scale(1.3);
+      opacity: 0;
+  }
+}
+
+/* Indicador de notificación */
+.chatbot-notification {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background: #FF4444;
+  border: 2px solid #0b0b0b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: white;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+  }
+  40% {
+      transform: translateY(-5px);
+  }
+  60% {
+      transform: translateY(-3px);
+  }
+}
 
 /* Modal overlay */
 #chatbot-modal {
@@ -616,7 +710,15 @@ h2, h3, .font-title {
 /* Small responsive tweak */
 @media (max-width: 520px) {
   .chat-panel { max-width: 96%; height: 86vh; border-radius: 12px; }
-  #chatbot-button { right: 0.75rem; bottom: 5.5rem; }
+  #chatbot-button { 
+    right: 0.75rem; 
+    bottom: 5.5rem; 
+    width: 56px;
+    height: 56px;
+  }
+  #chatbot-button i {
+    font-size: 1.5rem;
+  }
 }
 
 </style>
@@ -643,7 +745,7 @@ h2, h3, .font-title {
 
     <!-- Filtros -->
     <div class="mb-10 p-6 bg-[#151515]/60 backdrop-blur-xl rounded-2xl border border-yellow-500/10 shadow-lg">
-      <div class="flex flex-col md:flex-row gap-4 items-center">
+      <div class="flex flex-col md:flex-row gap=4 items-center">
         <div class="relative flex-grow w-full md:w-auto">
           <input 
             type="text" 
@@ -679,7 +781,7 @@ h2, h3, .font-title {
     <!-- Imagen principal -->
     <div class="relative w-full h-56 overflow-hidden rounded-lg cursor-pointer">
       <img src="./imagenes/product1.jpg" alt="Teclado Neon Pro"
-           class="main-image w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110">
+           class="main-image w-full h-full object-cover transition-transform duration=700 ease-out group-hover:scale-110">
 
       <!-- Nombre y precio (visibles normalmente) -->
       <div class="product-info absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/50 to-transparent p-3 text-center transition-all duration-300">
@@ -738,8 +840,9 @@ h2, h3, .font-title {
     </div>
   
 
+    <!-- ICONO DE WHATSAPP MODIFICADO -->
     <a id="whatsapp-button" href="#" class="fixed bottom-5 right-5 z-50" target="_blank">
-        <svg class="w-16 h-16" viewBox="0 0 24 24"><path fill="#25D366" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.4 16.88L2.31 20.82L6.4 19.75C7.88 20.53 9.49 20.93 11.16 20.93H11.17C16.63 20.93 21.08 16.48 21.08 11.02C21.08 8.34 19.96 5.86 18.13 4.03C16.3 2.2 13.82 1.08 11.16 1.08L12.04 2"/></svg>
+        <i class="fab fa-whatsapp text-6xl text-green-500"></i>
     </a>
     
     <aside id="cart-panel" class="fixed top-0 right-0 z-50 h-full w-full md:w-96 bg-gray-900 shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out">
@@ -1651,8 +1754,13 @@ document.addEventListener('DOMContentLoaded', initialize);
 </div>
 
 
-<!-- BOTÓN FLUTUANTE DEL CHAT -->
-<button id="chatbot-button" aria-label="Abrir chat">💬</button>
+<!-- BOTÓN FLUTUANTE DEL CHAT - ICONO MEJORADO -->
+<button id="chatbot-button" aria-label="Abrir chat">
+    <div class="chatbot-icon-container">
+        <i class="fas fa-robot"></i>
+        <div class="chatbot-pulse"></div>
+    </div>
+</button>
 
 <!-- MODAL DEL CHAT -->
 <div id="chatbot-modal" aria-hidden="true" role="dialog">
