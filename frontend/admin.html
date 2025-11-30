@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Key Option Store</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../style.css">
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
+    <link rel="stylesheet" href="../style.css"> <link rel="stylesheet" href="admin.css">    <script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -24,83 +23,6 @@
             }
         }
     </script>
-   <style>
-/* 🌈 Estética general moderna */
-body {
-    background: radial-gradient(circle at 20% 20%, #0f0f0f, #090909 80%);
-    color: #f1f1f1;
-    font-family: 'Inter', sans-serif;
-}
-
-/* 🧭 Sidebar moderno */
-#admin-sidebar {
-    background: linear-gradient(160deg, #111 0%, #0b0b0b 100%);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-#admin-sidebar button.view-btn {
-    transition: all 0.3s ease;
-}
-
-#admin-sidebar button.view-btn:hover {
-    background: linear-gradient(90deg, rgba(255,255,0,0.2), transparent);
-    transform: translateX(3px);
-}
-
-/* 🧱 KPI Cards */
-.bg-card-bg {
-    background: linear-gradient(145deg, #1b1b1b, #141414);
-    box-shadow: 3px 3px 12px rgba(0,0,0,0.4), inset 0 0 10px rgba(255,255,255,0.02);
-    transition: all 0.3s ease;
-}
-.bg-card-bg:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 20px rgba(255,255,0,0.1);
-}
-
-/* ✨ IA Highlight */
-#ia-product-highlight {
-    background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 0 25px rgba(255, 255, 0, 0.08);
-    backdrop-filter: blur(12px);
-}
-#ia-product-highlight.glow-animate {
-    animation: glowPulse 2s ease-in-out;
-}
-@keyframes glowPulse {
-    0% { box-shadow: 0 0 0px rgba(255, 255, 0, 0); }
-    50% { box-shadow: 0 0 25px rgba(255, 255, 0, 0.4); }
-    100% { box-shadow: 0 0 0px rgba(255, 255, 0, 0); }
-}
-
-/* 🧭 Transiciones del dashboard */
-.view-btn.active {
-    background-color: #facc15;
-    color: #111;
-    box-shadow: 0 0 10px rgba(255, 255, 0, 0.4);
-}
-
-/* 🧁 Botones globales */
-button {
-    transition: all 0.3s ease-in-out;
-}
-button:hover {
-    transform: translateY(-1px) scale(1.02);
-}
-
-/* 🧠 Animación de IA */
-#ia-product-image {
-    transition: opacity 0.4s ease, transform 0.3s ease;
-}
-#ia-product-image:not(.hidden) {
-    opacity: 1;
-    transform: scale(1.02);
-}
-
-</style>
-
 </head>
 
 <body class="bg-gray-900 text-white min-h-screen">
@@ -236,63 +158,62 @@ button:hover {
                 <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-2xl font-bold uppercase text-yellow-400">Análisis Predictivo de IA</h3>
-                            <button id="ia-predicion" class="bg-yellow-400 text-black text-2xl font-bold py-1 px-3 rounded-full 
-                                hover:bg-yellow-500 hover:shadow-md transition-all duration-200 ease-in-out">
-                                <i class="fas fa-robot text-2xl text-black-400"></i>
-                                IA
-                            </button>
-                        </div>
-<p class="text-gray-400 mb-4 text-justify" id="ia-text"></p>
-
-<div id="ia-product-highlight"
-     class="mt-6 flex flex-col md:flex-row items-center md:items-start gap-6 p-6 
-            bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 
-            rounded-2xl shadow-lg border border-gray-700/50 transition-all duration-500 min-h-[220px]">
-
-    <div class="relative flex-shrink-0 flex items-center justify-center w-36 h-36 md:w-44 md:h-44 
-                bg-gray-800/70 rounded-2xl border border-gray-700 shadow-inner overflow-hidden">
-
-        <img id="ia-product-image"
-             src=""
-             alt="Producto de alta demanda"
-             class="absolute inset-0 object-cover w-full h-full rounded-2xl shadow-md ring-2 ring-yellow-500/20 
-                    transition-transform duration-300 hover:scale-105 hidden z-10">
-
-        <span class="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded-full shadow-md z-20">
-            🧠 Predicción IA
-        </span>
-
-        <span id="ia-placeholder" 
-              class="absolute inset-0 flex items-center justify-center text-gray-500 text-sm font-medium text-center z-0">
-            Imagen no disponible
-        </span>
-    </div>
-
-    <div class="flex flex-col justify-center text-center md:text-left w-full">
-
-        <h4 id="ia-product-name" class="text-2xl font-extrabold text-yellow-400 tracking-wide mb-2">
-            [Producto de alta demanda]
-        </h4>
-
-        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-gray-300 mb-3">
-            <p id="ia-product-price" class="text-lg font-semibold">Precio: --</p>
-            <span class="hidden sm:block w-1 h-1 bg-yellow-500 rounded-full"></span>
-            <p id="ia-product-units" class="text-sm text-gray-400">Unidades vendidas este mes: --</p>
-        </div>
-
-        <div class="mt-2 bg-gray-700/40 px-4 py-3 rounded-lg text-gray-100 text-base 
-                             border border-gray-600/40 shadow-inner">
-            <p class="font-semibold text-yellow-400 text-lg mb-1">
-                📈 Ventas proyectadas en 30 días:
-            </p>
-            <p id="ia-monto" class="text-2xl font-bold text-white tracking-wide">--</p>
-            <p id="ia-variacion" class="text-sm text-gray-400 mt-1">Variación estimada: --</p>
-        </div>
-    </div>
+    <h3 class="text-2xl font-bold uppercase text-yellow-400">Análisis Predictivo de IA</h3>
+    
+    <button id="ia-predicion" class="bg-yellow-400 text-black text-xs font-bold py-1 px-3 rounded-full 
+        hover:bg-yellow-500 hover:shadow-md transition-all duration-200 ease-in-out flex items-center gap-2 shadow-lg">
+        <i class="fas fa-robot text-lg"></i>
+        <span>Generar</span>
+    </button>
 </div>
+                        <p class="text-gray-400 mb-4 text-justify" id="ia-text"></p>
 
+                        <div id="ia-product-highlight"
+                             class="mt-6 flex flex-col md:flex-row items-center md:items-start gap-6 p-6 
+                                    bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 
+                                    rounded-2xl shadow-lg border border-gray-700/50 transition-all duration-500 min-h-[220px]">
 
+                            <div class="relative flex-shrink-0 flex items-center justify-center w-36 h-36 md:w-44 md:h-44 
+                                        bg-gray-800/70 rounded-2xl border border-gray-700 shadow-inner overflow-hidden">
+
+                                <img id="ia-product-image"
+                                     src=""
+                                     alt="Producto de alta demanda"
+                                     class="absolute inset-0 object-cover w-full h-full rounded-2xl shadow-md ring-2 ring-yellow-500/20 
+                                            transition-transform duration-300 hover:scale-105 hidden z-10">
+
+                                <span class="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded-full shadow-md z-20">
+                                    🧠 Predicción IA
+                                </span>
+
+                                <span id="ia-placeholder" 
+                                      class="absolute inset-0 flex items-center justify-center text-gray-500 text-sm font-medium text-center z-0">
+                                    Imagen no disponible
+                                </span>
+                            </div>
+
+                            <div class="flex flex-col justify-center text-center md:text-left w-full">
+
+                                <h4 id="ia-product-name" class="text-2xl font-extrabold text-yellow-400 tracking-wide mb-2">
+                                    [Producto de alta demanda]
+                                </h4>
+
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-gray-300 mb-3">
+                                    <p id="ia-product-price" class="text-lg font-semibold">Precio: --</p>
+                                    <span class="hidden sm:block w-1 h-1 bg-yellow-500 rounded-full"></span>
+                                    <p id="ia-product-units" class="text-sm text-gray-400">Unidades vendidas este mes: --</p>
+                                </div>
+
+                                <div class="mt-2 bg-gray-700/40 px-4 py-3 rounded-lg text-gray-100 text-base 
+                                             border border-gray-600/40 shadow-inner">
+                                    <p class="font-semibold text-yellow-400 text-lg mb-1">
+                                        📈 Ventas proyectadas en 30 días:
+                                    </p>
+                                    <p id="ia-monto" class="text-2xl font-bold text-white tracking-wide">--</p>
+                                    <p id="ia-variacion" class="text-sm text-gray-400 mt-1">Variación estimada: --</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700">
                         <h3 class="text-2xl font-bold uppercase mb-4">Actividad Reciente</h3>

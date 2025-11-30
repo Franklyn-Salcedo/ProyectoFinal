@@ -1,0 +1,677 @@
+/* =========================================
+   1. IMPORTACIONES Y FUENTES
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Frijole&family=Carter+One&display=swap');
+
+/* =========================================
+   2. ESTILOS GLOBALES Y RESET
+   ========================================= */
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Evita scroll horizontal */
+    overflow-y: auto;   /* Scroll vertical normal */
+    font-family: 'Inter', sans-serif;
+    background-color: #0D0D0D;
+    color: #f1f1f1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tipografía Global */
+h2, h3, .font-title {
+    font-family: "Carter One", system-ui;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.logo-font { 
+    font-family: "Frijole", system-ui; 
+    font-weight: 400; 
+}
+
+.slogan-font { 
+    font-family: "Carter One", system-ui;
+    font-weight: 400; 
+    text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+}
+
+/* Utilidades de Color */
+.neon-accent-bg { background-color: #FFDE4D; }
+.neon-accent-text { color: #FFDE4D; }
+
+/* =========================================
+   3. HERO SECTION (DISEÑO GLASS CLEAN)
+   ========================================= */
+#hero-section {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+}
+
+.hero-bg {
+    background-image: url('./imagenes/caution.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    animation: zoomEffect 20s infinite alternate;
+}
+
+@keyframes zoomEffect {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+}
+
+#hero-content-wrapper {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    position: relative;
+    padding: 20px;
+}
+
+/* Tarjeta de Cristal */
+.hero-glass-card {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 3rem 4rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px;
+    width: 90%;
+    
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUpCard 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.3s;
+}
+
+@keyframes fadeUpCard {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-title {
+    font-size: clamp(3rem, 8vw, 6rem); 
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 0.9;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    letter-spacing: -2px;
+}
+
+.text-highlight {
+    color: #FFDE4D;
+    text-shadow: 0 0 20px rgba(255, 222, 77, 0.4);
+}
+
+.hero-subtitle {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    letter-spacing: 0.2em; 
+    text-transform: uppercase;
+    color: #e0e0e0;
+    margin-bottom: 2.5rem;
+    font-weight: 600;
+    border-top: 1px solid rgba(255,255,255,0.3);
+    padding-top: 1rem;
+    width: 60%;
+}
+
+.hero-btn {
+    position: relative;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: #000; 
+    background-color: #FFDE4D;
+    padding: 16px 48px;
+    border-radius: 50px;
+    box-shadow: 0 0 20px rgba(255, 222, 77, 0.4);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.hero-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 0%; height: 100%;
+    background: #fff;
+    z-index: -1;
+    transition: width 0.3s ease;
+}
+
+.hero-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 222, 77, 0.7);
+    color: #000;
+}
+.hero-btn:hover::before { width: 100%; }
+
+/* Efectos Scroll */
+#shatter-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+#hero-content.is-shattering { opacity: 0 !important; transform: scale(0.95); transition: opacity 0.2s ease-out, transform 0.2s ease-out; }
+#scroll-arrow { transition: transform 0.4s ease-in-out; }
+.rotate-180 { transform: rotate(180deg); }
+.chevron { opacity: 0; animation: pulse-chevron 2.5s ease-out infinite; }
+.chevron:nth-child(2) { animation-delay: 0.2s; }
+.chevron:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse-chevron { 0% { opacity: 0; transform: translateY(-8px); } 30% { opacity: 1; transform: translateY(0); } 70% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(8px); } }
+
+/* =========================================
+   4. TIENDA Y GRID DE PRODUCTOS
+   ========================================= */
+#store {
+    position: relative;
+    z-index: 10;
+    background-color: #0D0D0D;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+#store-product-list {
+    display: grid;
+    /* MAGIA AQUÍ: Crea tantas columnas como quepan. 
+       Cada tarjeta tendrá MÍNIMO 240px y MÁXIMO el espacio disponible (1fr).
+       Esto evita que se vuelvan gigantescas en pantallas grandes. */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 2rem; /* Espacio generoso entre tarjetas */
+    width: 100%;
+    max-width: 1400px; /* Ancho máximo del catálogo para que no se desparrame en pantallas 4k */
+    margin: 0 auto; /* Centrado */
+}
+
+#category-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+/* =========================================
+   5. TARJETAS DE PRODUCTO (DISEÑO PREMIUM)
+   ========================================= */
+.product-card-store {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    /* Aseguramos que la tarjeta ocupe su celda del grid */
+    width: 100%; 
+    max-width: 320px; /* Tope máximo de ancho por tarjeta por si acaso */
+    margin: 0 auto; /* Si es más pequeña que la celda, se centra */
+}
+
+.product-card-store.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Ajuste de Miniaturas (Más sutiles) */
+.thumbnail {
+    width: 28px; /* Un poco más pequeñas para elegancia */
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #333; /* Borde sutil por defecto */
+    padding: 1px;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    object-fit: cover;
+}
+
+.thumbnail:hover { opacity: 1; transform: scale(1.1); border-color: #fff; }
+.thumbnail.selected-thumb { opacity: 1; border-color: #FFDE4D !important; padding: 1px; }
+
+/* Utilidades varias */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.font-body { font-family: 'Inter', sans-serif; }
+.main-image { will-change: transform; }
+
+/* =========================================
+   6. MODAL DE FACTURACIÓN (BILLING)
+   ========================================= */
+.billing-modal .modal-box {
+    width: 420px;
+    background: linear-gradient(180deg,#161616,#0d0d0d);
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 24px;
+    color: #f1f1f1;
+    font-family: 'Inter',sans-serif;
+    box-shadow: 0 20px 50px rgba(0,0,0,.6);
+}
+.billing-modal .modal-title {
+    font-family: "Carter One"; font-size: 22px; text-align: center; color: #FFDE4D; margin-bottom: 18px; letter-spacing: 1px;
+}
+.billing-modal .bill-label { font-weight: 700; margin: 6px 0; color: #fff; }
+.billing-modal .bill-input {
+    width: 100%; padding: 12px; border-radius: 10px; background: #1d1d1d; border: 1px solid #333; color: #fff; margin-bottom: 12px;
+}
+.billing-modal .bill-input:focus { border-color: #FFDE4D; box-shadow: 0 0 6px rgba(255,222,77,.6); outline: none; }
+.billing-modal .bill-method { display: flex; flex-direction: column; gap: 12px; margin: 12px 0; }
+.billing-modal .bill-option {
+    display: flex; align-items: center; gap: 14px; padding: 14px; background: #111; border: 1px solid #2d2d2d; border-radius: 12px; cursor: pointer; transition: .2s;
+}
+.billing-modal .bill-option:hover { border-color: #FFDE4D; }
+.billing-modal .bill-icon { font-size: 22px; color: #FFDE4D; }
+.billing-modal .bill-btns { display: flex; justify-content: space-between; margin-top: 16px; }
+.billing-modal .cancel-btn { background: #444; padding: 10px 18px; border-radius: 10px; color: #fff; }
+.billing-modal .confirm-btn { background: #16a34a; padding: 10px 18px; border-radius: 10px; color: #fff; }
+
+/* =========================================
+   7. MÉTODOS DE PAGO Y MICRO-EFECTOS
+   ========================================= */
+.rainbow-text {
+    background-image: linear-gradient(90deg, #000000, #F5F5F5, #FFDE4D, #F5F5F5, #000000);
+    background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: rainbow-flow 5s linear infinite;
+}
+@keyframes rainbow-flow { 0% { background-position: 200% center; } 100% { background-position: 0% center; } }
+
+.pulse-on-hover:hover { animation: pulse-effect 1.5s infinite; }
+@keyframes pulse-effect {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,222,77,0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255,222,77,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,222,77,0); }
+}
+
+/* =========================================
+   8. CHATBOT (WIDGET FLOTANTE Y ARRASTRABLE)
+   ========================================= */
+#chatbot-modal {
+    display: none;
+    position: fixed;
+    bottom: 100px; 
+    right: 24px;
+    width: 380px;
+    height: 550px;
+    max-height: 80vh;
+    z-index: 9999 !important;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(17,17,17,0.95), rgba(12,12,12,0.98));
+    border: 1px solid rgba(255,222,77,0.2);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUpFade 0.3s ease-out;
+}
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.chat-header {
+    display: flex; gap: 12px; align-items: center; padding: 14px 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: move; user-select: none;
+}
+.chat-header:active { cursor: grabbing; background: rgba(255,255,255,0.08); }
+.chat-header .avatar {
+    width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(180deg, #fff, #f6f0d2);
+    display: grid; place-items: center; font-weight: 800; color: #0d0d0d;
+}
+.chat-header .title { font-weight: 700; color: #FFDE4D; font-size: 15px; }
+.chat-header .subtitle { font-size: 11px; color: #bdbdbd; }
+
+.chat-body {
+    flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #333 transparent;
+}
+.chat-body::-webkit-scrollbar { width: 6px; }
+.chat-body::-webkit-scrollbar-thumb { background-color: #333; border-radius: 10px; }
+
+.msg { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.4; }
+.msg.user { margin-left: auto; background: #FFDE4D; color: #0b0b0b; border-bottom-right-radius: 4px; font-weight: 500; }
+.msg.bot { margin-right: auto; background: #2a2a2a; color: #f1f1f1; border-bottom-left-radius: 4px; border: 1px solid #333; }
+
+.chat-input { padding: 12px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 8px; background: rgba(0,0,0,0.2); }
+.chat-input input {
+    flex: 1; background: #1a1a1a; border: 1px solid #333; padding: 10px 14px; border-radius: 20px; color: #fff; outline: none; font-size: 14px; transition: border-color 0.2s;
+}
+.chat-input input:focus { border-color: #FFDE4D; }
+.chat-input button.send {
+    background: #FFDE4D; color: #000; border: none; width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;
+}
+.chat-input button.send:hover { transform: scale(1.1); }
+
+/* =========================================
+   9. JERARQUÍA DE CAPAS (Z-INDEX)
+   ========================================= */
+#product-modal, 
+#checkoutModal {
+    z-index: 9999 !important; 
+}
+
+#cart-panel { z-index: 9000; }
+
+#chatbot-button, 
+#whatsapp-button {
+    z-index: 50 !important; 
+}
+
+/* =========================================
+   10. BOTÓN WHATSAPP MEJORADO
+   ========================================= */
+.whatsapp-float-container {
+    width: 60px; height: 60px; background-color: #000; border: 2px solid #25D366;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+.whatsapp-float-container:hover {
+    transform: scale(1.1); box-shadow: 0 0 25px rgba(37, 211, 102, 0.8); background-color: #0a0a0a;
+    cursor: pointer;
+}
+.whatsapp-icon { font-size: 30px; color: #25D366; }
+
+/* Ajuste Botón Chatbot */
+#chatbot-button { width: 60px !important; height: 60px !important; }
+
+/* =========================================
+   11. RESPONSIVE
+   ========================================= */
+@media (max-width: 520px) {
+    #chatbot-modal {
+        width: 100%; height: 100%; bottom: 0 !important; right: 0 !important; left: 0 !important; top: 0 !important;
+        border-radius: 0; transform: none !important;
+    }
+    .chat-header { cursor: default; }
+    #chatbot-button, .whatsapp-float-container { width: 56px !important; height: 56px !important; }
+}
+
+/* =========================================
+   12. DISEÑO DE CARRITO PREMIUM (SIDEBAR)
+   ========================================= */
+
+/* Panel Principal */
+#cart-panel {
+    background-color: #0b0b0b; /* Casi negro absoluto */
+    border-left: 1px solid #222;
+    box-shadow: -10px 0 40px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    z-index: 9000;
+}
+
+/* Cabecera del Carrito */
+.cart-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0b0b0b;
+}
+
+.cart-title {
+    font-family: 'Carter One', cursive;
+    font-size: 1.5rem;
+    color: #FFDE4D;
+    letter-spacing: 1px;
+}
+
+/* Cuerpo del Carrito (Lista de items) */
+.cart-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    padding-bottom: 100px; /* Espacio extra para que el footer no tape el último item */
+}
+
+/* --- Scrollbar Personalizado (Fino y Oscuro) --- */
+.cart-body::-webkit-scrollbar { width: 6px; }
+.cart-body::-webkit-scrollbar-track { background: #0b0b0b; }
+.cart-body::-webkit-scrollbar-thumb { 
+    background-color: #333; 
+    border-radius: 10px; 
+}
+.cart-body::-webkit-scrollbar-thumb:hover { background-color: #FFDE4D; }
+
+/* Tarjeta de Producto en Carrito */
+.cart-item-card {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cart-item-card:hover {
+    border-color: #333;
+    transform: translateX(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.cart-item-img {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+/* Controles de Selección (Talla/Cant) */
+.cart-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.cart-select-wrapper {
+    position: relative;
+    background: #000;
+    border-radius: 6px;
+    border: 1px solid #333;
+    padding: 0 4px;
+}
+
+.cart-label-mini {
+    font-size: 9px;
+    color: #888;
+    text-transform: uppercase;
+    position: absolute;
+    top: -6px;
+    left: 4px;
+    background: #141414;
+    padding: 0 4px;
+}
+
+.cart-dropdown {
+    background: transparent;
+    color: #fff;
+    border: none;
+    font-size: 13px;
+    padding: 6px 2px;
+    outline: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+}
+.cart-dropdown option { background: #111; color: #fff; }
+
+/* Footer del Carrito (Glassmorphism Sticky) */
+.cart-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(11, 11, 11, 0.85); /* Semitransparente */
+    backdrop-filter: blur(12px);         /* Efecto cristal */
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 20px 24px;
+    z-index: 10;
+}
+
+.cart-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.checkout-btn {
+    width: 100%;
+    background: #FFDE4D;
+    color: #000;
+    font-weight: 800;
+    padding: 14px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 222, 77, 0.2);
+}
+
+.checkout-btn:hover {
+    background: #fff;
+    box-shadow: 0 4px 25px rgba(255, 222, 77, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Estado Vacío */
+.empty-cart-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60%;
+    text-align: center;
+    color: #444;
+}
+.empty-cart-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+/* =========================================
+   NUEVO DISEÑO MODAL DE PRODUCTO (DARK GLASS PREMIUM)
+   ========================================= */
+
+/* El fondo oscuro detrás del modal */
+#product-modal {
+    background-color: rgba(0, 0, 0, 0.85) !important; /* Más oscuro y elegante */
+    backdrop-filter: blur(8px); /* Desenfoca la página de fondo */
+    transition: all 0.3s ease;
+}
+
+/* El contenedor principal del modal (La caja de cristal) */
+.modal-glass-panel {
+    background: rgba(13, 13, 13, 0.9); /* Casi negro, pero translúcido */
+    border: 1px solid rgba(255, 222, 77, 0.15); /* Borde neón muy sutil */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9); /* Sombra profunda */
+    border-radius: 20px; /* Bordes redondeados modernos */
+    backdrop-filter: blur(16px); /* Efecto cristal potente */
+    -webkit-backdrop-filter: blur(16px);
+}
+
+/* Animación de entrada (Sube y aparece) */
+.animate-fadeInUp {
+    animation: fadeInUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Scrollbar personalizado para la sección de texto */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+.custom-scrollbar::-webkit-scrollbar-thumb { background-color: #333; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #FFDE4D; }
+
+/* --- Componentes Internos --- */
+
+/* Botones de Talla Premium */
+.size-btn-premium {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 60px;
+    text-align: center;
+}
+
+.size-btn-premium:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* Talla Activa (Seleccionada) */
+.size-btn-premium.active {
+    background: #FFDE4D;
+    color: #000;
+    border-color: #FFDE4D;
+    box-shadow: 0 0 15px rgba(255, 222, 77, 0.4);
+    font-weight: 800;
+}
+
+/* Selector de Cantidad Custom */
+.custom-qty-select-modal {
+    appearance: none; /* Quitar estilo por defecto del navegador */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 10px 20px;
+    padding-right: 40px; /* Espacio para la flecha */
+    border-radius: 8px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    width: 100px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.custom-qty-select-modal option {
+    background-color: #1a1a1a; /* Fondo oscuro para la lista */
+    color: #fff;               /* Números en blanco */
+    padding: 10px;
+}
+
+.custom-qty-select-modal:focus,
+.custom-qty-select-modal:hover {
+    border-color: #FFDE4D;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Animación de error (Sacudida) */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); border-color: red; }
+    75% { transform: translateX(5px); border-color: red; }
+}
+.animate-shake { animation: shake 0.4s ease-in-out; }

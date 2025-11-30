@@ -1,9 +1,7 @@
-// backend/api/ai/predict.js
 import Order from '../../models/Order.js';
 import Product from '../../models/Product.js';
-import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { callGeminiWithRetry } from './aiUtils.js';
+import dotenv from 'dotenv';
 import { safeJsonParse } from './safeJson.js';
 
 dotenv.config();
@@ -12,78 +10,88 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 export async function getAiPrediction(req, res) {
     try {
-        // 1. Obtener ventas del último mes
-        const lastMonthOrders = await Order.find({
-            status: 'entregado',
-            createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+        // 1. RANGO DE FECHAS (Últimos 30 días)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+
+        // 2. OBTENER SOLO PEDIDOS "ENTREGADOS"
+        const orders = await Order.find({
+            createdAt: { $gte: startDate, $lte: endDate },
+            status: 'entregado' 
         });
 
-        const totalSales = lastMonthOrders.reduce((acc, order) => acc + order.total, 0);
-        const allItems = lastMonthOrders.flatMap(order => order.items);
+        // 3. CALCULAR MÉTRICAS
+        const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
+        
+        // 4. CONTAR PRODUCTOS Y RASTREAR EL TOP
+        const productCounts = {};
 
-        // Ventas por producto
-        const productSales = {};
-        for (const item of allItems) {
-            productSales[item.productId] = (productSales[item.productId] || 0) + item.quantity;
-        }
+        orders.forEach(order => {
+            if (order.items) {
+                order.items.forEach(item => {
+                    const name = item.name.trim(); 
+                    const qty = parseInt(item.quantity, 10) || 0;
+                    
+                    // Filtro de seguridad para anomalías extremas (opcional)
+                    // if (qty > 50) return; 
 
-        const sortedProducts = Object.entries(productSales).sort((a, b) => b[1] - a[1]);
-        const bestProductId = sortedProducts[0]?.[0];
-        const bestProductQty = sortedProducts[0]?.[1] || 0;
-
-        let bestSeller = null;
-        if (bestProductId) {
-            bestSeller = await Product.findOne({ id: bestProductId });
-        }
-
-        const summary = {
-            totalVentas: totalSales.toFixed(2),
-            cantidadOrdenes: lastMonthOrders.length,
-            productoMasVendido: bestSeller ? bestSeller.name : "Sin ventas recientes",
-            cantidadVendida: bestProductQty
-        };
-
-        // 2. Configurar modelo con fallback
-        const createModel = (modelName) => genAI.getGenerativeModel({
-            model: modelName,
-            generationConfig: { responseMimeType: "application/json" }
+                    productCounts[name] = (productCounts[name] || 0) + qty;
+                });
+            }
         });
 
-        let model = createModel("gemini-2.5-flash");
+        // Ordenar para sacar el Top 1
+        const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
+        const topProductEntry = sortedProducts.length > 0 ? sortedProducts[0] : ["Ninguno", 0];
+        
+        const topProductName = topProductEntry[0];
+        const topProductQty = topProductEntry[1];
 
+        // 5. PREPARAR EL PROMPT
         const prompt = `
-        Eres un analista de ventas. Analiza estos datos:
-        - Ventas: $${summary.totalVentas}
-        - Órdenes: ${summary.cantidadOrdenes}
-        - Producto más vendido: ${summary.productoMasVendido} (${summary.cantidadVendida})
-
-        Responde solo con JSON:
-        {
-            "ventasProyectadas": number,
-            "variacionPorcentual": number,
-            "productoAltaDemanda": string,
-            "recomendacion": string
-        }
+            Actúa como un experto analista. Datos reales (últimos 30 días, ventas entregadas):
+            - Ventas Totales: $${totalSales.toFixed(2)}
+            - Cantidad de Pedidos: ${orders.length}
+            - Producto Estrella: "${topProductName}" con ${topProductQty} unidades vendidas.
+            
+            Genera un JSON exacto:
+            {
+                "ventasProyectadas": (número, estimación mes siguiente),
+                "variacionPorcentual": (número, ej: 15),
+                "productoAltaDemanda": "${topProductName}", 
+                "recomendacion": (frase estratégica muy breve, max 12 palabras)
+            }
         `;
 
-        // 3. Llamada con retry automático
-        const result = await callGeminiWithRetry(() => model.generateContent(prompt))
-            .catch(async (err) => {
-                // Intentar fallback solo si 503 o fallo de servicio
-                console.warn("⚠️ Pasando a gemini-2.0-flash por error:", err.message);
-                model = createModel("gemini-2.0-flash");
-                return callGeminiWithRetry(() => model.generateContent(prompt));
-            });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
 
-        const textResponse = result.response.text();
+        const jsonString = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        let predictionData;
+        try {
+            predictionData = JSON.parse(jsonString);
+        } catch (e) {
+            predictionData = {
+                ventasProyectadas: totalSales * 1.1,
+                variacionPorcentual: 10,
+                productoAltaDemanda: topProductName,
+                recomendacion: "Mantener inventario óptimo."
+            };
+        }
 
-        // 4. Parse seguro
-        const prediction = safeJsonParse(textResponse);
+        // 6. ENVIAR AL FRONTEND
+        res.json({ 
+            prediction: predictionData,
+            realStats: {
+                unitsSold: topProductQty, 
+                totalSales: totalSales
+            }
+        });
 
-        res.json({ prediction });
-
-    } catch (err) {
-        console.error("Error en getAiPrediction:", err);
-        res.status(500).json({ error: "Error en el análisis predictivo", details: err.message });
+    } catch (error) {
+        console.error("Error en AI Prediction:", error.message);
+        res.status(500).json({ message: "Error interno IA" });
     }
 }
