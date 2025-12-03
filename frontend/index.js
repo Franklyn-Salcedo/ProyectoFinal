@@ -343,7 +343,6 @@ async function renderProducts() {
     const allProducts = await getProducts(); 
     if (!DOMElements.productList) return; 
     
-    // 1. Filtrar
     const categoryFiltered = allProducts.filter(product => {
         if (AppState.activeCategory === 'all') return true;
         return String(product.categoryId) === AppState.activeCategory;
@@ -353,14 +352,12 @@ async function renderProducts() {
         return product.name.toLowerCase().includes(AppState.searchTerm);
     });
 
-    // 2. Limpiar
     DOMElements.productList.innerHTML = '';
     if (searchFiltered.length === 0) {
-        DOMElements.productList.innerHTML = `<p class="col-span-full text-center text-gray-400 text-lg py-10">No se encontraron productos con esos criterios.</p>`;
+        DOMElements.productList.innerHTML = `<p class="col-span-full text-center text-gray-400 text-lg py-10">No se encontraron productos.</p>`;
         return;
     }
 
-    // 3. Generar HTML
     searchFiltered.forEach((product, index) => {
         const card = document.createElement('div');
         card.className = 'product-card-store group [perspective:1000px] opacity-0 translate-y-10';
@@ -369,7 +366,32 @@ async function renderProducts() {
 
         const imageUrl = product.images?.[0] || 'https://placehold.co/600x800/111827/FFFFFF?text=No+Image';
         
-        // Miniaturas
+        // --- LÓGICA DE OFERTA ---
+        const hasOffer = product.offerPrice && product.offerPrice < product.price;
+        const finalPrice = hasOffer ? product.offerPrice : product.price;
+        
+        // HTML del Precio (Si hay oferta mostramos el viejo tachado)
+        const priceHTML = hasOffer 
+            ? `<div class="flex flex-col items-end">
+                 <span class="text-xs text-gray-400 line-through">$${product.price.toFixed(2)}</span>
+                 <span class="text-neon-accent font-title font-bold text-lg">$${product.offerPrice.toFixed(2)}</span>
+               </div>`
+            : `<p class="text-neon-accent font-title font-bold text-lg">$${product.price.toFixed(2)}</p>`;
+
+        // Badge de Oferta
+        const offerBadge = hasOffer 
+            ? `<span class="absolute top-3 right-3 bg-neon-accent text-black text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-md z-20">OFERTA</span>` 
+            : '';
+        // ------------------------
+
+        const umbral = product.minStock || 5;
+        let stockBadge = '';
+        if (product.stock === 0) {
+            stockBadge = `<span class="absolute top-3 left-3 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-md border border-red-500 z-20">Agotado</span>`;
+        } else if (product.stock <= umbral) {
+            stockBadge = `<span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-md animate-pulse z-20">¡Quedan ${product.stock}!</span>`;
+        }
+
         const thumbnails = (product.images || []).slice(0, 4).map((img, i) => `
             <img src="${img}" 
                  class="thumbnail w-10 h-10 rounded-full border border-gray-900 cursor-pointer transition-transform duration-300 hover:scale-110 object-contain bg-white p-[2px] ${i === 0 ? 'selected-thumb border-neon-accent shadow-neon-accent' : 'border-gray-900'}" 
@@ -377,26 +399,23 @@ async function renderProducts() {
                  alt="Thumb ${i}">
         `).join('');
 
-        // HTML ACTUALIZADO: Forzamos bg-white y object-contain en todas las imágenes
         card.innerHTML = `
             <div class="relative w-full group">
                 <div class="relative w-full aspect-[4/5] bg-white rounded-xl overflow-hidden cursor-pointer shadow-sm">
-                    
                     <img src="${imageUrl}" alt="${product.name}" class="main-image w-full h-full object-contain p-4 transition-transform duration-700 ease-in-out group-hover:scale-110">
-                    
                     <div class="absolute inset-0 shadow-inner opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
                     <button class="add-to-cart-btn absolute bottom-4 right-4 w-12 h-12 bg-neon-accent text-black rounded-full shadow-lg flex items-center justify-center transform translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10" data-id="${product.id}" title="Añadir al carrito">
                         <i class="fas fa-plus text-lg"></i>
                     </button>
                     
-                    ${product.stock < 5 ? `<span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-md">Pocas Unidades</span>` : ''}
-                </div>
+                    ${stockBadge}
+                    ${offerBadge} </div>
 
                 <div class="mt-4 pl-1">
                     <div class="flex justify-between items-start">
                         <h3 class="text-white font-body font-medium text-lg leading-tight truncate pr-4 w-3/4" title="${product.name}">${product.name}</h3>
-                        <p class="text-neon-accent font-title font-bold text-lg">$${product.price.toFixed(2)}</p>
+                        ${priceHTML}
                     </div>
                     
                     <div class="flex gap-2 mt-3 overflow-x-auto pb-1 scrollbar-hide">
@@ -482,7 +501,7 @@ function observeProductCards() {
    ========================================================== */
 
 /* ==========================================================
-   FUNCIÓN ACTUALIZADA: openProductModal (PREMIUM GLASS + PNG SUPPORT)
+   FUNCIÓN ACTUALIZADA: openProductModal (PREMIUM GLASS + OFERTAS)
    ========================================================== */
 async function openProductModal(productId) { 
     if(!DOMElements.productModal) return;
@@ -505,7 +524,17 @@ async function openProductModal(productId) {
         }
     }
 
-    // HTML ACTUALIZADO: Forzamos bg-white en la columna de imagen
+    // --- LÓGICA DE OFERTA ---
+    const hasOffer = product.offerPrice && product.offerPrice < product.price;
+    const priceDisplay = hasOffer 
+        ? `<div class="flex flex-col items-start">
+             <span class="text-gray-400 line-through text-lg md:text-xl decoration-red-500 decoration-2 mb-1">$${product.price.toFixed(2)}</span>
+             <span class="text-4xl md:text-5xl neon-accent-text font-bold font-title tracking-wide drop-shadow-lg">$${product.offerPrice.toFixed(2)}</span>
+           </div>`
+        : `<p class="text-4xl md:text-5xl neon-accent-text font-bold font-title tracking-wide drop-shadow-lg">$${product.price.toFixed(2)}</p>`;
+    // ------------------------
+
+    // HTML ACTUALIZADO
     DOMElements.productModal.innerHTML = `
         <div id="modal-content-box" class="modal-glass-panel animate-fadeInUp relative w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row">
             
@@ -530,8 +559,9 @@ async function openProductModal(productId) {
                 <div class="mb-6 border-b border-white/10 pb-6">
                     <h2 class="font-title text-3xl md:text-4xl text-white mb-3 leading-tight">${product.name}</h2>
                     <div class="flex items-center gap-4">
-                        <p class="text-4xl md:text-5xl neon-accent-text font-bold font-title tracking-wide drop-shadow-lg">$${product.price.toFixed(2)}</p>
-                        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 border border-white/10 text-xs font-bold uppercase tracking-wider ${isDisabled ? 'text-red-500' : 'text-green-400'}">
+                        ${priceDisplay}
+
+                        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 border border-white/10 text-xs font-bold uppercase tracking-wider ${isDisabled ? 'text-red-500' : 'text-green-400'} ml-auto md:ml-4">
                             <span class="w-2 h-2 rounded-full ${isDisabled ? 'bg-red-500' : 'bg-green-400'} animate-pulse"></span>
                             ${isDisabled ? 'Agotado' : `Stock: ${product.stock}`}
                         </div>
@@ -597,7 +627,6 @@ async function openProductModal(productId) {
     const mainImg = document.getElementById('main-modal-image');
     const thumbs = document.querySelectorAll('.thumbnail-image');
     
-    // Listener simplificado (ya no necesita detectar PNG, siempre es contain)
     thumbs.forEach(thumb => { 
         thumb.addEventListener('click', () => { 
             if(mainImg) mainImg.src = thumb.src; 
@@ -606,7 +635,6 @@ async function openProductModal(productId) {
         }); 
     });
     
-    // Selectores
     let selectedSize = null;
     const sizeBtns = document.querySelectorAll('.size-btn-premium');
     sizeBtns.forEach(btn => { 
@@ -629,6 +657,12 @@ async function openProductModal(productId) {
                 return; 
             }
             const qty = parseInt(document.getElementById('quantity-select-modal').value, 10);
+            
+            // Usamos el precio de oferta si existe para el carrito
+            const priceToUse = hasOffer ? product.offerPrice : product.price;
+            
+            // MODIFICACIÓN: Llamada a addToCart (asegúrate que addToCart soporte el precio o lo busque de nuevo)
+            // Como addToCart busca el producto por ID en la lista global, ya tendrá el precio actualizado si getProducts lo trajo bien.
             addToCart(product.id, selectedSize, qty); 
             
             DOMElements.productModal.classList.add('hidden');
@@ -767,31 +801,43 @@ function initCheckoutLogic() {
     }
 }
 
+
 /* ==========================================================
-   10. CHATBOT INTERACTIVO
-   ========================================================== */
-/* ==========================================================
-   FUNCIÓN NUEVA: initChatbot (Flotante y Arrastrable)
+   SECCIÓN 10: CHATBOT FINAL (MINIMIZAR + REINICIAR)
    ========================================================== */
 function initChatbot() {
     if(!DOMElements.chatBtn) return;
 
-    // 1. Lógica de Mensajes (Igual que antes)
+    // Referencias a los nuevos botones
+    const minimizeBtn = document.getElementById('minimize-chatbot');
+    // Nota: closeChat ya está mapeado en DOMElements pero lo usamos aquí directo para claridad
+    
+    // 1. Renderizar Mensajes
     function addMessage(text, type = 'bot', opts = {}) {
         const wrapper = document.createElement('div');
         wrapper.className = `msg ${type}`;
         
         if (opts.isProduct && opts.product) {
+            const img = opts.product.images && opts.product.images.length > 0 
+                ? opts.product.images[0] 
+                : 'https://placehold.co/200?text=No+Img';
+
+            // Detectar si es PNG para ajustar estilo
+            const isPNG = img.toLowerCase().includes('.png');
+            const imgStyle = isPNG ? 'object-contain bg-white p-1' : 'object-cover';
+
             wrapper.innerHTML = `
-              <div class="product-mini cursor-pointer hover:bg-white/5 transition p-2 rounded" onclick="openProductModal(${opts.product.id})">
-                <img src="${opts.product.images?.[0] || 'https://placehold.co/200'}" alt="${opts.product.name}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; margin-right:10px; float:left;">
-                <div class="pinfo" style="overflow:hidden;">
-                  <div class="font-bold text-white text-sm">${opts.product.name}</div>
-                  <div class="price text-neon-accent font-bold">$${Number(opts.product.price).toFixed(2)}</div>
+              <div class="product-mini cursor-pointer hover:bg-white/10 transition p-2 rounded border border-gray-600 flex items-center gap-3" onclick="openProductModal(${opts.product.id})">
+                <img src="${img}" alt="${opts.product.name}" class="${imgStyle}" style="width:60px; height:60px; border-radius:8px;">
+                <div class="pinfo flex-grow" style="overflow:hidden;">
+                  <div class="font-bold text-white text-sm truncate">${opts.product.name}</div>
+                  <div class="price text-neon-accent font-bold text-sm mt-1">$${Number(opts.product.price).toFixed(2)}</div>
+                  <div class="text-xs text-gray-400">Stock: ${opts.product.stock}</div>
                 </div>
+                <i class="fas fa-chevron-right text-gray-500"></i>
               </div>`;
         } else {
-            wrapper.innerHTML = text;
+            wrapper.innerHTML = text.replace(/\n/g, '<br>');
         }
         DOMElements.chatMessages.appendChild(wrapper);
         DOMElements.chatMessages.scrollTop = DOMElements.chatMessages.scrollHeight;
@@ -800,7 +846,7 @@ function initChatbot() {
     function addTyping() {
         const t = document.createElement('div');
         t.className = 'msg bot typing'; t.id = 'typing-indicator';
-        t.innerHTML = `<div class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+        t.innerHTML = `<div class="flex gap-1 p-1"><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span></div>`;
         DOMElements.chatMessages.appendChild(t);
         DOMElements.chatMessages.scrollTop = DOMElements.chatMessages.scrollHeight;
     }
@@ -809,93 +855,143 @@ function initChatbot() {
         const text = DOMElements.chatInput.value.trim();
         if (!text) return;
         
+        const quickActions = document.querySelector('.chat-quick-actions');
+        if (quickActions) quickActions.remove();
+
         addMessage(text, 'user');
         DOMElements.chatInput.value = '';
-        addTyping();
+        
+        // Rastreo Local
+        if (/^\d+$/.test(text)) {
+            addTyping();
+            try {
+                const res = await fetch('/api/orders');
+                const orders = await res.json();
+                const order = orders.find(o => o.id == text);
+                document.getElementById('typing-indicator')?.remove();
 
+                if (order) {
+                    let emoji = order.status === 'entregado' ? '✅' : '🚚';
+                    addMessage(`📦 **Pedido #${order.id}**\nEstado: ${emoji} ${order.status.toUpperCase()}\nTotal: $${order.total.toFixed(2)}`, 'bot');
+                } else {
+                    addMessage(`❌ No encontré el pedido #${text}.`, 'bot');
+                }
+            } catch (e) {
+                document.getElementById('typing-indicator')?.remove();
+                addMessage('Error al buscar pedido.', 'bot');
+            }
+            return;
+        }
+
+        // Consulta IA
+        addTyping();
         try {
             const res = await fetch('/api/chat', { 
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) 
             });
+            
             const data = await res.json();
             document.getElementById('typing-indicator')?.remove();
             
-            if (data.products?.length) {
-                addMessage(data.reply || 'Aquí tienes:', 'bot');
-                data.products.forEach(p => addMessage('', 'bot', { isProduct: true, product: p }));
-            } else {
-                addMessage(data.reply || 'No entendí.', 'bot');
+            if (data.reply) {
+                addMessage(data.reply, 'bot');
+            }
+
+            if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+                data.products.forEach(p => {
+                    if (p && p.name && p.price) {
+                        addMessage('', 'bot', { isProduct: true, product: p });
+                    }
+                });
             }
         } catch (err) {
+            console.error("Error Chatbot Front:", err);
             document.getElementById('typing-indicator')?.remove();
-            addMessage('Error de conexión.', 'bot');
+            addMessage('El servidor está ocupado. Intenta de nuevo.', 'bot');
         }
     }
 
-    // 2. Abrir / Cerrar Chat
+    function addQuickActions() {
+        if (document.querySelector('.chat-quick-actions')) return;
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'chat-quick-actions flex gap-2 p-2 mb-2 justify-center';
+        
+        const actions = [
+            { text: '🛍️ Productos', val: 'productos disponibles' },
+            { text: '📦 Rastrear', val: 'Rastrear pedido' }
+        ];
+
+        actions.forEach(act => {
+            const btn = document.createElement('button');
+            btn.className = 'chat-chip bg-gray-800 hover:bg-neon-accent hover:text-black text-white text-xs py-2 px-4 rounded-full transition-colors border border-gray-600 whitespace-nowrap shadow-sm';
+            btn.textContent = act.text;
+            btn.onclick = () => {
+                DOMElements.chatInput.value = act.val;
+                handleSend();
+            };
+            actionsDiv.appendChild(btn);
+        });
+        DOMElements.chatMessages.appendChild(actionsDiv);
+        DOMElements.chatMessages.scrollTop = DOMElements.chatMessages.scrollHeight;
+    }
+
+    // --- LISTENERS DE APERTURA Y CIERRE ---
+
+    // 1. Botón Flotante (Abrir)
     DOMElements.chatBtn.addEventListener('click', () => { 
-        // Cambiamos 'flex' por 'flex' pero aseguramos el reset de posición si estaba oculto
-        if (DOMElements.chatModal.style.display === 'flex') {
-            DOMElements.chatModal.style.display = 'none';
-        } else {
-            DOMElements.chatModal.style.display = 'flex';
-            DOMElements.chatInput.focus();
-            if(DOMElements.chatMessages.children.length === 0) {
-                addMessage('¡Hola! 👋 Soy KeyBot. ¿Buscas algún outfit en especial?', 'bot');
-            }
+        DOMElements.chatModal.style.display = 'flex';
+        DOMElements.chatInput.focus();
+        
+        // Si está vacío (porque se reinició), mostramos el saludo
+        if(DOMElements.chatMessages.children.length === 0) {
+            addMessage('¡Hola! 👋 Soy KeyBot.', 'bot');
+            setTimeout(addQuickActions, 500);
         }
     });
     
-    DOMElements.closeChat.addEventListener('click', () => { DOMElements.chatModal.style.display = 'none'; });
+    // 2. Botón MINIMIZAR (-)
+    if(minimizeBtn) {
+        minimizeBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evita conflictos de arrastre
+            // Solo ocultamos el modal, NO borramos el contenido
+            DOMElements.chatModal.style.display = 'none';
+        });
+    }
+
+    // 3. Botón CERRAR / REINICIAR (X)
+    DOMElements.closeChat.addEventListener('click', (e) => { 
+        e.stopPropagation();
+        // Ocultamos el modal
+        DOMElements.chatModal.style.display = 'none';
+        // BORRAMOS el historial para reiniciar la conversación
+        DOMElements.chatMessages.innerHTML = '';
+    });
+
     DOMElements.chatSend.addEventListener('click', handleSend);
     DOMElements.chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend(); }});
 
-    // 3. LÓGICA DE ARRASTRE (DRAG AND DROP)
-    const modal = DOMElements.chatModal;
-    const header = modal.querySelector('.chat-header');
-    
+    // Lógica de Arrastre
+    const header = DOMElements.chatModal.querySelector('.chat-header');
     if (header) {
-        let isDragging = false;
-        let startX, startY, initialLeft, initialTop;
-
+        let isDragging = false, startX, startY, initialLeft, initialTop;
         header.addEventListener('mousedown', (e) => {
-            // Solo permitir arrastre en escritorio (no móviles)
+            // Evitar arrastrar si se hace clic en los botones de control
+            if (e.target.closest('button')) return;
+            
             if (window.innerWidth <= 480) return;
-
-            isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
-
-            // Obtener posición actual calculada
-            const rect = modal.getBoundingClientRect();
-            initialLeft = rect.left;
-            initialTop = rect.top;
-
-            // Cambiar cursor y deshabilitar selección
-            header.style.cursor = 'grabbing';
-            document.body.style.userSelect = 'none';
+            isDragging = true; startX = e.clientX; startY = e.clientY;
+            const rect = DOMElements.chatModal.getBoundingClientRect();
+            initialLeft = rect.left; initialTop = rect.top;
+            header.style.cursor = 'grabbing'; document.body.style.userSelect = 'none';
         });
-
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-
-            // Aplicar nueva posición usando left/top en lugar de transform para persistencia
-            // Desactivamos 'bottom' y 'right' automáticos del CSS al setear left/top
-            modal.style.right = 'auto';
-            modal.style.bottom = 'auto';
-            modal.style.left = `${initialLeft + dx}px`;
-            modal.style.top = `${initialTop + dy}px`;
+            const dx = e.clientX - startX; const dy = e.clientY - startY;
+            DOMElements.chatModal.style.right = 'auto'; DOMElements.chatModal.style.bottom = 'auto';
+            DOMElements.chatModal.style.left = `${initialLeft + dx}px`; DOMElements.chatModal.style.top = `${initialTop + dy}px`;
         });
-
         document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                header.style.cursor = 'move';
-                document.body.style.userSelect = '';
-            }
+            if(isDragging) { isDragging = false; header.style.cursor = 'move'; document.body.style.userSelect = ''; }
         });
     }
 }
@@ -1061,6 +1157,9 @@ function initialize() {
         }
     });
 }
+
+// Hacemos la función global para que el HTML inyectado en el chat pueda llamarla
+window.openProductModal = openProductModal;
 
 // Ejecutar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', initialize);

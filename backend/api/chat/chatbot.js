@@ -1,133 +1,76 @@
-import OpenAI from "openai";
-import dotenv from "dotenv";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from 'dotenv';
+import Product from '../../models/Product.js'; 
+
 dotenv.config();
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-async function fetchData(endpoint) {
-  const res = await fetch(`http://localhost:4000${endpoint}`);
-  return res.json();
-}
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 export async function chatWithGPT(userMessage) {
-  try {
-    const [products, categories, sizes] = await Promise.all([
-      fetchData("/api/products"),
-      fetchData("/api/categories"),
-      fetchData("/api/sizes")
-    ]);
+    try {
+        // 1. Obtener productos de la BD
+        const products = await Product.find();
+        
+        // 2. Crear contexto resumido
+        const inventoryText = products.map(p => `ID:${p.id} | ${p.name} | $${p.price}`).join('\n');
 
-    const normalized = userMessage.toLowerCase();
+        // 3. Configurar IA
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.0-flash",
+            generationConfig: { responseMimeType: "application/json" } 
+        });
 
-    const findCategoryByName = (text) =>
-      categories.find(c => text.includes(c.name.toLowerCase()));
+        // 4. Prompt Estricto
+        const systemPrompt = `
+        Eres KeyBot. Inventario:
+        ${inventoryText}
 
-    const findMatchingProducts = (text) =>
-      products.filter(p =>
-        p.name.toLowerCase().includes(text) ||
-        p.description.toLowerCase().includes(text)
-      );
+        Usuario: "${userMessage}"
 
-    const findSizeByName = (text) =>
-      sizes.find(s => new RegExp(`\\b${s.name.toLowerCase()}\\b`).test(text));
+        SI EL USUARIO PIDE VER PRODUCTOS:
+        - Tu "reply" debe ser corto: "Claro, aquí tienes:".
+        - NO escribas la lista de productos en "reply".
+        - LLENA el array "products" con los IDs encontrados.
 
-    // 📌 Nueva intención: Mostrar todos los productos
-    if (
-      normalized.includes("todos los productos") ||
-      normalized.includes("productos disponibles") ||
-      normalized.includes("todo lo disponible") ||
-      normalized.includes("muéstrame todo") ||
-      normalized.includes("mostrar todos")
-    ) {
+        JSON:
+        { "reply": "texto", "products": [{ "id": 123, "name": "x" }] }
+        `;
 
-      if (!products.length) {
-        return "No hay productos disponibles en este momento.";
-      }
+        // 5. Generar
+        const result = await model.generateContent(systemPrompt);
+        const jsonResponse = JSON.parse(result.response.text());
 
-      const productCards = products.map(p =>
-        `
-        <div class="chat-product-card">
-          <img src="${p.images?.[0] || '/img/no-image.png'}" class="chat-product-img">
-          <div class="chat-product-info">
-            <strong>${p.name}</strong><br>
-            💲${p.price}<br>
-            📦 Stock: ${p.stock}
-          </div>
-          <button class="chat-view-btn" onclick="openProductModal(${p.id})">Ver más</button>
-        </div>
-        `
-      ).join("");
+        // 6. LÓGICA DE SEGURIDAD (Aquí está la solución)
+        // Detectamos si el usuario quiere ver productos
+        const userText = userMessage.toLowerCase();
+        const keywords = ['producto', 'disponible', 'ver', 'tienes', 'catálogo', 'catalogo', 'lista', 'comprar', 'precio'];
+        const userWantsProducts = keywords.some(w => userText.includes(w));
 
-      return {
-  reply: "Aquí tienes todos los productos disponibles:",
-  products: products.map(p => ({
-    id: p.id,
-    name: p.name,
-    price: p.price,
-    stock: p.stock,
-    images: p.images || []
-  })),
-  isProduct: true
-};
+        let finalProducts = [];
 
+        // A. Si la IA devolvió productos, los buscamos
+        if (jsonResponse.products && jsonResponse.products.length > 0) {
+            for (const aiProd of jsonResponse.products) {
+                const found = products.find(p => p.id == aiProd.id || p.name.toLowerCase().includes(aiProd.name?.toLowerCase()));
+                if (found) finalProducts.push(found);
+            }
+        }
+
+        // B. FALLBACK AGRESIVO: Si el usuario quiere productos pero la IA no mandó el array o falló al cruzar datos
+        if (finalProducts.length === 0 && userWantsProducts) {
+            console.log("⚠️ Forzando envío de productos...");
+            // Enviamos los primeros 5 productos de la base de datos
+            finalProducts = products.slice(0, 5); 
+            jsonResponse.reply = "Aquí tienes nuestros productos destacados:";
+        }
+
+        // 7. Asignar la lista real con imágenes al JSON final
+        jsonResponse.products = finalProducts;
+
+        return jsonResponse;
+
+    } catch (error) {
+        console.error("Error Chatbot:", error);
+        return { reply: "Error técnico. Intenta de nuevo." };
     }
-
-    // 1️⃣ Productos por categoría
-    const category = findCategoryByName(normalized);
-    if (category) {
-      let filtered = products.filter(p => p.categoryId === category.id);
-
-      const size = findSizeByName(normalized);
-      if (size) {
-        filtered = filtered.filter(p => p.sizeIds.includes(size.id));
-      }
-
-      if (!filtered.length) {
-        return `No encontré productos en esa categoría${size ? " con esa talla" : ""}.`;
-      }
-
-      const list = filtered.map(
-        p => `• ${p.name} - $${p.price} (Stock: ${p.stock})`
-      ).join("\n");
-
-      return `Aquí tienes los ${category.name}${size ? " talla " + size.name : ""}:\n\n${list}`;
-    }
-
-
-    // 2️⃣ Productos por nombre con tarjetas visuales
-// 2️⃣ Productos por nombre → enviar datos para tarjetas reales
-const matches = findMatchingProducts(normalized);
-if (matches.length) {
-  return {
-    reply: "Esto es lo que encontré:",
-    products: matches,
-    isProduct: true
-  };
-}
-
-
-
-    // 3️⃣ GPT fallback
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `
-Eres el asistente virtual de Key Option Store.
-Si el usuario pide productos, usa siempre los datos reales de la BD primero.
-Respuesta amigable, breve y clara.
-`
-        },
-        { role: "user", content: userMessage }
-      ],
-      temperature: 0.5
-    });
-
-    return completion.choices[0].message.content;
-
-  } catch (error) {
-    console.error("❌ Error en chatWithGPT:", error);
-    return "Hubo un error al obtener los datos. Intenta nuevamente. 🙏";
-  }
 }

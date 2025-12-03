@@ -9,8 +9,9 @@ import dotenv from 'dotenv';
 
 // Base de Datos
 import connectDB from './config/db.js';
-import Order from './models/Order.js';   // Importación directa para mejor rendimiento
+import Order from './models/Order.js'; 
 import Product from './models/Product.js';
+import Category from './models/Category.js';
 
 // Funciones CRUD (Controladores)
 import {
@@ -27,6 +28,7 @@ import {
 
 // Utilidades
 import buildInvoice from './utils/invoiceGenerator.js'; 
+import { generateInventoryReport, generateSalesReport } from './utils/reportGenerator.js';
 import { chatWithGPT } from './api/chat/chatbot.js';
 
 // Inteligencia Artificial
@@ -57,7 +59,7 @@ app.use(express.static(rootPath));
 // 2. API: GESTIÓN DE PRODUCTOS
 // ==========================================================
 
-// Obtener todos los productos
+// Obtener todos
 app.get('/api/products', async (req, res) => {
   try {
     const products = await getProducts();
@@ -68,7 +70,7 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
-// Guardar/Actualizar producto
+// Guardar/Actualizar
 app.post('/api/products', async (req, res) => {
   try {
     const product = await saveProduct(req.body);
@@ -79,12 +81,11 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// Eliminar producto
+// Eliminar
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const productId = parseInt(req.params.id, 10);
     const success = await deleteProduct(productId);
-
     if (!success) return res.status(404).json({ message: `Producto ID ${productId} no encontrado.` });
     res.status(200).json({ message: `Producto ID ${productId} eliminado.` });
   } catch (error) {
@@ -93,38 +94,26 @@ app.delete('/api/products/:id', async (req, res) => {
   }
 });
 
-// Buscar producto por nombre + Estadísticas de venta (IA Dashboard)
+// Buscar por nombre + Ventas del mes (Para IA)
 app.get('/api/products/name/:name', async (req, res) => {
   try {
     const searchName = decodeURIComponent(req.params.name).trim();
+    const product = await Product.findOne({ name: { $regex: new RegExp(searchName, 'i') } });
 
-    // Búsqueda insensible a mayúsculas
-    const product = await Product.findOne({
-      name: { $regex: new RegExp(searchName, 'i') },
-    });
+    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
 
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-
-    // Calcular ventas del mes actual
+    // Calcular ventas del mes
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const orders = await Order.find({
-      status: 'entregado',
-      createdAt: { $gte: startOfMonth }
-    });
-
+    const orders = await Order.find({ status: 'entregado', createdAt: { $gte: startOfMonth } });
     let unitsSold = 0;
     const dbProductId = Number(product.id);
 
     for (const order of orders) {
       for (const item of order.items) {
-        if (Number(item.productId) === dbProductId) {
-          unitsSold += Number(item.quantity) || 0;
-        }
+        if (Number(item.productId) === dbProductId) unitsSold += Number(item.quantity) || 0;
       }
     }
 
@@ -168,7 +157,6 @@ app.delete('/api/orders/:id', async (req, res) => {
   try {
     const orderId = parseInt(req.params.id, 10);
     const success = await deleteOrder(orderId);
-
     if (!success) return res.status(404).json({ message: `Pedido no encontrado.` });
     res.status(200).json({ message: `Pedido eliminado.` });
   } catch (error) {
@@ -177,7 +165,7 @@ app.delete('/api/orders/:id', async (req, res) => {
   }
 });
 
-// Generar Factura PDF
+// Generar Factura PDF (Por ID)
 app.get('/api/orders/invoice/:id', async (req, res) => {
   try {
     const orderId = parseInt(req.params.id, 10);
@@ -189,20 +177,17 @@ app.get('/api/orders/invoice/:id', async (req, res) => {
     order = order.toObject();
     if (!order.createdAt) order.createdAt = new Date();
 
-    // Recuperar precios si faltan en el pedido histórico
+    // Recuperar precios si faltan
     if (order.items.some(item => !item.price || item.price === 0)) {
       for (const item of order.items) {
         const product = await Product.findOne({ id: item.productId }).exec();
         item.price = Number(product?.price || 0);
       }
-      // Recalcular total si fue necesario recuperar precios
       order.total = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     }
 
-    // Configurar headers para descarga
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=Factura_TRK-${order.id}.pdf`);
-
     buildInvoice(order, res);
 
   } catch (error) {
@@ -213,7 +198,43 @@ app.get('/api/orders/invoice/:id', async (req, res) => {
 
 
 // ==========================================================
-// 4. API: DATOS AUXILIARES (CATEGORÍAS / TALLAS)
+// 4. API: REPORTES PDF (INVENTARIO Y VENTAS)
+// ==========================================================
+
+// Reporte de Inventario
+app.get('/api/reports/inventory', async (req, res) => {
+  try {
+      const products = await Product.find().lean();
+      const categories = await Category.find().lean();
+      const categoryMap = {};
+      categories.forEach(c => categoryMap[c.id] = c.name);
+
+      const enrichedProducts = products.map(p => ({
+          ...p,
+          categoryName: categoryMap[p.categoryId] || 'Sin Categoría'
+      }));
+
+      generateInventoryReport(enrichedProducts, res);
+  } catch (error) {
+      console.error("Error reporte inventario:", error);
+      res.status(500).send("Error generando reporte");
+  }
+});
+
+// Reporte de Ventas (Entregadas)
+app.get('/api/reports/sales', async (req, res) => {
+  try {
+      const orders = await Order.find({ status: 'entregado' }).lean();
+      generateSalesReport(orders, res);
+  } catch (error) {
+      console.error("Error reporte ventas:", error);
+      res.status(500).send("Error generando reporte");
+  }
+});
+
+
+// ==========================================================
+// 5. API: DATOS AUXILIARES
 // ==========================================================
 
 app.get('/api/categories', async (req, res) => {
@@ -236,7 +257,7 @@ app.get('/api/sizes', async (req, res) => {
 
 
 // ==========================================================
-// 5. API: INTELIGENCIA ARTIFICIAL & CHATBOT
+// 6. API: INTELIGENCIA ARTIFICIAL & CHATBOT
 // ==========================================================
 
 // Chatbot (Cliente)
@@ -246,12 +267,7 @@ app.post("/api/chat", async (req, res) => {
     if (!message || message.trim() === "") return res.status(400).json({ reply: "Escribe un mensaje." });
 
     const reply = await chatWithGPT(message);
-
-    // Manejo flexible de respuestas (texto u objeto con productos)
-    if (reply && reply.isProduct) return res.json(reply);
-    if (typeof reply === "string") return res.json({ reply });
-    
-    return res.json({ reply: reply.reply || "No entendí tu pregunta." });
+    return res.json(reply); // Enviamos el objeto completo (reply + products)
 
   } catch (error) {
     console.error("Error en Chatbot:", error);
@@ -259,7 +275,7 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-// Predicción General (Admin Dashboard)
+// Predicción General (Dashboard)
 app.get('/api/ai/predict', async (req, res) => {
   try {
     await getAiPrediction(req, res);
@@ -269,7 +285,7 @@ app.get('/api/ai/predict', async (req, res) => {
   }
 });
 
-// Demanda por Categoría (Admin Reportes)
+// Demanda por Categoría (Reportes)
 app.get('/api/ai/category-demand', async (req, res) => {
   try {
     await getCategoryDemandPrediction(req, res);
@@ -281,10 +297,10 @@ app.get('/api/ai/category-demand', async (req, res) => {
 
 
 // ==========================================================
-// 6. SERVIDOR FRONTEND Y ARRANQUE
+// 7. SERVIDOR FRONTEND Y ARRANQUE
 // ==========================================================
 
-// Rutas para servir los HTML
+// Rutas HTML
 app.get('/', (req, res) => res.sendFile(path.join(frontendPath, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(frontendPath, 'admin.html')));
 

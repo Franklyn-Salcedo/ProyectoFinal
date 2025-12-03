@@ -176,25 +176,32 @@
     </button>
 
 <div id="chatbot-modal" aria-hidden="true" role="dialog">
-    <div class="chat-header">
-        <div class="avatar">K</div>
-        <div>
-            <div class="title">Asistente Key Option</div>
-            <div class="subtitle">En línea • Arrástrame</div>
+        <div class="chat-header">
+            <div class="avatar">K</div>
+            <div>
+                <div class="title">Asistente Key Option</div>
+                <div class="subtitle">En línea • Arrástrame</div>
+            </div>
+            
+            <div style="margin-left: auto; display: flex; gap: 10px;">
+                <button id="minimize-chatbot" class="text-gray-400 hover:text-neon-accent text-xl p-1 cursor-pointer transition-colors" title="Minimizar">
+                    <i class="fas fa-minus"></i>
+                </button>
+                
+                <button id="close-chatbot" class="text-gray-400 hover:text-red-500 text-xl p-1 cursor-pointer transition-colors" title="Cerrar y Reiniciar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
-        <button id="close-chatbot" class="ml-auto text-gray-400 hover:text-white text-xl p-2 cursor-pointer transition-transform hover:rotate-90">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
 
-    <div class="chat-body" id="chatbot-messages">
+        <div class="chat-body" id="chatbot-messages">
+            </div>
+
+        <div class="chat-input">
+            <input id="chatbot-input" type="text" placeholder="Escribe aquí..." aria-label="Mensaje">
+            <button class="send" id="chatbot-send"><i class="fas fa-paper-plane text-xs"></i></button>
         </div>
-
-    <div class="chat-input">
-        <input id="chatbot-input" type="text" placeholder="Escribe aquí..." aria-label="Mensaje">
-        <button class="send" id="chatbot-send"><i class="fas fa-paper-plane text-xs"></i></button>
     </div>
-</div>
 
     <script src="index.js" defer></script>
 

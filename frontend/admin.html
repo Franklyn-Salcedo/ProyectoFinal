@@ -245,16 +245,28 @@
                                         <option value="">Cargando Categorías...</option>
                                     </select>
                                 </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="product-price" class="block text-sm font-bold mb-2">Precio</label>
-                                        <input type="number" id="product-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                                    </div>
-                                    <div>
-                                        <label for="product-stock" class="block text-sm font-bold mb-2">Stock</label>
-                                        <input type="number" id="product-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                                    </div>
-                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    
+                                  <div>
+                                      <label for="product-price" class="block text-sm font-bold mb-2">Precio Regular</label>
+                                      <input type="number" id="product-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                  </div>
+
+                                  <div>
+                                      <label for="product-offer-price" class="block text-sm font-bold mb-2 text-green-400">Precio Oferta</label>
+                                      <input type="number" id="product-offer-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-green-600/50 focus:border-green-400" placeholder="Opcional">
+                                  </div>
+
+                                  <div>
+                                      <label for="product-stock" class="block text-sm font-bold mb-2">Stock</label>
+                                      <input type="number" id="product-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                                  </div>
+
+                                  <div>
+                                      <label for="product-min-stock" class="block text-sm font-bold mb-2 text-yellow-400">Min. Alerta</label>
+                                      <input type="number" id="product-min-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="Ej: 5">
+                                  </div>
+                              </div>
                                 <div>
                                     <label class="block text-sm font-bold mb-2">Tallas Disponibles</label>
                                     <div id="product-sizes-container" class="grid grid-cols-3 gap-2 p-3 bg-gray-700 rounded-lg border border-gray-600 h-28 overflow-y-auto">
@@ -363,6 +375,35 @@
                 <header class="mb-8">
                     <h2 class="text-4xl font-extrabold uppercase text-white">Reportes y Análisis Predictivo</h2>
                 </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+    
+                <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700 flex items-center justify-between group cursor-pointer hover:border-yellow-400 transition-all" onclick="window.open('/api/reports/inventory', '_blank')">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-yellow-400/10 flex items-center justify-center text-yellow-400 group-hover:bg-yellow-400 group-hover:text-black transition-colors">
+                            <i class="fas fa-boxes text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-yellow-400 transition-colors">Reporte de Inventario</h3>
+                            <p class="text-sm text-gray-400">Descargar PDF con stock actual y valoración.</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-download text-gray-600 group-hover:text-white text-xl transition-transform group-hover:translate-y-1"></i>
+                </div>
+
+                <div class="bg-card-bg p-6 rounded-xl shadow-lg border border-gray-700 flex items-center justify-between group cursor-pointer hover:border-green-400 transition-all" onclick="window.open('/api/reports/sales', '_blank')">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-green-400/10 flex items-center justify-center text-green-400 group-hover:bg-green-400 group-hover:text-black transition-colors">
+                            <i class="fas fa-file-invoice-dollar text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-green-400 transition-colors">Reporte de Ventas</h3>
+                            <p class="text-sm text-gray-400">Descargar PDF de pedidos entregados.</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-download text-gray-600 group-hover:text-white text-xl transition-transform group-hover:translate-y-1"></i>
+                </div>
+
+            </div>
                 <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                     <div class="bg-card-bg p-6 rounded-xl shadow-lg border-b-4 border-teal-500">
                         <div class="flex justify-between items-center">

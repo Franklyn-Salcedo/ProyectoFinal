@@ -675,3 +675,92 @@ h2, h3, .font-title {
     75% { transform: translateX(5px); border-color: red; }
 }
 .animate-shake { animation: shake 0.4s ease-in-out; }
+
+/* Chips de Acción Rápida */
+.chat-quick-actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    overflow-x: auto; /* Permite scroll lateral */
+    white-space: nowrap; /* Evita saltos de línea */
+    scrollbar-width: none; /* Oculta scrollbar en Firefox */
+    -ms-overflow-style: none; /* Oculta scrollbar en IE */
+    width: 100%; /* Asegura que ocupe el ancho */
+}
+
+/* Ocultar scrollbar en Chrome/Safari */
+.chat-quick-actions::-webkit-scrollbar { 
+    display: none; 
+}
+
+.chat-chip {
+    flex-shrink: 0; /* <--- ¡ESTO ES LA CLAVE! Impide que el botón se aplaste */
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 222, 77, 0.3);
+    color: #fff;
+    padding: 8px 16px; /* Un poco más grandes para dedos */
+    border-radius: 20px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.chat-chip:hover {
+    background: #FFDE4D;
+    color: #000;
+    border-color: #FFDE4D;
+}
+
+/* Tarjeta de producto dentro del chat */
+.product-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    padding: 8px;
+    border-radius: 10px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.product-mini:hover {
+    background: rgba(255, 222, 77, 0.1);
+    border-color: #FFDE4D;
+}
+
+.product-mini img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover; /* O contain si son PNG */
+    border-radius: 6px;
+    background: #fff; /* Fondo blanco para que se vean bien los PNG */
+}
+
+.product-mini .pinfo {
+    flex: 1;
+    overflow: hidden;
+}
+
+.product-mini .title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-mini .price {
+    color: #FFDE4D;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.product-mini .stock {
+    font-size: 0.7rem;
+    color: #888;
+}

@@ -92,7 +92,9 @@ const DOMElements = {
     productDescriptionInput: document.getElementById('product-description'),
     productCategoryInput: document.getElementById('product-category-select'),
     productPriceInput: document.getElementById('product-price'),
+    productOfferPriceInput: document.getElementById('product-offer-price'), // <--- NUEVO
     productStockInput: document.getElementById('product-stock'),
+    productMinStockInput: document.getElementById('product-min-stock'), // <--- NUEVO
     productSizesContainer: document.getElementById('product-sizes-container'),
     productImagesInput: document.getElementById('product-images'),
     saveBtn: document.getElementById('save-btn'),
@@ -335,11 +337,18 @@ async function renderProductList() {
     }
 
     filtered.forEach(p => {
-        const stockStatus = p.stock === 0 
-            ? '<span class="text-red-500 font-bold"><i class="fas fa-times-circle"></i> Agotado</span>' 
-            : p.stock <= STOCK_THRESHOLD 
-                ? `<span class="text-yellow-400"><i class="fas fa-exclamation-triangle"></i> Bajo: ${p.stock}</span>`
-                : `<span class="text-gray-400">Stock: ${p.stock}</span>`;
+        // --- LÓGICA DE STOCK DINÁMICA ---
+        // Si no tiene minStock definido, usamos 5 por defecto
+        const umbral = p.minStock || 5; 
+
+        let stockStatus = `<span class="text-gray-400">Stock: ${p.stock}</span>`;
+
+        if (p.stock === 0) {
+            stockStatus = '<span class="text-red-500 font-bold"><i class="fas fa-times-circle"></i> Agotado</span>';
+        } else if (p.stock <= umbral) {
+            // Si es menor o igual a SU propio mínimo
+            stockStatus = `<span class="text-yellow-400 font-bold"><i class="fas fa-exclamation-triangle"></i> Bajo (Mín: ${umbral})</span>`;
+        }
 
         const card = document.createElement('div');
         card.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition';
@@ -363,6 +372,7 @@ async function renderProductList() {
 
 async function handleProductFormSubmit(e) {
     e.preventDefault();
+    
     const sizeIds = Array.from(DOMElements.productSizesContainer.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
     
     const productData = {
@@ -370,8 +380,23 @@ async function handleProductFormSubmit(e) {
         name: DOMElements.productNameInput.value,
         description: DOMElements.productDescriptionInput.value,
         categoryId: parseInt(DOMElements.productCategoryInput.value),
+        
+        // Precio Regular
         price: parseFloat(DOMElements.productPriceInput.value),
+        
+        // --- NUEVO: PRECIO DE OFERTA ---
+        // Si el input tiene valor, lo convertimos a número. Si no, enviamos null.
+        offerPrice: DOMElements.productOfferPriceInput.value 
+            ? parseFloat(DOMElements.productOfferPriceInput.value) 
+            : null,
+        // -------------------------------
+
+        // Stock
         stock: parseInt(DOMElements.productStockInput.value),
+        
+        // Min Stock (Alerta)
+        minStock: parseInt(DOMElements.productMinStockInput.value) || 5, 
+
         sizeIds: sizeIds,
         images: DOMElements.productImagesInput.value.split('\n').map(u => u.trim()).filter(Boolean),
     };
@@ -389,7 +414,6 @@ async function handleProductFormSubmit(e) {
 async function fillProductFormForEdit(productId) {
     const products = await getProducts();
     const product = products.find(p => p.id == productId);
-    
     if (!product) return showPopup('Producto no encontrado', 'error');
 
     AppState.editingProductId = productId;
@@ -398,6 +422,11 @@ async function fillProductFormForEdit(productId) {
     DOMElements.productCategoryInput.value = product.categoryId;
     DOMElements.productPriceInput.value = product.price;
     DOMElements.productStockInput.value = product.stock;
+    
+    // --- NUEVO: Llenar input minStock ---
+    DOMElements.productMinStockInput.value = product.minStock || 5;
+    // ------------------------------------
+
     DOMElements.productImagesInput.value = product.images.join('\n');
 
     const checkboxes = DOMElements.productSizesContainer.querySelectorAll('input[type="checkbox"]');
@@ -922,15 +951,49 @@ async function loadReportsData() {
 }
 
 async function loadDashboardData() {
-    const orders = await getOrders();
-    const products = await getProducts();
+    try {
+        const orders = await getOrders();
+        const products = await getProducts();
 
-    const total = orders.filter(o => o.status === 'entregado').reduce((sum, o) => sum + o.total, 0);
-    DOMElements.kpiTotalSales.textContent = `$${total.toLocaleString()}`;
-    DOMElements.kpiPendingOrders.textContent = orders.filter(o => o.status === 'pendiente').length;
-    DOMElements.kpiCriticalStock.textContent = products.filter(p => p.stock <= STOCK_THRESHOLD).length;
+        // 1. KPI: Ventas Totales (Solo entregados)
+        const total = orders
+            .filter(o => o.status === 'entregado')
+            .reduce((sum, o) => sum + o.total, 0);
+        DOMElements.kpiTotalSales.textContent = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
-    renderRecentActivity(orders.slice(0, 5));
+        // 2. KPI: Pedidos Pendientes
+        const pendingCount = orders.filter(o => o.status === 'pendiente' || o.status === 'procesando').length;
+        DOMElements.kpiPendingOrders.textContent = pendingCount;
+
+        // 3. KPI: STOCK CRÍTICO (CORREGIDO)
+        // Ahora miramos producto por producto su propio límite (minStock)
+        const criticalProducts = products.filter(p => {
+            // Aseguramos que sean números
+            const currentStock = parseInt(p.stock, 10) || 0;
+            // Si el producto tiene su propio minStock, úsalo. Si no, usa el global (5)
+            const limit = (p.minStock !== undefined && p.minStock !== null) 
+                          ? parseInt(p.minStock, 10) 
+                          : STOCK_THRESHOLD;
+            
+            // Es crítico si el stock es menor o igual al límite
+            return currentStock <= limit;
+        });
+
+        console.log("--- DIAGNÓSTICO STOCK ---");
+        console.log(`Total Productos: ${products.length}`);
+        console.log(`Productos Críticos encontrados: ${criticalProducts.length}`);
+        // Descomenta la siguiente línea si quieres ver cuáles son en la consola:
+        // console.table(criticalProducts.map(p => ({ nombre: p.name, stock: p.stock, limite: p.minStock || 5 })));
+
+        DOMElements.kpiCriticalStock.textContent = criticalProducts.length;
+
+
+        // 4. Actividad Reciente
+        renderRecentActivity(orders.slice(0, 5));
+
+    } catch (error) {
+        console.error("Error cargando dashboard:", error);
+    }
 }
 
 function renderRecentActivity(orders) {
