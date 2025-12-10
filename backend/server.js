@@ -306,6 +306,6 @@ app.get('/admin', (req, res) => res.sendFile(path.join(frontendPath, 'admin.html
 
 // Iniciar
 app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en: http://localhost:${PORT}`);
-  console.log(`📊 Panel Admin: http://localhost:${PORT}/admin`);
+  console.log(`Servidor corriendo en: http://localhost:${PORT}`);
+  console.log(`Panel Admin: http://localhost:${PORT}/admin`);
 });

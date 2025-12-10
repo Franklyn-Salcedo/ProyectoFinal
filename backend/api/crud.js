@@ -10,7 +10,7 @@ const getNextId = async (Model) => {
 };
 
 /**
- * FUNCIONES CRUD DE PRODUCTOS
+FUNCIONES CRUD DE PRODUCTOS
  */
 export async function getProducts() {
     return await Product.find({}).sort({ id: 1 }).exec();
@@ -126,7 +126,7 @@ export async function saveOrder(orderData) {
         const newId = await getNextId(Order);
         const newTrackingNumber = orderData.trackingNumber || `TRK-${newId}`;
 
-        // ✅ Ahora sí podemos loguear con un ID real
+        // Ahora sí podemos loguear con un ID real
         if (stockDeductedStates.includes(orderData.status)) {
             console.log(`Nuevo pedido #${newId} creado con estado ${orderData.status}. Descontando stock...`);
         } else {

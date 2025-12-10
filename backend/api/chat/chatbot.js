@@ -8,19 +8,19 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 export async function chatWithGPT(userMessage) {
     try {
-        // 1. Obtener productos de la BD
+        // Obtener productos de la BD
         const products = await Product.find();
         
-        // 2. Crear contexto resumido
+        // Crear contexto resumido
         const inventoryText = products.map(p => `ID:${p.id} | ${p.name} | $${p.price}`).join('\n');
 
-        // 3. Configurar IA
+        // Configurar IA
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.0-flash",
             generationConfig: { responseMimeType: "application/json" } 
         });
 
-        // 4. Prompt Estricto
+        // Prompt Estricto
         const systemPrompt = `
         Eres KeyBot. Inventario:
         ${inventoryText}
@@ -36,11 +36,11 @@ export async function chatWithGPT(userMessage) {
         { "reply": "texto", "products": [{ "id": 123, "name": "x" }] }
         `;
 
-        // 5. Generar
+        // Generar
         const result = await model.generateContent(systemPrompt);
         const jsonResponse = JSON.parse(result.response.text());
 
-        // 6. LÓGICA DE SEGURIDAD (Aquí está la solución)
+        // LÓGICA DE SEGURIDAD (Aquí está la solución)
         // Detectamos si el usuario quiere ver productos
         const userText = userMessage.toLowerCase();
         const keywords = ['producto', 'disponible', 'ver', 'tienes', 'catálogo', 'catalogo', 'lista', 'comprar', 'precio'];

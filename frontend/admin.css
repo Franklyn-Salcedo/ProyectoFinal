@@ -1,6 +1,4 @@
-/* =========================================
-   1. VARIABLES Y CONFIGURACIÓN GENERAL
-   ========================================= */
+
 :root {
     --neon-accent: #FFDE4D; /* Amarillo Key Option */
     --bg-dark: #0D0D0D;     /* Fondo Principal */
@@ -26,9 +24,7 @@ body {
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--neon-accent); }
 
-/* =========================================
-   2. TIPOGRAFÍA & ESTILOS BASE
-   ========================================= */
+
 h1, h2, h3, .brand-font {
     font-family: "Carter One", system-ui;
     font-weight: 400;
@@ -40,9 +36,7 @@ h1, h2, h3, .brand-font {
     text-shadow: 0 0 15px rgba(255, 222, 77, 0.15);
 }
 
-/* =========================================
-   3. SIDEBAR (PANEL LATERAL)
-   ========================================= */
+
 #admin-sidebar {
     background-color: #111;
     border-right: 1px solid var(--border-color);
@@ -76,9 +70,7 @@ h1, h2, h3, .brand-font {
     border: none;
 }
 
-/* =========================================
-   4. DASHBOARD: RESUMEN EJECUTIVO (FINTECH DARK)
-   ========================================= */
+
 
 /* Header del Dashboard */
 #dashboard-view header {
@@ -177,9 +169,7 @@ h1, h2, h3, .brand-font {
 #dashboard-view .bg-card-bg:nth-child(4):hover { border-color: #ec4899 !important; box-shadow: 0 0 30px rgba(236, 72, 153, 0.15); }
 #dashboard-view .bg-card-bg:nth-child(4) i { color: #ec4899; }
 
-/* =========================================
-   5. IA PREDICTIVA: NEON TECH POD
-   ========================================= */
+
 #ia-product-highlight {
     background: linear-gradient(145deg, #0a0a0a 0%, #111827 60%, rgba(255, 222, 77, 0.05) 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -278,9 +268,6 @@ h1, h2, h3, .brand-font {
     transform: translateY(0);
 }
 
-/* =========================================
-   6. GESTIÓN DE PRODUCTOS Y PEDIDOS (UI GENERAL)
-   ========================================= */
 
 /* Estilos de Tarjetas Genéricas (Listas) */
 .bg-card-bg, .bg-gray-800 {
@@ -348,9 +335,7 @@ button {
 }
 .delete-btn:hover, .delete-order-btn:hover { background: #dc2626 !important; color: white !important; }
 
-/* =========================================
-   7. MODALES Y RESPONSIVE
-   ========================================= */
+
 #toast-popup { z-index: 100 !important; }
 #confirmation-modal { z-index: 99 !important; backdrop-filter: blur(5px); }
 
@@ -360,9 +345,7 @@ button {
     #ia-monto { font-size: 2rem !important; }
 }
 
-/* =========================================
-   8. MEJORA DISEÑO: GESTIÓN DE PRODUCTOS (CORREGIDO V2)
-   ========================================= */
+
 
 /* --- A. EL FORMULARIO (Panel Izquierdo) --- */
 
@@ -655,9 +638,7 @@ button {
 }
 #product-list .delete-btn:hover { background: #dc2626 !important; color: #fff !important; border-color: transparent; }
 
-/* =========================================
-   9. MEJORA DISEÑO: GESTIÓN DE PEDIDOS (FINTECH STYLE)
-   ========================================= */
+
 
 /* --- A. EL FORMULARIO DE PEDIDOS (Izquierda) --- */
 
@@ -911,9 +892,6 @@ button {
 }
 #order-list .delete-order-btn:hover { background: #dc2626; color: #fff !important; }
 
-/* =========================================
-   10. MEJORA DISEÑO: REPORTES Y IA (DATA CENTER)
-   ========================================= */
 
 /* --- A. KPIs SUPERIORES (Tarjetas de Métricas) --- */
 #reports-view .bg-card-bg {
@@ -1071,9 +1049,6 @@ button {
 .status-stable { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid #64748b; }
 .status-low { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
 
-/* =========================================
-   PARCHE: ELIMINAR DOBLE BOTÓN IA
-   ========================================= */
 
 /* 1. Ocultar pseudoelementos que parezcan botones */
 #ia-predicion::before,

@@ -1,6 +1,6 @@
-/* ==========================================================
-   SECCIÓN 1: CONFIGURACIÓN Y ESTADO GLOBAL
-   ========================================================== */
+/*
+CONFIGURACIÓN Y ESTADO GLOBAL
+*/
 const ADMIN_USERNAME = "admin";
 const ADMIN_PASSWORD = "1234";
 const STOCK_THRESHOLD = 5; 
@@ -18,9 +18,9 @@ const AppState = {
 let toastTimer; 
 let monthlySalesChart = null; 
 
-/* ==========================================================
-   SECCIÓN 2: MAPEO DE ELEMENTOS DOM
-   ========================================================== */
+/*
+MAPEO DE ELEMENTOS DOM
+*/
 const DOMElements = {
     // Layout y Login
     loginSection: document.getElementById('login-section'),
@@ -126,9 +126,9 @@ const DOMElements = {
     confirmCancelBtn: document.getElementById('confirm-cancel-btn'),
 };
 
-/* ==========================================================
-   SECCIÓN 3: UTILIDADES Y UI
-   ========================================================== */
+/*
+UTILIDADES Y UI
+*/
 
 function updateDateTime() {
     const now = new Date();
@@ -190,9 +190,9 @@ function showConfirmationModal(message, onConfirm) {
     DOMElements.confirmCancelBtn.addEventListener('click', () => confirmationModal.classList.add('hidden'));
 }
 
-/* ==========================================================
-   SECCIÓN 4: NAVEGACIÓN Y LOGIN
-   ========================================================== */
+/*
+NAVEGACIÓN Y LOGIN
+*/
 
 function toggleSidebar() {
     const { adminSidebar, mainContent, toggleSidebarIcon, sidebarTexts, viewButtons } = DOMElements;
@@ -282,9 +282,9 @@ function showDashboard() {
     switchView(AppState.currentView);
 }
 
-/* ==========================================================
-   SECCIÓN 5: API CLIENT
-   ========================================================== */
+/*
+API CLIENT
+*/
 
 async function apiRequest(url, method = 'GET', body = null) {
     try {
@@ -315,9 +315,9 @@ const deleteOrder = (id) => apiRequest(`/api/orders/${id}`, 'DELETE');
 const getCategories = async () => (await apiRequest('/api/categories')) || [];
 const getSizes = async () => (await apiRequest('/api/sizes')) || [];
 
-/* ==========================================================
-   SECCIÓN 6: GESTIÓN DE PRODUCTOS (LÓGICA + EDICIÓN)
-   ========================================================== */
+/*
+GESTIÓN DE PRODUCTOS (LÓGICA + EDICIÓN)
+*/
 
 async function renderProductList() {
     const searchTerm = DOMElements.productSearchInput.value.toLowerCase().trim();
@@ -455,9 +455,9 @@ function getCategoryName(id) {
     return cat ? cat.name : 'Desconocida';
 }
 
-/* ==========================================================
-   SECCIÓN 7: GESTIÓN DE PEDIDOS (LÓGICA + EDICIÓN CORREGIDA)
-   ========================================================== */
+/*
+GESTIÓN DE PEDIDOS (LÓGICA + EDICIÓN CORREGIDA)
+*/
 
 function getStatusColor(status) {
     const colors = {
@@ -723,9 +723,9 @@ async function handleOrderListClick(e) {
     }
 }
 
-/* ==========================================================
-   FUNCIÓN CORREGIDA: loadRealAIPrediction (MUESTRA VENTAS REALES)
-   ========================================================== */
+/*
+loadRealAIPrediction (MUESTRA VENTAS REALES)
+*/
 async function loadRealAIPrediction() {
     try {
         // 1. UI de carga
@@ -796,9 +796,9 @@ function typeTextAnimation(element, text) {
     }, 20);
 }
 
-/* ==========================================================
-   LÓGICA DE REPORTES: VENTAS REALES Y TOP PRODUCTOS
-   ========================================================== */
+/*
+LÓGICA DE REPORTES: VENTAS REALES Y TOP PRODUCTOS
+*/
 async function loadReportsData() {
     const orders = await getOrders();
     
@@ -1011,16 +1011,13 @@ function renderRecentActivity(orders) {
     });
 }
 
-/* ==========================================================
-   FUNCIÓN CORREGIDA: loadCategoryPrediction (CON DIAGNÓSTICO)
-   ========================================================== */
 async function loadCategoryPrediction() {
     console.log("🔄 Iniciando carga de Categorías IA...");
 
     // 1. Validar que los elementos del DOM existan
     const cards = DOMElements.iaCats;
     if (!cards || cards.length === 0) {
-        console.error("❌ Error Crítico: No se encontraron las tarjetas de IA en el DOM.");
+        console.error("Error Crítico: No se encontraron las tarjetas de IA en el DOM.");
         return;
     }
 
@@ -1035,7 +1032,7 @@ async function loadCategoryPrediction() {
         // 3. Llamada al Backend
         console.log("📡 Solicitando datos a /api/ai/category-demand...");
         const data = await apiRequest('/api/ai/category-demand');
-        console.log("✅ Datos recibidos:", data);
+        console.log("Datos recibidos:", data);
 
         // Si la API devuelve vacío o null, usamos un array vacío seguro
         const safeData = Array.isArray(data) ? data : [];
@@ -1089,7 +1086,7 @@ async function loadCategoryPrediction() {
         });
 
     } catch (error) {
-        console.error("❌ Error fatal en loadCategoryPrediction:", error);
+        console.error(" Error fatal en loadCategoryPrediction:", error);
         
         // --- C. FALLBACK VISUAL (Si la API falla, mostramos esto) ---
         cards.forEach(card => {
@@ -1106,9 +1103,9 @@ async function loadCategoryPrediction() {
         });
     }
 }
-/* ==========================================================
-   SECCIÓN 9: INICIALIZACIÓN
-   ========================================================== */
+/*
+INICIALIZACIÓN
+*/
 
 async function init() {
     AppState.categories = await getCategories();

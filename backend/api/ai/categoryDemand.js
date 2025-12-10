@@ -130,7 +130,7 @@ export async function getCategoryDemandPrediction(req, res) {
         res.json(responseWithIcons);
 
     } catch (error) {
-        console.error("❌ Error en Category Demand:", error.message);
+        console.error(" Error en Category Demand:", error.message);
         res.json([
             { name: "Error de conexión", demand: "baja", icon: "fa-exclamation-triangle" }
         ]);

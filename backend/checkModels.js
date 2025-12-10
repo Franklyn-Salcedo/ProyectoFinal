@@ -11,7 +11,7 @@ async function listMyModels() {
 
     const result = await genAI.listModels();
 
-    console.log("--- ✅ Modelos Disponibles para 'generateContent' ---");
+    console.log("--- Modelos Disponibles para 'generateContent' ---");
 
     for (const model of result.models) {
         if (model.supportedGenerationMethods.includes('generateContent')) {

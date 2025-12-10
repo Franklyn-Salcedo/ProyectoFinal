@@ -5,11 +5,7 @@ const ProductSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
-    
-    // --- NUEVO: PRECIO DE OFERTA ---
-    offerPrice: { type: Number, default: null }, // Si es null o 0, no hay oferta
-    // -------------------------------
-
+    offerPrice: { type: Number, default: null }, 
     stock: { type: Number, required: true, min: 0 },
     minStock: { type: Number, default: 5 },
     categoryId: { type: Number, required: true },
