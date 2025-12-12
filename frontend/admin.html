@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Key Option Store</title>
+    <link rel="icon" type="image/png" href="/imagenes/logo.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -227,63 +228,71 @@
                 <h1 class="text-4xl uppercase mb-8">Gestión de Productos</h1>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-1">
-                        <section class="bg-gray-800 p-6 rounded-lg shadow-lg sticky top-10">
-                            <h2 id="form-title" class="text-2xl font-bold mb-6 uppercase text-yellow-400">Añadir Nuevo Producto</h2>
-                            <form id="product-form" class="space-y-4">
-                                <input type="hidden" id="product-id">
-                                <div>
-                                    <label for="product-name" class="block text-sm font-bold mb-2">Nombre del Producto</label>
-                                    <input type="text" id="product-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                                </div>
-                                <div>
-                                    <label for="product-description" class="block text-sm font-bold mb-2">Descripción</label>
-                                    <textarea id="product-description" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600"></textarea>
-                                </div>
-                                <div>
-                                    <label for="product-category-select" class="block text-sm font-bold mb-2">Categoría</label>
-                                    <select id="product-category-select" required class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
-                                        <option value="">Cargando Categorías...</option>
-                                    </select>
-                                </div>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    
-                                  <div>
-                                      <label for="product-price" class="block text-sm font-bold mb-2">Precio Regular</label>
-                                      <input type="number" id="product-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                                  </div>
+    <section id="product-form-wrapper" class="bg-gray-800 p-6 rounded-lg shadow-lg">
+        
+        <h2 id="form-title" class="text-2xl font-bold mb-6 uppercase text-yellow-400">Añadir Nuevo Producto</h2>
+        
+        <form id="product-form" class="space-y-4">
+            <input type="hidden" id="product-id">
+            
+            <div>
+                <label for="product-name" class="block text-sm font-bold mb-2">Nombre del Producto</label>
+                <input type="text" id="product-name" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+            </div>
+            
+            <div>
+                <label for="product-description" class="block text-sm font-bold mb-2">Descripción</label>
+                <textarea id="product-description" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600"></textarea>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="product-category-select" class="block text-sm font-bold mb-2">Categoría</label>
+                    <select id="product-category-select" required class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600">
+                        <option value="">Cargando...</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="product-stock" class="block text-sm font-bold mb-2">Stock</label>
+                    <input type="number" id="product-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                </div>
+            </div>
 
-                                  <div>
-                                      <label for="product-offer-price" class="block text-sm font-bold mb-2 text-green-400">Precio Oferta</label>
-                                      <input type="number" id="product-offer-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-green-600/50 focus:border-green-400" placeholder="Opcional">
-                                  </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="product-price" class="block text-sm font-bold mb-2">Precio</label>
+                    <input type="number" id="product-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
+                </div>
+                <div>
+                    <label for="product-offer-price" class="block text-sm font-bold mb-2 text-green-400">Oferta (Opc.)</label>
+                    <input type="number" id="product-offer-price" step="0.01" class="w-full bg-gray-700 p-2 rounded-lg border border-green-600/50 focus:border-green-400">
+                </div>
+            </div>
 
-                                  <div>
-                                      <label for="product-stock" class="block text-sm font-bold mb-2">Stock</label>
-                                      <input type="number" id="product-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" required>
-                                  </div>
+            <div>
+                <label for="product-min-stock" class="block text-sm font-bold mb-2 text-yellow-400">Min. Alerta</label>
+                <input type="number" id="product-min-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="Ej: 5">
+            </div>
 
-                                  <div>
-                                      <label for="product-min-stock" class="block text-sm font-bold mb-2 text-yellow-400">Min. Alerta</label>
-                                      <input type="number" id="product-min-stock" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="Ej: 5">
-                                  </div>
-                              </div>
-                                <div>
-                                    <label class="block text-sm font-bold mb-2">Tallas Disponibles</label>
-                                    <div id="product-sizes-container" class="grid grid-cols-3 gap-2 p-3 bg-gray-700 rounded-lg border border-gray-600 h-28 overflow-y-auto">
-                                        <p class="text-sm text-gray-500 col-span-3">Cargando tallas...</p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="product-images" class="block text-sm font-bold mb-2">URLs de Imágenes (una por línea)</label>
-                                    <textarea id="product-images" rows="3" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"></textarea>
-                                </div>
-                                <div class="flex justify-end gap-4 pt-4">
-                                    <button type="button" id="cancel-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar</button>
-                                    <button type="submit" id="save-btn" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg">Guardar Producto</button>
-                                </div>
-                            </form>
-                        </section>
-                    </div>
+            <div>
+                <label class="block text-sm font-bold mb-2">Tallas Disponibles</label>
+                <div id="product-sizes-container" class="grid grid-cols-3 gap-2 p-3 bg-gray-700 rounded-lg border border-gray-600 h-28 overflow-y-auto">
+                    <p class="text-sm text-gray-500 col-span-3">Cargando tallas...</p>
+                </div>
+            </div>
+            
+            <div>
+                <label for="product-images" class="block text-sm font-bold mb-2">URLs de Imágenes</label>
+                <textarea id="product-images" rows="2" class="w-full bg-gray-700 p-2 rounded-lg border border-gray-600" placeholder="Una URL por línea..."></textarea>
+            </div>
+
+            <div class="flex flex-col gap-3 pt-4 border-t border-gray-700 mt-4">
+                <button type="submit" id="save-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-yellow-400/30 transition-all">Guardar Producto</button>
+                <button type="button" id="cancel-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Cancelar Edición</button>
+            </div>
+        </form>
+    </section>
+</div>
                     <div class="lg:col-span-2">
                         <section class="mb-4 bg-gray-800 p-4 rounded-lg shadow-lg">
                             <label for="product-search-input" class="block text-sm font-bold mb-2">Buscar Producto</label>
@@ -365,6 +374,31 @@
                 </section>
                 <section>
                     <h2 class="text-2xl mb-4 uppercase">Listado de Pedidos</h2>
+
+<div class="bg-gray-800 p-4 rounded-lg shadow-lg mb-6 flex flex-col md:flex-row gap-4 items-center">
+    <div class="flex-1 w-full">
+        <label for="order-search-tracking" class="block text-xs font-bold text-gray-400 mb-1 uppercase">Buscar Rastreo / ID</label>
+       <div>
+    <input type="text" id="order-search-tracking" 
+        class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:border-yellow-400 outline-none" 
+        placeholder="Ej: TRACK-123456...">
+</div>
+    </div>
+
+    <div class="w-full md:w-1/3">
+        <label for="order-filter-status" class="block text-xs font-bold text-gray-400 mb-1 uppercase">Filtrar por Estado</label>
+        <select id="order-filter-status" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:border-yellow-400 outline-none">
+            <option value="">Todos los Estados</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="procesando">Procesando</option>
+            <option value="enviado">Enviado</option>
+            <option value="entregado">Entregado</option>
+            <option value="devuelto">Devuelto</option>
+            <option value="cancelado">Cancelado</option>
+        </select>
+    </div>
+</div>
+<div id="order-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div id="order-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <p class="text-center text-gray-500 col-span-full">Cargando pedidos...</p>
                     </div>

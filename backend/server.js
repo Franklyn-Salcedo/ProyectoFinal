@@ -1,6 +1,6 @@
-// ==========================================================
-// 1. IMPORTACIONES Y CONFIGURACIÓN
-// ==========================================================
+
+// IMPORTACIONES Y CONFIGURACIÓN
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -55,9 +55,8 @@ app.use(express.static(frontendPath));
 app.use(express.static(rootPath));
 
 
-// ==========================================================
-// 2. API: GESTIÓN DE PRODUCTOS
-// ==========================================================
+// API: GESTIÓN DE PRODUCTOS
+
 
 // Obtener todos
 app.get('/api/products', async (req, res) => {
@@ -126,9 +125,8 @@ app.get('/api/products/name/:name', async (req, res) => {
 });
 
 
-// ==========================================================
-// 3. API: GESTIÓN DE PEDIDOS Y FACTURACIÓN
-// ==========================================================
+// API: GESTIÓN DE PEDIDOS Y FACTURACIÓN
+
 
 // Obtener pedidos
 app.get('/api/orders', async (req, res) => {
@@ -197,9 +195,9 @@ app.get('/api/orders/invoice/:id', async (req, res) => {
 });
 
 
-// ==========================================================
-// 4. API: REPORTES PDF (INVENTARIO Y VENTAS)
-// ==========================================================
+
+// API: REPORTES PDF (INVENTARIO Y VENTAS)
+
 
 // Reporte de Inventario
 app.get('/api/reports/inventory', async (req, res) => {
@@ -233,9 +231,9 @@ app.get('/api/reports/sales', async (req, res) => {
 });
 
 
-// ==========================================================
-// 5. API: DATOS AUXILIARES
-// ==========================================================
+
+// API: DATOS AUXILIARES
+
 
 app.get('/api/categories', async (req, res) => {
   try {
@@ -256,9 +254,8 @@ app.get('/api/sizes', async (req, res) => {
 });
 
 
-// ==========================================================
-// 6. API: INTELIGENCIA ARTIFICIAL & CHATBOT
-// ==========================================================
+
+// API: INTELIGENCIA ARTIFICIAL & CHATBOT
 
 // Chatbot (Cliente)
 app.post("/api/chat", async (req, res) => {
@@ -296,10 +293,9 @@ app.get('/api/ai/category-demand', async (req, res) => {
 });
 
 
-// ==========================================================
-// 7. SERVIDOR FRONTEND Y ARRANQUE
-// ==========================================================
 
+// SERVIDOR FRONTEND Y ARRANQUE
+ 
 // Rutas HTML
 app.get('/', (req, res) => res.sendFile(path.join(frontendPath, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(frontendPath, 'admin.html')));

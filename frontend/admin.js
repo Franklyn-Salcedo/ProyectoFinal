@@ -92,9 +92,9 @@ const DOMElements = {
     productDescriptionInput: document.getElementById('product-description'),
     productCategoryInput: document.getElementById('product-category-select'),
     productPriceInput: document.getElementById('product-price'),
-    productOfferPriceInput: document.getElementById('product-offer-price'), // <--- NUEVO
+    productOfferPriceInput: document.getElementById('product-offer-price'), 
     productStockInput: document.getElementById('product-stock'),
-    productMinStockInput: document.getElementById('product-min-stock'), // <--- NUEVO
+    productMinStockInput: document.getElementById('product-min-stock'), 
     productSizesContainer: document.getElementById('product-sizes-container'),
     productImagesInput: document.getElementById('product-images'),
     saveBtn: document.getElementById('save-btn'),
@@ -102,6 +102,8 @@ const DOMElements = {
 
     // Gestión de Pedidos
     orderList: document.getElementById('order-list'),
+    orderSearchTracking: document.getElementById('order-search-tracking'),
+    orderFilterStatus: document.getElementById('order-filter-status'),
     orderForm: document.getElementById('order-form'),
     orderFormTitle: document.getElementById('order-form-title'),
     orderIdInput: document.getElementById('order-id'),
@@ -196,20 +198,31 @@ NAVEGACIÓN Y LOGIN
 
 function toggleSidebar() {
     const { adminSidebar, mainContent, toggleSidebarIcon, sidebarTexts, viewButtons } = DOMElements;
+    
+    // Verificamos si actualmente está colapsado (usando la clase w-20 que es 5rem/80px)
     const isCollapsed = adminSidebar.classList.contains('w-20');
     
-    adminSidebar.classList.toggle('w-64'); 
-    adminSidebar.classList.toggle('w-20'); 
+    // 1. Cambiar ancho del Sidebar
+    adminSidebar.classList.toggle('w-64'); // Quita/Pone ancho grande
+    adminSidebar.classList.toggle('w-20'); // Pone/Quita ancho pequeño
+    
+    // 2. Ajustar margen del contenido principal
     mainContent.classList.toggle('ml-64');
     mainContent.classList.toggle('ml-20');
     
+    // 3. Rotar la flecha
     toggleSidebarIcon.classList.toggle('fa-chevron-left', !isCollapsed);
     toggleSidebarIcon.classList.toggle('fa-chevron-right', isCollapsed);
+    
+    // 4. Ocultar/Mostrar los textos de los botones
     sidebarTexts.forEach(el => el.classList.toggle('hidden'));
     
+    // 5. Centrar los iconos cuando está colapsado (para que se vean bien)
     viewButtons.forEach(btn => btn.classList.toggle('justify-center', !isCollapsed));
-    DOMElements.logoutBtn.classList.toggle('justify-center', !isCollapsed);
-    DOMElements.toggleSidebarBtn.classList.toggle('justify-center', !isCollapsed);
+    
+    // Centrar también el botón de logout y el propio botón de colapsar
+    if(DOMElements.logoutBtn) DOMElements.logoutBtn.classList.toggle('justify-center', !isCollapsed);
+    if(DOMElements.toggleSidebarBtn) DOMElements.toggleSidebarBtn.classList.toggle('justify-center', !isCollapsed);
 }
 
 async function switchView(viewId) {
@@ -337,35 +350,61 @@ async function renderProductList() {
     }
 
     filtered.forEach(p => {
-        // --- LÓGICA DE STOCK DINÁMICA ---
-        // Si no tiene minStock definido, usamos 5 por defecto
+        // --- 1. LÓGICA DE STOCK ---
         const umbral = p.minStock || 5; 
-
-        let stockStatus = `<span class="text-gray-400">Stock: ${p.stock}</span>`;
+        let stockStatus = `<span class="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs font-bold border border-gray-600">Stock: ${p.stock}</span>`;
 
         if (p.stock === 0) {
-            stockStatus = '<span class="text-red-500 font-bold"><i class="fas fa-times-circle"></i> Agotado</span>';
+            stockStatus = '<span class="bg-red-900/30 text-red-500 px-2 py-1 rounded text-xs font-bold border border-red-500/50"><i class="fas fa-times-circle"></i> Agotado</span>';
         } else if (p.stock <= umbral) {
-            // Si es menor o igual a SU propio mínimo
-            stockStatus = `<span class="text-yellow-400 font-bold"><i class="fas fa-exclamation-triangle"></i> Bajo (Mín: ${umbral})</span>`;
+            stockStatus = `<span class="bg-yellow-900/30 text-yellow-400 px-2 py-1 rounded text-xs font-bold border border-yellow-500/50"><i class="fas fa-exclamation-triangle"></i> Bajo</span>`;
         }
 
+        // --- 2. LÓGICA DE PRECIO Y OFERTA (NUEVO) ---
+        // Convertimos a número para asegurar la comparación
+        const price = parseFloat(p.price);
+        const offerPrice = p.offerPrice ? parseFloat(p.offerPrice) : null;
+        const hasOffer = offerPrice !== null && offerPrice > 0 && offerPrice < price;
+
+        // Renderizado del bloque de precio
+        const priceDisplay = hasOffer 
+            ? `<div class="flex flex-col items-end">
+                 <span class="text-xs text-gray-500 line-through decoration-red-500">$${price.toFixed(2)}</span>
+                 <span class="text-xl font-bold text-green-400">$${offerPrice.toFixed(2)}</span>
+               </div>`
+            : `<span class="text-xl font-bold text-yellow-400">$${price.toFixed(2)}</span>`;
+
+        // Badge de oferta sobre la imagen
+        const offerBadge = hasOffer 
+            ? `<span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full z-10 shadow-md border border-red-400 animate-pulse">
+                 <i class="fas fa-fire"></i> OFERTA
+               </span>`
+            : '';
+
         const card = document.createElement('div');
-        card.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition';
+        card.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition relative group border border-gray-700 hover:border-yellow-400/30';
+        
         card.innerHTML = `
-            <img src="${p.images[0] || 'https://placehold.co/600x400?text=No+Image'}" class="w-full h-48 object-cover">
+            <div class="relative">
+                ${offerBadge}
+                <img src="${p.images[0] || 'https://placehold.co/600x400?text=No+Image'}" class="w-full h-48 object-cover opacity-90 group-hover:opacity-100 transition-opacity">
+            </div>
+            
             <div class="p-4">
-                <h3 class="font-bold text-lg truncate">${p.name}</h3>
-                <p class="text-gray-400 text-sm mb-2">${getCategoryName(p.categoryId)}</p>
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-xl font-bold text-yellow-400">$${p.price.toFixed(2)}</span>
-                    <span class="text-sm">${stockStatus}</span>
+                <h3 class="font-bold text-lg truncate text-white">${p.name}</h3>
+                <p class="text-gray-400 text-xs uppercase tracking-wider mb-3 font-semibold">${getCategoryName(p.categoryId)}</p>
+                
+                <div class="flex justify-between items-center mb-4 border-t border-gray-700 pt-3">
+                    ${stockStatus}
+                    ${priceDisplay}
                 </div>
+                
                 <div class="flex gap-2">
-                    <button data-id="${p.id}" class="edit-btn w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-1 rounded text-sm transition">Editar</button>
-                    <button data-id="${p.id}" class="delete-btn w-1/2 bg-red-600 hover:bg-red-700 text-white py-1 rounded text-sm transition">Eliminar</button>
+                    <button data-id="${p.id}" class="edit-btn flex-1 bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white py-1.5 rounded text-sm font-bold transition">EDITAR</button>
+                    <button data-id="${p.id}" class="delete-btn flex-1 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-600 hover:text-white py-1.5 rounded text-sm font-bold transition">ELIMINAR</button>
                 </div>
             </div>`;
+            
         DOMElements.productList.appendChild(card);
     });
 }
@@ -384,12 +423,11 @@ async function handleProductFormSubmit(e) {
         // Precio Regular
         price: parseFloat(DOMElements.productPriceInput.value),
         
-        // --- NUEVO: PRECIO DE OFERTA ---
         // Si el input tiene valor, lo convertimos a número. Si no, enviamos null.
         offerPrice: DOMElements.productOfferPriceInput.value 
             ? parseFloat(DOMElements.productOfferPriceInput.value) 
             : null,
-        // -------------------------------
+        // 
 
         // Stock
         stock: parseInt(DOMElements.productStockInput.value),
@@ -417,27 +455,35 @@ async function fillProductFormForEdit(productId) {
     if (!product) return showPopup('Producto no encontrado', 'error');
 
     AppState.editingProductId = productId;
+    
+    // Carga de datos básicos
     DOMElements.productNameInput.value = product.name;
     DOMElements.productDescriptionInput.value = product.description;
     DOMElements.productCategoryInput.value = product.categoryId;
     DOMElements.productPriceInput.value = product.price;
-    DOMElements.productStockInput.value = product.stock;
     
-    // --- NUEVO: Llenar input minStock ---
+    // --- AQUÍ ESTABA EL ERROR: FALTABA CARGAR LA OFERTA ---
+    // Si tiene oferta la pone, si no, deja el campo vacío
+    DOMElements.productOfferPriceInput.value = product.offerPrice || ''; 
+    // -----------------------------------------------------
+
+    DOMElements.productStockInput.value = product.stock;
     DOMElements.productMinStockInput.value = product.minStock || 5;
-    // ------------------------------------
 
     DOMElements.productImagesInput.value = product.images.join('\n');
 
+    // Marcar las tallas correspondientes
     const checkboxes = DOMElements.productSizesContainer.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(cb => {
         cb.checked = product.sizeIds.includes(parseInt(cb.value));
     });
 
+    // Cambiar textos de la interfaz para modo "Edición"
     DOMElements.formTitle.textContent = "Editando Producto";
     DOMElements.saveBtn.textContent = "Actualizar";
     DOMElements.cancelBtn.style.display = "inline-block";
     
+    // Hacer scroll hacia el formulario
     document.getElementById('products-view').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -472,36 +518,65 @@ function getStatusColor(status) {
 }
 
 async function renderOrderList() {
-    const orders = await getOrders();
+    // 1. Obtener pedidos (idealmente deberíamos guardar esto en AppState para no llamar a la API cada vez que escribimos)
+    // Para simplificar, asumimos que getOrders es rápido o modificamos para usar una caché local si es necesario.
+    let orders = await getOrders(); 
+    
+    // --- NUEVA LÓGICA DE FILTRADO ---
+    const searchVal = DOMElements.orderSearchTracking.value.toLowerCase().trim();
+    const statusVal = DOMElements.orderFilterStatus.value;
+
+    orders = orders.filter(order => {
+        // Filtro de Texto (Busca en Tracking Number O en el ID del pedido)
+        const tracking = (order.trackingNumber || '').toLowerCase();
+        const id = order.id.toString();
+        const matchesSearch = tracking.includes(searchVal) || id.includes(searchVal);
+
+        // Filtro de Estado
+        const matchesStatus = statusVal === "" || order.status === statusVal;
+
+        return matchesSearch && matchesStatus;
+    });
+    // --------------------------------
+
     DOMElements.orderList.innerHTML = '';
 
     if (orders.length === 0) {
-        DOMElements.orderList.innerHTML = `<p class="col-span-full text-center text-gray-500">No hay pedidos.</p>`;
+        DOMElements.orderList.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10 bg-gray-800 rounded-lg">No se encontraron pedidos con esos criterios.</p>`;
         return;
     }
 
     orders.sort((a, b) => b.id - a.id).forEach(order => {
+        // ... (El resto del código dentro del forEach se mantiene IGUAL a como lo tenías) ...
         const style = getStatusColor(order.status);
         const date = new Date(order.createdAt).toLocaleDateString('es-ES');
         
+        // Renderizado del Tracking Number en la tarjeta (Mejora visual opcional)
+        const trackingDisplay = order.trackingNumber 
+    ? `<div class="mt-2 text-xs text-gray-400 bg-gray-900 p-1 rounded text-center border border-gray-700">${order.trackingNumber}</div>` 
+    : '';
+
         const card = document.createElement('div');
-        card.className = `bg-card-bg p-4 rounded-lg shadow border-l-4 ${style.border} hover:bg-gray-800 transition`;
+        card.className = `bg-card-bg p-4 rounded-lg shadow border-l-4 ${style.border} hover:bg-gray-800 transition flex flex-col justify-between`;
         card.innerHTML = `
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="font-bold text-lg">#${order.id} <span class="text-sm font-normal text-gray-400">(${date})</span></h3>
-                    <p class="text-sm text-gray-300">${order.customerName}</p>
-                    <p class="text-xs text-gray-500 mt-1">${order.items.length} artículos</p>
+            <div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-lg">#${order.id} <span class="text-sm font-normal text-gray-400">(${date})</span></h3>
+                        <p class="text-sm text-gray-300 truncate max-w-[150px]" title="${order.customerName}">${order.customerName}</p>
+                        <p class="text-xs text-gray-500 mt-1">${order.items.length} artículos</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="${style.bg} ${style.text} px-2 py-1 rounded text-xs font-bold uppercase block w-max ml-auto">${order.status}</span>
+                        <p class="text-xl font-bold text-yellow-400 mt-2">$${order.total.toFixed(2)}</p>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="${style.bg} ${style.text} px-2 py-1 rounded text-xs font-bold uppercase">${order.status}</span>
-                    <p class="text-xl font-bold text-yellow-400 mt-2">$${order.total.toFixed(2)}</p>
-                </div>
+                ${trackingDisplay} 
             </div>
-            <div class="mt-4 flex justify-end gap-2">
-                <button data-id="${order.id}" class="invoice-btn text-green-400 text-sm hover:underline">Factura</button>
-                <button data-id="${order.id}" class="edit-order-btn text-blue-400 text-sm hover:underline">Editar</button>
-                <button data-id="${order.id}" class="delete-order-btn text-red-400 text-sm hover:underline">Eliminar</button>
+            <div class="mt-4 flex justify-end gap-2 border-t border-gray-700 pt-3">
+                <button data-id="${order.id}" class="invoice-btn text-green-400 text-sm hover:text-green-300"><i class="fas fa-file-invoice"></i> Factura</button>
+                <button data-id="${order.id}" class="edit-order-btn text-blue-400 text-sm hover:text-blue-300"><i class="fas fa-edit"></i> Editar</button>
+                <button data-id="${order.id}" class="delete-order-btn text-red-400 text-sm hover:text-red-300"><i class="fas fa-trash"></i></button>
             </div>`;
         
         DOMElements.orderList.appendChild(card);
@@ -513,16 +588,26 @@ function createOrderItemRow(item = {}) {
     const row = document.createElement('div');
     row.className = 'order-item-row flex gap-2 items-center bg-gray-700 p-2 rounded mb-2 border border-gray-600';
 
+    // Detectar si es un ítem existente (ya guardado en BD)
+    const isExistingItem = item.productId ? true : false;
+
+    // Estilos para inputs bloqueados
+    const disabledClass = 'opacity-60 cursor-not-allowed bg-gray-800 text-gray-400';
+
     // A. Select de Producto
     const prodSelect = document.createElement('select');
-    prodSelect.className = 'flex-grow bg-gray-900 rounded p-2 text-sm border border-gray-600 text-white focus:border-yellow-400 outline-none';
+    prodSelect.className = `flex-grow rounded p-2 text-sm border border-gray-600 outline-none ${isExistingItem ? disabledClass : 'bg-gray-900 text-white focus:border-yellow-400'}`;
     prodSelect.name = 'product-id';
     
+    // Si existe, lo deshabilitamos
+    if (isExistingItem) prodSelect.disabled = true;
+
     let defaultOpt = document.createElement('option');
     defaultOpt.value = "";
     defaultOpt.textContent = "Seleccionar Producto...";
     prodSelect.appendChild(defaultOpt);
 
+    // Llenamos el select (necesario aunque esté deshabilitado para mostrar el nombre correcto)
     AppState.products.forEach(p => {
         const option = document.createElement('option');
         option.value = p.id;
@@ -531,34 +616,51 @@ function createOrderItemRow(item = {}) {
         prodSelect.appendChild(option);
     });
 
-    // B. Select de Talla (Se llena dinámicamente)
+    // B. Select de Talla
     const sizeSelect = document.createElement('select');
-    sizeSelect.className = 'w-24 bg-gray-900 rounded p-2 text-sm border border-gray-600 text-white focus:border-yellow-400 outline-none';
+    sizeSelect.className = `w-24 rounded p-2 text-sm border border-gray-600 outline-none ${isExistingItem ? disabledClass : 'bg-gray-900 text-white focus:border-yellow-400'}`;
     sizeSelect.name = 'product-size';
-    sizeSelect.innerHTML = '<option value="">Talla</option>';
+    
+    if (isExistingItem) sizeSelect.disabled = true;
 
     // C. Input de Cantidad
     const qtyInput = document.createElement('input');
     qtyInput.type = 'number';
-    qtyInput.className = 'w-20 bg-gray-900 rounded p-2 text-sm text-center border border-gray-600 text-white focus:border-yellow-400 outline-none';
+    qtyInput.className = `w-20 rounded p-2 text-sm text-center border border-gray-600 outline-none ${isExistingItem ? disabledClass : 'bg-gray-900 text-white focus:border-yellow-400'}`;
     qtyInput.name = 'product-quantity';
     qtyInput.value = item.quantity || 1;
     qtyInput.min = 1;
-    qtyInput.max = 999; 
+    
+    if (isExistingItem) {
+        qtyInput.disabled = true;
+        qtyInput.title = "Cantidad original facturada (No editable)";
+    }
 
     // D. Botón Eliminar Fila
     const delBtn = document.createElement('button');
     delBtn.innerHTML = '<i class="fas fa-trash"></i>';
     delBtn.className = 'text-red-400 hover:text-red-500 ml-2 p-2 transition-transform hover:scale-110';
     delBtn.type = 'button';
-    delBtn.onclick = () => { row.remove(); calculateOrderTotal(); };
+    delBtn.title = isExistingItem ? "Eliminar este producto del pedido" : "Eliminar fila";
+    
+    // La eliminación SIEMPRE está permitida
+    delBtn.onclick = () => { 
+        if(isExistingItem) {
+            if(!confirm("¿Estás seguro de eliminar este producto ya facturado?")) return;
+        }
+        row.remove(); 
+        calculateOrderTotal(); 
+    };
 
     // --- LÓGICA INTERNA DE LA FILA ---
-    function updateRowDetails(productId) {
-        const product = AppState.products.find(p => p.id == productId);
-        sizeSelect.innerHTML = '<option value="">Talla</option>';
+    function updateRowDetails(selectedProductId) {
+        // Solo ejecutamos lógica de carga si NO es un ítem existente bloqueado
+        // O si necesitamos llenar el select de tallas inicial
+        const product = AppState.products.find(p => p.id == selectedProductId);
+        sizeSelect.innerHTML = ''; // Limpiar
 
         if (product) {
+            // Cargar Tallas
             const productSizes = AppState.sizes.filter(s => product.sizeIds.includes(s.id));
             if (productSizes.length > 0) {
                 productSizes.forEach(s => {
@@ -575,27 +677,44 @@ function createOrderItemRow(item = {}) {
                 opt.selected = true;
                 sizeSelect.appendChild(opt);
             }
-            // Validar stock
-            qtyInput.max = product.stock;
-            if (parseInt(qtyInput.value) > product.stock) qtyInput.value = product.stock;
+
+            // Validar stock solo si es NUEVO ítem (Editable)
+            if (!isExistingItem) {
+                qtyInput.max = product.stock;
+                if (parseInt(qtyInput.value) > product.stock) qtyInput.value = product.stock;
+            }
         }
     }
 
-    prodSelect.addEventListener('change', (e) => {
-        updateRowDetails(e.target.value);
-        calculateOrderTotal();
-    });
+    // Listeners (Solo activos si no está bloqueado)
+    if (!isExistingItem) {
+        prodSelect.addEventListener('change', (e) => {
+            updateRowDetails(e.target.value);
+            calculateOrderTotal();
+        });
 
-    qtyInput.addEventListener('input', (e) => {
-        const max = parseInt(e.target.max);
-        if (parseInt(e.target.value) > max) {
-            alert(`Solo hay ${max} unidades disponibles.`);
-            e.target.value = max;
-        }
-        calculateOrderTotal();
-    });
+        qtyInput.addEventListener('input', (e) => {
+            const max = parseInt(e.target.max);
+            if (parseInt(e.target.value) > max) {
+                alert(`Solo hay ${max} unidades disponibles.`);
+                e.target.value = max;
+            }
+            calculateOrderTotal();
+        });
+    }
 
-    if (item.productId) updateRowDetails(item.productId);
+    // Inicialización
+    if (item.productId) {
+        updateRowDetails(item.productId);
+    }
+
+    // Indicador visual de "Facturado"
+    if (isExistingItem) {
+        const lockIcon = document.createElement('i');
+        lockIcon.className = "fas fa-lock text-gray-500 text-xs mr-1";
+        lockIcon.title = "Producto Original";
+        row.prepend(lockIcon);
+    }
 
     row.append(prodSelect, sizeSelect, qtyInput, delBtn);
     return row;
@@ -627,7 +746,22 @@ async function fillFormForEditOrder(orderId) {
     DOMElements.customerEmailInput.value = order.customerEmail;
     DOMElements.customerAddressInput.value = order.customerAddress;
     DOMElements.orderStatusInput.value = order.status;
+    
+    // --- LÓGICA DE BLOQUEO DE TRACKING ---
     DOMElements.trackingNumberInput.value = order.trackingNumber || '';
+
+    if (order.trackingNumber) {
+        // Si YA TIENE número, lo bloqueamos visual y funcionalmente
+        DOMElements.trackingNumberInput.disabled = true;
+        DOMElements.trackingNumberInput.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-800');
+        DOMElements.trackingNumberInput.title = "El número de seguimiento generado no se puede modificar";
+    } else {
+        // Si NO tiene, permitimos escribir (o dejar vacío para autogenerar)
+        DOMElements.trackingNumberInput.disabled = false;
+        DOMElements.trackingNumberInput.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-800');
+        DOMElements.trackingNumberInput.title = "";
+    }
+    // -------------------------------------
     
     DOMElements.orderFormTitle.textContent = `Editando Pedido #${order.id}`;
     DOMElements.saveOrderBtn.textContent = 'Actualizar Pedido';
@@ -955,40 +1089,62 @@ async function loadDashboardData() {
         const orders = await getOrders();
         const products = await getProducts();
 
-        // 1. KPI: Ventas Totales (Solo entregados)
-        const total = orders
-            .filter(o => o.status === 'entregado')
-            .reduce((sum, o) => sum + o.total, 0);
-        DOMElements.kpiTotalSales.textContent = `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        // 1. VENTAS TOTALES (Entregados)
+        const deliveredOrders = orders.filter(o => o.status === 'entregado');
+        const totalSales = deliveredOrders.reduce((sum, o) => sum + o.total, 0);
+        DOMElements.kpiTotalSales.textContent = `$${totalSales.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
-        // 2. KPI: Pedidos Pendientes
+        // 2. PEDIDOS PENDIENTES
         const pendingCount = orders.filter(o => o.status === 'pendiente' || o.status === 'procesando').length;
         DOMElements.kpiPendingOrders.textContent = pendingCount;
 
-        // 3. KPI: STOCK CRÍTICO (CORREGIDO)
-        // Ahora miramos producto por producto su propio límite (minStock)
+        // 3. STOCK CRÍTICO (Dinámico)
         const criticalProducts = products.filter(p => {
-            // Aseguramos que sean números
             const currentStock = parseInt(p.stock, 10) || 0;
-            // Si el producto tiene su propio minStock, úsalo. Si no, usa el global (5)
-            const limit = (p.minStock !== undefined && p.minStock !== null) 
-                          ? parseInt(p.minStock, 10) 
-                          : STOCK_THRESHOLD;
-            
-            // Es crítico si el stock es menor o igual al límite
+            const limit = (p.minStock !== undefined && p.minStock !== null) ? parseInt(p.minStock, 10) : 5;
             return currentStock <= limit;
         });
-
-        console.log("--- DIAGNÓSTICO STOCK ---");
-        console.log(`Total Productos: ${products.length}`);
-        console.log(`Productos Críticos encontrados: ${criticalProducts.length}`);
-        // Descomenta la siguiente línea si quieres ver cuáles son en la consola:
-        // console.table(criticalProducts.map(p => ({ nombre: p.name, stock: p.stock, limite: p.minStock || 5 })));
-
         DOMElements.kpiCriticalStock.textContent = criticalProducts.length;
 
+        // 4. TASA DE CANCELACIÓN (NUEVO CÁLCULO)
+        // Fórmula: (Cancelados / Total Pedidos) * 100
+        const totalOrdersCount = orders.length;
+        const cancelledCount = orders.filter(o => o.status === 'cancelado').length;
+        
+        let cancelRate = 0;
+        if (totalOrdersCount > 0) {
+            cancelRate = (cancelledCount / totalOrdersCount) * 100;
+        }
+        
+        // Actualizar DOM
+        if (DOMElements.kpiCancellationRate) {
+            DOMElements.kpiCancellationRate.textContent = `${cancelRate.toFixed(1)}%`;
+        }
+        if (DOMElements.kpiCancellationRateSub) {
+            DOMElements.kpiCancellationRateSub.textContent = `${cancelledCount} de ${totalOrdersCount} pedidos`;
+        }
 
-        // 4. Actividad Reciente
+        // 5. TASA DE DEVOLUCIÓN (NUEVO CÁLCULO)
+        // Fórmula: (Devueltos / Entregados + Devueltos) * 100
+        // Opcional: Podrías usar (Devueltos / Total) según prefieras
+        const returnedCount = orders.filter(o => o.status === 'devuelto').length;
+        // Total de pedidos "finalizados" (entregados + devueltos)
+        const finalizedCount = deliveredOrders.length + returnedCount;
+
+        let returnRate = 0;
+        if (finalizedCount > 0) {
+            returnRate = (returnedCount / finalizedCount) * 100;
+        }
+
+        // Actualizar DOM (Estos elementos están en la pestaña Reportes, pero a veces se muestran en Dashboard)
+        if (DOMElements.kpiReturnRate) {
+            DOMElements.kpiReturnRate.textContent = `${returnRate.toFixed(1)}%`;
+        }
+        if (DOMElements.kpiReturnRateSub) {
+            DOMElements.kpiReturnRateSub.textContent = `${returnedCount} de ${finalizedCount} entregas`;
+        }
+
+        // 6. ACTIVIDAD RECIENTE
         renderRecentActivity(orders.slice(0, 5));
 
     } catch (error) {
@@ -1108,16 +1264,19 @@ INICIALIZACIÓN
 */
 
 async function init() {
+    // 1. Carga inicial de datos
     AppState.categories = await getCategories();
     AppState.sizes = await getSizes();
     AppState.products = await getProducts(); 
 
+    // 2. Rellenar Select de Categorías
     const catSelect = DOMElements.productCategoryInput;
     catSelect.innerHTML = '<option value="">Seleccionar...</option>';
     AppState.categories.forEach(c => {
         catSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
     });
 
+    // 3. Rellenar Checkboxes de Tallas
     const sizeContainer = DOMElements.productSizesContainer;
     sizeContainer.innerHTML = '';
     AppState.sizes.forEach(s => {
@@ -1127,20 +1286,29 @@ async function init() {
             </label>`;
     });
 
+    // 4. Listeners Generales (Login, Logout, Sidebar)
     DOMElements.loginForm.addEventListener('submit', handleLogin);
     DOMElements.logoutBtn.addEventListener('click', handleLogout);
+
+    if (DOMElements.toggleSidebarBtn) {
+        DOMElements.toggleSidebarBtn.addEventListener('click', toggleSidebar);
+    }
+
     DOMElements.togglePasswordBtn.addEventListener('click', () => {
         const input = DOMElements.passwordInput;
         input.type = input.type === 'password' ? 'text' : 'password';
     });
 
+    // Navegación
     DOMElements.viewButtons.forEach(btn => btn.addEventListener('click', (e) => {
         switchView(e.currentTarget.getAttribute('data-view'));
     }));
 
-    // Listeners Productos
+    // 5. Listeners de PRODUCTOS
     DOMElements.productForm.addEventListener('submit', handleProductFormSubmit);
     DOMElements.cancelBtn.addEventListener('click', resetForm);
+    
+    // Delegación de eventos para botones en la lista de productos
     DOMElements.productList.addEventListener('click', async (e) => {
         if (e.target.classList.contains('delete-btn')) {
             showConfirmationModal("¿Eliminar producto?", async () => {
@@ -1152,20 +1320,33 @@ async function init() {
             await fillProductFormForEdit(e.target.dataset.id);
         }
     });
+    
+    // Buscador de productos
     DOMElements.productSearchInput.addEventListener('input', renderProductList);
 
-    // Listeners Pedidos
+    // 6. Listeners de PEDIDOS
     DOMElements.addOrderItemBtn.addEventListener('click', () => {
         DOMElements.orderItemsSelectionContainer.appendChild(createOrderItemRow());
     });
     DOMElements.orderForm.addEventListener('submit', handleOrderFormSubmit);
     DOMElements.cancelOrderBtn.addEventListener('click', resetOrderForm);
     DOMElements.orderList.addEventListener('click', handleOrderListClick);
-    
+
+    // --- NUEVO: Listeners para Filtros de Pedidos (Buscador y Estado) ---
+    if (DOMElements.orderSearchTracking && DOMElements.orderFilterStatus) {
+        // Al escribir en el buscador
+        DOMElements.orderSearchTracking.addEventListener('input', renderOrderList);
+        // Al cambiar el select de estado
+        DOMElements.orderFilterStatus.addEventListener('change', renderOrderList);
+    }
+    // --------------------------------------------------------------------
+
+    // 7. Listeners de IA
     if (DOMElements.iaPredictionBtn) {
         DOMElements.iaPredictionBtn.addEventListener('click', loadRealAIPrediction);
     }
 
+    // 8. Reloj y Autenticación
     setInterval(updateDateTime, 1000);
     updateDateTime();
 
@@ -1181,6 +1362,15 @@ async function init() {
 function resetOrderForm() {
     DOMElements.orderForm.reset();
     AppState.editingOrderId = null;
+    
+    // --- RESETEAR ESTADO DEL INPUT TRACKING ---
+    // Reactivamos el campo para nuevos pedidos
+    DOMElements.trackingNumberInput.disabled = false;
+    DOMElements.trackingNumberInput.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-800');
+    DOMElements.trackingNumberInput.placeholder = "Se generará al guardar (si es nuevo)";
+    DOMElements.trackingNumberInput.title = "";
+    // ------------------------------------------
+
     DOMElements.orderItemsSelectionContainer.innerHTML = '<p class="text-sm text-gray-400 text-center" id="empty-order-placeholder">Usa el botón "Añadir Artículo" para empezar.</p>';
     DOMElements.orderFormTitle.textContent = 'Crear Pedido';
     DOMElements.saveOrderBtn.textContent = 'Guardar';

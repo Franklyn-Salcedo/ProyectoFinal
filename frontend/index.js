@@ -79,7 +79,7 @@ let productsCache = [];
 
 // Número de contacto (WhatsApp) del store. Se usa para abrir el chat con el
 // mensaje preformateado cuando el usuario quiere contactarnos.
-const storePhoneNumber = "18099881192"; 
+const storePhoneNumber = "18493406047"; 
 
 
 
@@ -1749,172 +1749,136 @@ function initChatbot() {
 
 
 
+// 2. Lógica de Envío y Respuestas
     async function handleSend() {
-
         const text = DOMElements.chatInput.value.trim();
-
         if (!text) return;
-
         
-
+        // Limpiar UI
         const quickActions = document.querySelector('.chat-quick-actions');
-
         if (quickActions) quickActions.remove();
 
-
-
         addMessage(text, 'user');
-
         DOMElements.chatInput.value = '';
-
         
-
-        // Rastreo Local
-
+        // --- RASTREO LOCAL + DESCARGA FACTURA ---
+        // Si el texto es solo números (ej: "1024")
         if (/^\d+$/.test(text)) {
-
             addTyping();
-
             try {
-
                 const res = await fetch('/api/orders');
-
                 const orders = await res.json();
-
                 const order = orders.find(o => o.id == text);
-
                 document.getElementById('typing-indicator')?.remove();
-
-
 
                 if (order) {
-
                     let emoji = order.status === 'entregado' ? '✅' : '🚚';
+                    
+                    // 1. Mostrar estado del pedido
+                    addMessage(` **Pedido #${order.id} Encontrado**\nEstado: ${emoji} ${order.status.toUpperCase()}\nTotal: $${order.total.toFixed(2)}`, 'bot');
 
-                    addMessage(`📦 **Pedido #${order.id}**\nEstado: ${emoji} ${order.status.toUpperCase()}\nTotal: $${order.total.toFixed(2)}`, 'bot');
+                    // 2. DESCARGA AUTOMÁTICA DE FACTURA
+                    addMessage(' Descargando tu factura...', 'bot');
+                    
+                    const link = document.createElement('a');
+                    link.href = `/api/orders/invoice/${order.id}`;
+                    link.download = `Factura_TRK-${order.id}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
 
                 } else {
-
-                    addMessage(`❌ No encontré el pedido #${text}.`, 'bot');
-
+                    addMessage(`❌ No encontré el pedido #${text}. Verifica que el número sea correcto.`, 'bot');
                 }
-
             } catch (e) {
-
                 document.getElementById('typing-indicator')?.remove();
-
-                addMessage('Error al buscar pedido.', 'bot');
-
+                addMessage('Hubo un error al buscar el pedido.', 'bot');
+                console.error(e);
             }
-
             return;
-
         }
 
-
-
-        // Consulta IA
-
+        // --- CONSULTA A LA IA (PRODUCTOS) ---
         addTyping();
-
         try {
-
+            console.log("Enviando a chatbot:", text);
             const res = await fetch('/api/chat', { 
-
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) 
-
             });
-
             
-
+            if (!res.ok) throw new Error("Error Server");
             const data = await res.json();
-
-            document.getElementById('typing-indicator')?.remove();
-
+            console.log("Respuesta Chatbot:", data);
             
-
-            if (data.reply) {
-
-                addMessage(data.reply, 'bot');
-
-            }
-
-
-
-            if (data.products && Array.isArray(data.products) && data.products.length > 0) {
-
-                data.products.forEach(p => {
-
-                    if (p && p.name && p.price) {
-
-                        addMessage('', 'bot', { isProduct: true, product: p });
-
-                    }
-
-                });
-
-            }
-
-        } catch (err) {
-
-            console.error("Error Chatbot Front:", err);
-
             document.getElementById('typing-indicator')?.remove();
+            
+            // 1. Mostrar Mensaje de Texto
+            if (data.reply) {
+                addMessage(data.reply, 'bot');
+            }
 
+            // 2. Mostrar Productos (Si hay)
+            if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+                console.log(`Renderizando ${data.products.length} tarjetas de producto...`);
+                data.products.forEach(p => {
+                    if (p && p.name && p.price) {
+                        addMessage('', 'bot', { isProduct: true, product: p });
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("Error Chatbot Front:", err);
+            document.getElementById('typing-indicator')?.remove();
             addMessage('El servidor está ocupado. Intenta de nuevo.', 'bot');
-
         }
-
     }
 
 
 
-    function addQuickActions() {
+function addQuickActions() {
 
         if (document.querySelector('.chat-quick-actions')) return;
 
         const actionsDiv = document.createElement('div');
-
         actionsDiv.className = 'chat-quick-actions flex gap-2 p-2 mb-2 justify-center';
 
-        
-
         const actions = [
-
-            { text: '🛍️ Productos', val: 'productos disponibles' },
-
-            { text: '📦 Rastrear', val: 'Rastrear pedido' }
-
+            { text: '🛍️ Productos', val: 'productos disponibles', type: 'query' },
+            { text: '📦 Rastrear', val: 'Quiero rastrear mi pedido', type: 'action' } // Agregamos 'type' para diferenciar
         ];
 
-
-
         actions.forEach(act => {
-
             const btn = document.createElement('button');
-
             btn.className = 'chat-chip bg-gray-800 hover:bg-neon-accent hover:text-black text-white text-xs py-2 px-4 rounded-full transition-colors border border-gray-600 whitespace-nowrap shadow-sm';
-
             btn.textContent = act.text;
 
             btn.onclick = () => {
-
-                DOMElements.chatInput.value = act.val;
-
-                handleSend();
-
+                // Lógica diferenciada
+                if (act.text.includes('Rastrear')) {
+                    // 1. Simular mensaje del usuario visualmente
+                    addMessage(act.val, 'user');
+                    
+                    // 2. El bot responde inmediatamente pidiendo el número (Frontend puro)
+                    setTimeout(() => {
+                        addMessage('📋 Claro. Por favor, escribe aquí abajo el **número de tu pedido** (Ej: 1024) para buscarlo.', 'bot');
+                        
+                        // Opcional: enfocar el input para que escriban directo
+                        DOMElements.chatInput.focus();
+                    }, 600);
+                    
+                } else {
+                    // Comportamiento normal (Productos) -> Se envía a handleSend -> IA
+                    DOMElements.chatInput.value = act.val;
+                    handleSend();
+                }
             };
 
             actionsDiv.appendChild(btn);
-
         });
 
         DOMElements.chatMessages.appendChild(actionsDiv);
-
         DOMElements.chatMessages.scrollTop = DOMElements.chatMessages.scrollHeight;
-
     }
-
 
 
     // --- LISTENERS DE APERTURA Y CIERRE ---
@@ -2251,16 +2215,20 @@ function initialize() {
 
     // --- Navegación y Scroll ---
 
+ // --- Navegación y Scroll ---
     if(DOMElements.scrollIndicator) {
-
         DOMElements.scrollIndicator.addEventListener('click', () => {
+            
+            const threshold = window.innerHeight * 0.5;
 
-            if (window.scrollY > 100) window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            else if(DOMElements.store) DOMElements.store.scrollIntoView({ behavior: 'smooth' });
-
+            if (window.scrollY > threshold) {
+                // Si bajaste más de la mitad, te lleva ARRIBA
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if(DOMElements.store) {
+                // Si estás arriba, te lleva ABAJO (a la tienda)
+                DOMElements.store.scrollIntoView({ behavior: 'smooth' });
+            }
         });
-
     }
 
     

@@ -14,13 +14,13 @@ const __dirname = path.dirname(__filename);
 // DATOS DEL NEGOCIO
 
 const COMPANY = {
-  name: 'Key Opción Store',
-  legal: 'Key Opción Store',
+  name: 'Key Optión Store',
+  legal: 'Key Optión Store',
   rnc: '',
   address: 'Es online',
-  phone: '809 078 9876',
-  email: 'KeyOpcionStore@gmail.com',
-  instagram: 'KeyOpcionStore',
+  phone: '1 849 340 6047',
+  email: 'KeyOptionStore@gmail.com',
+  instagram: 'KeyOptionStore',
   colors: {
     primary: '#0D0D0D',
     accent: '#E8C547',

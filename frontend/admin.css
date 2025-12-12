@@ -1,4 +1,3 @@
-
 :root {
     --neon-accent: #FFDE4D; /* Amarillo Key Option */
     --bg-dark: #0D0D0D;     /* Fondo Principal */
@@ -18,7 +17,7 @@ body {
     background-image: radial-gradient(circle at top right, #1a1a1a 0%, #0D0D0D 40%);
 }
 
-/* Scrollbar Personalizado */
+/* Scrollbar Personalizado Global */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-dark); }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
@@ -36,12 +35,21 @@ h1, h2, h3, .brand-font {
     text-shadow: 0 0 15px rgba(255, 222, 77, 0.15);
 }
 
-
+/* --- SIDEBAR & LAYOUT (ACTUALIZADO PARA COLAPSO SUAVE) --- */
 #admin-sidebar {
     background-color: #111;
     border-right: 1px solid var(--border-color);
     box-shadow: 5px 0 30px rgba(0,0,0,0.5);
     z-index: 50;
+    /* Transiciones para el botón de colapsar */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    white-space: nowrap; /* Evita que el texto salte de línea */
+    overflow: hidden;    /* Oculta el contenido al encoger */
+}
+
+/* Transición para el contenido principal al moverse el menú */
+#main-content {
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Botones del menú */
@@ -70,8 +78,6 @@ h1, h2, h3, .brand-font {
     border: none;
 }
 
-
-
 /* Header del Dashboard */
 #dashboard-view header {
     border-bottom: 1px solid var(--border-color);
@@ -99,7 +105,6 @@ h1, h2, h3, .brand-font {
 }
 
 /* Iconos Flotantes en KPIs (Indicadores) */
-/* EL CAMBIO ESTÁ AQUÍ: Agregamos :not(button i) */
 #dashboard-view .bg-card-bg i:not(button i) {
     position: absolute;
     top: 20px;
@@ -109,13 +114,13 @@ h1, h2, h3, .brand-font {
     border-radius: 10px;
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.05);
-    pointer-events: none; /* Para que no interfiera con clics */
+    pointer-events: none; 
 }
 
 /* Aseguramos que el icono del robot dentro del botón se comporte normal */
 #ia-predicion i {
-    position: static !important; /* Quita la posición absoluta */
-    background: transparent !important; /* Quita el fondo gris */
+    position: static !important;
+    background: transparent !important;
     border: none !important;
     padding: 0 !important;
     box-shadow: none !important;
@@ -140,36 +145,21 @@ h1, h2, h3, .brand-font {
     letter-spacing: -1px;
 }
 
-/* Iconos Flotantes en KPIs */
-#dashboard-view .bg-card-bg i {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 1.2rem;
-    padding: 10px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
 /* Colores Semánticos al Hover (Glow) */
-/* Ventas (Verde) */
 #dashboard-view .bg-card-bg:nth-child(1):hover { border-color: #10b981 !important; box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
 #dashboard-view .bg-card-bg:nth-child(1) i { color: #10b981; }
 
-/* Pendientes (Azul) */
 #dashboard-view .bg-card-bg:nth-child(2):hover { border-color: #3b82f6 !important; box-shadow: 0 0 30px rgba(59, 130, 246, 0.15); }
 #dashboard-view .bg-card-bg:nth-child(2) i { color: #3b82f6; }
 
-/* Stock (Naranja) */
 #dashboard-view .bg-card-bg:nth-child(3):hover { border-color: #f59e0b !important; box-shadow: 0 0 30px rgba(245, 158, 11, 0.15); }
 #dashboard-view .bg-card-bg:nth-child(3) i { color: #f59e0b; }
 
-/* Cancelación (Rosa) */
 #dashboard-view .bg-card-bg:nth-child(4):hover { border-color: #ec4899 !important; box-shadow: 0 0 30px rgba(236, 72, 153, 0.15); }
 #dashboard-view .bg-card-bg:nth-child(4) i { color: #ec4899; }
 
 
+/* --- SECCIÓN IA --- */
 #ia-product-highlight {
     background: linear-gradient(145deg, #0a0a0a 0%, #111827 60%, rgba(255, 222, 77, 0.05) 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -179,7 +169,6 @@ h1, h2, h3, .brand-font {
     position: relative;
 }
 
-/* Efecto de luz de fondo */
 #ia-product-highlight::before {
     content: '';
     position: absolute;
@@ -188,7 +177,6 @@ h1, h2, h3, .brand-font {
     opacity: 0.4; pointer-events: none; z-index: 0;
 }
 
-/* Contenedor Imagen */
 #ia-product-highlight .relative.flex-shrink-0 {
     background: rgba(0, 0, 0, 0.3) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -200,7 +188,6 @@ h1, h2, h3, .brand-font {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Texto IA */
 #ia-product-highlight > div.flex-col { z-index: 1; }
 
 #ia-product-name {
@@ -212,7 +199,6 @@ h1, h2, h3, .brand-font {
     margin-bottom: 0.75rem !important;
 }
 
-/* Caja de Resultados Cristal */
 .mt-2.bg-gray-700\/40 {
     background: rgba(0, 0, 0, 0.4) !important;
     backdrop-filter: blur(10px);
@@ -241,17 +227,15 @@ h1, h2, h3, .brand-font {
     font-weight: 600;
 }
 
-/* Botón Chip IA (CORRECCIÓN DE DUPLICADO) */
 #ia-predicion {
     background-color: var(--neon-accent) !important;
     color: #000 !important;
     border: none !important;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     z-index: 10;
-    transform: translateZ(0); /* Forzar renderizado */
+    transform: translateZ(0); 
 }
 
-/* Limpiar pseudo-elementos fantasma */
 #ia-predicion::before,
 #ia-predicion::after {
     display: none !important;
@@ -269,7 +253,7 @@ h1, h2, h3, .brand-font {
 }
 
 
-/* Estilos de Tarjetas Genéricas (Listas) */
+/* Estilos de Tarjetas Genéricas */
 .bg-card-bg, .bg-gray-800 {
     background-color: #161616 !important;
     border: 1px solid #2a2a2a;
@@ -292,7 +276,7 @@ input:focus, select:focus, textarea:focus {
     outline: none !important;
 }
 
-/* Listas (Líneas divisorias sutiles) */
+/* Listas */
 #order-list > div, 
 #recent-activity-list li {
     border-bottom: 1px solid #222 !important;
@@ -308,7 +292,6 @@ button {
     transition: all 0.2s ease;
 }
 
-/* Botón Primario (Guardar) */
 #save-btn, #save-order-btn, .bg-yellow-400 {
     background-color: var(--neon-accent) !important;
     color: #000 !important;
@@ -320,7 +303,6 @@ button {
     box-shadow: 0 6px 20px rgba(255, 222, 77, 0.4);
 }
 
-/* Botones Secundarios (Acciones pequeñas) */
 .edit-btn, .edit-order-btn {
     background: rgba(59, 130, 246, 0.1) !important;
     color: #60a5fa !important;
@@ -346,34 +328,31 @@ button {
 }
 
 
-
 /* --- A. EL FORMULARIO (Panel Izquierdo) --- */
-
-/* Contenedor del formulario sticky */
+/* Contenedor del formulario sticky antiguo (Compatibilidad) */
 #products-view .lg\:col-span-1 section.sticky {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--border-color);
     box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(10px);
-    padding: 24px !important; /* Más espacio interno */
+    padding: 24px !important;
     border-radius: 16px !important;
 }
 
-/* Título del Formulario */
 #form-title {
     font-family: 'Inter', sans-serif;
     font-weight: 800;
     letter-spacing: -0.5px;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 15px;
-    margin-bottom: 20px !important; /* Ajuste de margen */
+    margin-bottom: 20px !important;
     display: flex;
     align-items: center;
-    font-size: 1.4rem !important; /* Un poco más pequeño */
+    font-size: 1.4rem !important;
 }
 
 #form-title::before {
-    content: '\f468'; /* Icono FontAwesome */
+    content: '\f468';
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
     margin-right: 10px;
@@ -381,7 +360,6 @@ button {
     color: var(--neon-accent);
 }
 
-/* Labels de los inputs */
 #products-view label {
     text-transform: uppercase;
     font-size: 0.75rem !important;
@@ -392,11 +370,10 @@ button {
     display: block;
 }
 
-/* Inputs y Textareas del formulario */
 #product-form input,
 #product-form textarea,
 #product-form select {
-    background-color: rgba(0,0,0,0.3) !important; /* Un poco más oscuros */
+    background-color: rgba(0,0,0,0.3) !important;
     border-color: rgba(255,255,255,0.1) !important;
 }
 #product-form input:focus,
@@ -406,40 +383,36 @@ button {
 }
 
 
-/* --- B. CHIPS DE TALLAS (CORREGIDO) --- */
-
-/* Contenedor de tallas */
+/* --- B. CHIPS DE TALLAS --- */
 #product-sizes-container {
     background: rgba(0,0,0,0.2) !important;
     border: 1px solid var(--border-color) !important;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px !important; /* Más separación entre chips */
+    gap: 10px !important;
     padding: 15px !important;
     max-height: none !important;
     min-height: auto !important;
     border-radius: 12px !important;
 }
 
-/* Estilo base del "Chip" (la etiqueta label) */
 #product-sizes-container label {
     margin: 0 !important;
-    background: #2a2a2a; /* Fondo ligeramente más claro que antes */
+    background: #2a2a2a;
     border: 1px solid #3a3a3a;
     color: #ccc;
-    padding: 8px 16px !important; /* Chips más grandes y fáciles de hacer clic */
-    border-radius: 30px; /* Más redondeados */
+    padding: 8px 16px !important;
+    border-radius: 30px;
     font-size: 0.85rem !important;
     font-weight: 600 !important;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     text-transform: none;
-    display: flex !important; /* Asegura flex para alinear el input oculto */
+    display: flex !important;
     align-items: center;
-    user-select: none; /* Evita que se seleccione el texto al hacer clic rápido */
+    user-select: none;
 }
 
-/* Ocultar visualmente el checkbox nativo, pero mantenerlo accesible */
 #product-sizes-container input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
@@ -450,7 +423,6 @@ button {
     position: absolute;
 }
 
-/* Efecto Hover en el Chip */
 #product-sizes-container label:hover {
     border-color: var(--neon-accent);
     color: #fff;
@@ -458,21 +430,18 @@ button {
     transform: translateY(-1px);
 }
 
-/* --- ESTADO SELECCIONADO (LA CORRECCIÓN CLAVE USANDO :has) --- */
-/* Esto selecciona el 'label' cuando contiene un input 'checked' */
 #product-sizes-container label:has(input[type="checkbox"]:checked) {
     background: var(--neon-accent) !important;
-    color: #000 !important; /* Texto negro para contraste */
+    color: #000 !important;
     border-color: var(--neon-accent) !important;
-    box-shadow: 0 0 15px rgba(255, 222, 77, 0.4); /* Glow amarillo */
+    box-shadow: 0 0 15px rgba(255, 222, 77, 0.4);
     font-weight: 800 !important;
 }
 
 
-/* --- C. BARRA DE BÚSQUEDA Y TÍTULO DE LISTA --- */
-
+/* --- C. BARRA DE BÚSQUEDA --- */
 #products-view .lg\:col-span-2 section.bg-gray-800 {
-    background: transparent !important; /* Hacer transparente el contenedor del buscador */
+    background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
@@ -483,7 +452,7 @@ button {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--border-color) !important;
     font-size: 1rem;
-    padding: 15px 20px !important; /* Input más grande */
+    padding: 15px 20px !important;
     border-radius: 16px !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
@@ -503,9 +472,7 @@ button {
 }
 
 
-/* --- D. TARJETAS DE PRODUCTO (Rediseño Compacto) --- */
-
-/* El contenedor de la tarjeta */
+/* --- D. TARJETAS DE PRODUCTO --- */
 #product-list .bg-gray-800 {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--border-color);
@@ -523,25 +490,22 @@ button {
     border-color: rgba(255, 222, 77, 0.2);
 }
 
-/* Imagen del producto (CORREGIDO TAMAÑO) */
 #product-list img {
-    height: 160px !important; /* REDUCIDO: Mucho menos alto que antes */
+    height: 160px !important;
     width: 100%;
-    object-fit: cover; /* Asegura que la imagen llene el espacio sin deformarse */
+    object-fit: cover;
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    background: #000; /* Fondo por si la imagen es PNG transparente */
+    background: #000;
 }
 
-/* Contenido de texto de la tarjeta */
 #product-list .p-4 {
-    padding: 20px !important; /* Espacio interno cómodo */
+    padding: 20px !important;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    justify-content: space-between; /* Distribuye el espacio verticalmente */
+    justify-content: space-between;
 }
 
-/* Título del Producto */
 #product-list h3 {
     font-family: 'Inter', sans-serif;
     font-size: 1.1rem;
@@ -549,14 +513,12 @@ button {
     color: #fff;
     margin-bottom: 6px;
     line-height: 1.3;
-    /* Limitar a 2 líneas si es muy largo */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-/* Categoría */
 #product-list p.text-gray-400.text-sm {
     font-size: 0.75rem;
     color: var(--text-muted) !important;
@@ -567,13 +529,11 @@ button {
     opacity: 0.8;
 }
 
-/* Fila de Precio y Stock */
 #product-list .flex.justify-between.items-center.mb-4 {
     margin-bottom: 20px !important;
-    align-items: flex-end !important; /* Alinea el precio y el stock abajo */
+    align-items: flex-end !important;
 }
 
-/* Precio */
 #product-list .text-xl.font-bold.text-yellow-400 {
     font-size: 1.5rem;
     font-family: 'Inter', sans-serif;
@@ -582,7 +542,6 @@ button {
     line-height: 1;
 }
 
-/* Badge de Stock */
 #product-list span.text-sm {
     font-weight: 700;
     padding: 5px 12px;
@@ -593,24 +552,21 @@ button {
     text-transform: uppercase;
 }
 
-/* Stock Bajo (Warning) */
 #product-list span.text-yellow-400 {
     background: rgba(245, 158, 11, 0.15);
     color: #fbbf24 !important;
     border-color: rgba(245, 158, 11, 0.4);
 }
-/* Stock Agotado (Danger) */
 #product-list span.text-red-500 {
     background: rgba(239, 68, 68, 0.15);
     color: #f87171 !important;
     border-color: rgba(239, 68, 68, 0.4);
 }
 
-/* Botones de Acción (Editar/Eliminar) */
 #product-list .flex.gap-2 {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-top: 15px;
-    margin-top: auto; /* Empuja esta sección al fondo de la tarjeta */
+    margin-top: auto;
 }
 
 #product-list .edit-btn,
@@ -639,10 +595,7 @@ button {
 #product-list .delete-btn:hover { background: #dc2626 !important; color: #fff !important; border-color: transparent; }
 
 
-
-/* --- A. EL FORMULARIO DE PEDIDOS (Izquierda) --- */
-
-/* Contenedor Principal del Formulario */
+/* --- FORMULARIO DE PEDIDOS --- */
 #orders-view .bg-gray-800 {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--border-color);
@@ -652,7 +605,6 @@ button {
     padding: 24px !important;
 }
 
-/* Título del Formulario */
 #order-form-title {
     font-family: 'Inter', sans-serif;
     font-weight: 800;
@@ -666,14 +618,13 @@ button {
 }
 
 #order-form-title::before {
-    content: '\f570'; /* Icono Money Bill Wave */
+    content: '\f570';
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
     margin-right: 12px;
     color: var(--neon-accent);
 }
 
-/* Subtítulos (Datos Cliente / Detalles) */
 #order-form h3 {
     font-size: 0.9rem !important;
     text-transform: uppercase;
@@ -685,7 +636,6 @@ button {
     padding-left: 10px;
 }
 
-/* Inputs del Formulario */
 #order-form input, 
 #order-form select, 
 #order-form textarea {
@@ -702,7 +652,6 @@ button {
     background-color: rgba(0,0,0,0.5) !important;
 }
 
-/* Contenedor de Items (La lista de productos dentro del pedido) */
 #order-items-container {
     background: #0f0f0f !important;
     border: 1px solid var(--border-color);
@@ -710,7 +659,6 @@ button {
     padding: 10px !important;
 }
 
-/* Filas de items individuales */
 .order-item-row {
     background-color: #1a1a1a !important;
     border: 1px solid #333;
@@ -721,11 +669,10 @@ button {
     background-color: #222 !important;
 }
 
-/* Botón "Añadir Artículo" */
 #add-order-item-btn {
-    background: rgba(99, 102, 241, 0.1) !important; /* Indigo muy suave */
+    background: rgba(99, 102, 241, 0.1) !important;
     border: 1px solid rgba(99, 102, 241, 0.3);
-    color: #818cf8 !important; /* Indigo claro */
+    color: #818cf8 !important;
     transition: all 0.2s;
 }
 #add-order-item-btn:hover {
@@ -734,7 +681,6 @@ button {
     border-color: transparent;
 }
 
-/* Input Total (Solo lectura) */
 #order-total {
     font-family: 'Inter', sans-serif;
     font-weight: 800;
@@ -746,9 +692,7 @@ button {
 }
 
 
-/* --- B. TARJETAS DE LISTA DE PEDIDOS (Derecha) --- */
-
-/* Título de la sección */
+/* --- TARJETAS LISTA DE PEDIDOS --- */
 #orders-view h2.text-2xl.uppercase {
     font-family: 'Inter', sans-serif;
     font-weight: 800;
@@ -759,13 +703,11 @@ button {
     border-bottom: 1px solid var(--border-color);
 }
 
-/* La Tarjeta del Pedido */
 #order-list .bg-card-bg {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 20px !important;
-    /* Quitamos el borde izquierdo grueso antiguo para hacerlo más fino abajo */
     border-left-width: 0 !important; 
     position: relative;
     overflow: hidden;
@@ -777,31 +719,21 @@ button {
     box-shadow: 0 15px 40px -10px rgba(0,0,0,0.5);
 }
 
-/* Línea de estado lateral (Indicador visual) */
 #order-list .bg-card-bg::before {
     content: '';
     position: absolute;
     top: 0; left: 0; width: 4px; height: 100%;
-    /* El color se definirá dinámicamente o por defecto gris */
     background-color: #333; 
 }
 
-/* Personalización por Estado (Detectando clases de Tailwind en el span) */
-/* Esto es un truco CSS avanzado: Si la tarjeta contiene un span con cierta clase, pintamos el borde */
-
-/* Pendiente (Yellow) */
 #order-list .bg-card-bg:has(.bg-yellow-400)::before { background-color: var(--neon-accent); box-shadow: 0 0 10px var(--neon-accent); }
-/* Enviado/Procesando (Blue/Indigo) */
 #order-list .bg-card-bg:has(.bg-blue-500)::before,
 #order-list .bg-card-bg:has(.bg-indigo-500)::before { background-color: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
-/* Entregado (Green) */
 #order-list .bg-card-bg:has(.bg-green-500)::before { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
-/* Cancelado/Devuelto (Red/Orange) */
 #order-list .bg-card-bg:has(.bg-red-500)::before,
 #order-list .bg-card-bg:has(.bg-orange-500)::before { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
 
 
-/* Header de la Tarjeta (ID y Fecha) */
 #order-list h3 {
     font-family: 'Inter', sans-serif;
     font-weight: 700;
@@ -815,7 +747,6 @@ button {
     opacity: 0.6;
 }
 
-/* Datos del Cliente */
 #order-list p.text-sm {
     color: #ccc !important;
     font-weight: 500;
@@ -823,10 +754,9 @@ button {
 #order-list p.text-xs {
     color: #666 !important;
     margin-top: 8px;
-    font-family: monospace; /* Estilo ticket */
+    font-family: monospace;
 }
 
-/* El Precio Total (Highlight) */
 #order-list .text-xl.font-bold {
     font-family: 'Inter', sans-serif;
     font-size: 1.6rem;
@@ -835,7 +765,6 @@ button {
     text-shadow: 0 0 15px rgba(255, 222, 77, 0.2);
 }
 
-/* Badge de Estado */
 #order-list span.rounded-full {
     font-size: 0.65rem;
     letter-spacing: 1px;
@@ -844,14 +773,12 @@ button {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Botonera de Acciones */
 #order-list .mt-4.flex {
     border-top: 1px solid rgba(255,255,255,0.05);
     padding-top: 15px;
     margin-top: 15px;
 }
 
-/* Botón Factura */
 .invoice-btn {
     background: rgba(16, 185, 129, 0.1) !important;
     color: #34d399 !important;
@@ -868,7 +795,6 @@ button {
     box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
-/* Botones Editar/Borrar (Consistencia con Productos) */
 #order-list .edit-order-btn,
 #order-list .delete-order-btn {
     padding: 6px 12px;
@@ -893,7 +819,7 @@ button {
 #order-list .delete-order-btn:hover { background: #dc2626; color: #fff !important; }
 
 
-/* --- A. KPIs SUPERIORES (Tarjetas de Métricas) --- */
+/* --- REPORTES --- */
 #reports-view .bg-card-bg {
     background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%) !important;
     border: 1px solid var(--border-color);
@@ -908,17 +834,15 @@ button {
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* Iconos de Fondo Gigantes (Efecto marca de agua) */
 #reports-view .bg-card-bg i.text-3xl {
-    font-size: 4rem !important; /* Icono gigante */
+    font-size: 4rem !important;
     position: absolute;
     right: -10px;
     bottom: -10px;
-    opacity: 0.1; /* Muy sutil */
+    opacity: 0.1;
     transform: rotate(-15deg);
 }
 
-/* Textos */
 #reports-view p.text-4xl {
     font-family: 'Inter', sans-serif;
     font-weight: 800;
@@ -934,23 +858,15 @@ button {
     letter-spacing: 1px;
 }
 
-/* Bordes de color Neón para cada KPI */
-/* Total Pedidos (Teal) */
 #reports-view .border-teal-500 { border-bottom: 2px solid #2dd4bf !important; }
 #reports-view .border-teal-500:hover { box-shadow: 0 10px 30px rgba(45, 212, 191, 0.15) !important; }
 
-/* Ticket Promedio (Blue) */
 #reports-view .border-blue-500 { border-bottom: 2px solid #60a5fa !important; }
 #reports-view .border-blue-500:hover { box-shadow: 0 10px 30px rgba(96, 165, 250, 0.15) !important; }
 
-/* Devoluciones (Purple) */
 #reports-view .border-purple-500 { border-bottom: 2px solid #a78bfa !important; }
 #reports-view .border-purple-500:hover { box-shadow: 0 10px 30px rgba(167, 139, 250, 0.15) !important; }
 
-
-/* --- B. GRÁFICO Y TOP PRODUCTOS --- */
-
-/* Contenedor del Gráfico */
 #reports-view .h-80 {
     background: rgba(0, 0, 0, 0.3) !important;
     border: 1px solid var(--border-color);
@@ -958,7 +874,6 @@ button {
     padding: 15px;
 }
 
-/* Lista Top Productos (Estilo Leaderboard) */
 #top-products-list li {
     background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, transparent 100%) !important;
     border-left: 3px solid transparent;
@@ -973,23 +888,17 @@ button {
     transform: translateX(5px);
 }
 
-/* El número 1 (Oro) */
 #top-products-list li:nth-child(1) {
     border-left-color: var(--neon-accent);
     background: linear-gradient(90deg, rgba(255, 222, 77, 0.1) 0%, transparent 100%) !important;
 }
 #top-products-list li:nth-child(1) span.font-semibold { color: var(--neon-accent); font-weight: 800; }
 
-/* El número 2 (Plata) */
 #top-products-list li:nth-child(2) { border-left-color: #94a3b8; }
-
-/* El número 3 (Bronce) */
 #top-products-list li:nth-child(3) { border-left-color: #b45309; }
 
 
-/* --- C. PREDICCIÓN IA (CHIPS TECNOLÓGICOS) --- */
-
-/* Los 4 cuadros de categorías */
+/* --- PREDICCIÓN IA CHIPS --- */
 #reports-view .grid-cols-2 .text-center {
     background: rgba(20, 20, 20, 0.8) !important;
     border: 1px solid var(--border-color);
@@ -1004,7 +913,6 @@ button {
     justify-content: center;
 }
 
-/* Hover en las tarjetas de IA */
 #reports-view .grid-cols-2 .text-center:hover {
     background: rgba(255, 255, 255, 0.05) !important;
     border-color: var(--neon-accent);
@@ -1012,7 +920,6 @@ button {
     transform: translateY(-3px);
 }
 
-/* El Icono central */
 #reports-view .grid-cols-2 i {
     font-size: 2.5rem !important;
     margin-bottom: 12px;
@@ -1022,10 +929,9 @@ button {
 
 #reports-view .grid-cols-2 .text-center:hover i {
     transform: scale(1.2);
-    color: var(--neon-accent) !important; /* Se pone amarillo al hover */
+    color: var(--neon-accent) !important;
 }
 
-/* Nombre de la categoría */
 #reports-view .grid-cols-2 .font-semibold {
     font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
@@ -1033,7 +939,6 @@ button {
     margin-bottom: 4px;
 }
 
-/* Badge de Estado (Alta/Baja Demanda) */
 .ia-status-badge {
     font-size: 0.7rem;
     font-weight: 800;
@@ -1044,29 +949,83 @@ button {
     letter-spacing: 0.5px;
 }
 
-/* Estilos específicos para el estado (usados por JS) */
 .status-high { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
 .status-stable { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid #64748b; }
 .status-low { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
 
-
-/* 1. Ocultar pseudoelementos que parezcan botones */
-#ia-predicion::before,
-#ia-predicion::after {
-    display: none !important;
-    content: none !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
-/* 2. Si por error hay dos botones con el mismo ID, ocultar el primero */
-/* (Esto es un truco de CSS: selecciona el botón si tiene un hermano siguiente que también es botón) */
 #ia-predicion:not(:last-child) {
     display: none !important;
 }
 
-/* 3. Asegurar que el contenedor no genere sombras extrañas */
 .lg\:col-span-2 .flex.justify-between.items-center {
     position: relative;
     z-index: 5;
+}
+
+
+/* --- CORRECCIONES FINALES DE SCROLL Y STICKY --- */
+
+/* 1. STICKY PARA FORMULARIO DE PRODUCTOS */
+#product-form-wrapper {
+    position: sticky;
+    top: 20px; 
+    max-height: calc(100vh - 40px); 
+    overflow-y: auto;
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 16px !important;
+    padding: 24px !important;
+    z-index: 40; 
+}
+
+#product-form-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+#product-form-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+#product-form-wrapper::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+}
+#product-form-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-accent);
+}
+
+/* 2. STICKY PARA FORMULARIO DE PEDIDOS (Igual que Productos) */
+#orders-view .sticky-form {
+    position: sticky;
+    top: 20px;
+    z-index: 30;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background-color: var(--bg-panel) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+/* 3. SCROLL INDEPENDIENTE PARA LISTA DE PEDIDOS */
+#order-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+#order-list-container::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+#order-list-container::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+#order-list-container::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-accent);
+}
+
+/* Ajuste inputs en formulario sticky */
+#orders-view .sticky-form input,
+#orders-view .sticky-form select,
+#orders-view .sticky-form textarea {
+    font-size: 0.9rem;
+    padding: 8px 10px !important;
 }
