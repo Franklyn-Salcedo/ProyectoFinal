@@ -14,7 +14,32 @@ body {
     color: var(--text-main);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
-    background-image: radial-gradient(circle at top right, #1a1a1a 0%, #0D0D0D 40%);
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: fixed; /* Fijo para que no se mueva al hacer scroll */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Lo envía al fondo, detrás del contenido */
+    
+    /* CAMBIA LA RUTA AQUÍ POR TU IMAGEN */
+    background-image: url('../imagenes/fondo-admin.png'); 
+    
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    /* EFECTOS: */
+    /* blur(10px): Nivel de desenfoque */
+    /* brightness(0.3): Oscurece la imagen para que el texto blanco se lea bien */
+    filter: blur(10px) brightness(0.3);
+    
+    /* Escala la imagen un poco para evitar bordes blancos causados por el blur */
+    transform: scale(1.1);
 }
 
 /* Scrollbar Personalizado Global */

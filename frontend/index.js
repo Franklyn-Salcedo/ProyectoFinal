@@ -2213,23 +2213,24 @@ function initialize() {
 
 
 
-    // --- Navegación y Scroll ---
+// --- Navegación y Scroll ---
+// --- Navegación y Scroll ---
+if (DOMElements.scrollIndicator && DOMElements.scrollArrow) {
+    DOMElements.scrollIndicator.addEventListener('click', () => {
 
- // --- Navegación y Scroll ---
-    if(DOMElements.scrollIndicator) {
-        DOMElements.scrollIndicator.addEventListener('click', () => {
-            
-            const threshold = window.innerHeight * 0.5;
+        const isPointingUp = DOMElements.scrollArrow.classList.contains('rotate-180');
 
-            if (window.scrollY > threshold) {
-                // Si bajaste más de la mitad, te lleva ARRIBA
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else if(DOMElements.store) {
-                // Si estás arriba, te lleva ABAJO (a la tienda)
-                DOMElements.store.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    }
+        // Altura REAL de la pantalla
+        const heroHeight = window.innerHeight;
+
+        if (isPointingUp) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: heroHeight, behavior: 'smooth' });
+        }
+    });
+}
+
 
     
 

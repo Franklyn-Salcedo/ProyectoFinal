@@ -243,9 +243,8 @@ async function switchView(viewId) {
     // Cargar datos específicos de la vista
     switch (viewId) {
         case 'dashboard-view': 
-            await loadDashboardData(); 
-            // Opcional: Cargar la predicción grande también aquí si quieres refrescarla
-            // loadRealAIPrediction(); 
+            await loadDashboardData(); // Carga KPIs normales
+            // IA NO se carga aquí automáticamente. El usuario debe pulsar el botón "IA".
             break;
             
         case 'products-view': 
@@ -264,6 +263,12 @@ async function switchView(viewId) {
             // AQUI ESTÁ EL CAMBIO IMPORTANTE:
             console.log("🔄 Recargando predicciones de IA en Reportes...");
             loadCategoryPrediction(); // <--- Forzamos la carga al entrar aquí
+            break;
+
+        case 'reports-view': 
+            await loadReportsData(); // Carga gráficos de ventas reales
+            console.log("📊 Vista Reportes: Cargando predicción de categorías (con caché)...");
+            loadCategoryPrediction(); 
             break;
     }
 }
@@ -1268,13 +1273,15 @@ async function init() {
     AppState.categories = await getCategories();
     AppState.sizes = await getSizes();
     AppState.products = await getProducts(); 
-
+    
     // 2. Rellenar Select de Categorías
     const catSelect = DOMElements.productCategoryInput;
-    catSelect.innerHTML = '<option value="">Seleccionar...</option>';
-    AppState.categories.forEach(c => {
-        catSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-    });
+    if (catSelect) {
+        catSelect.innerHTML = '<option value="">Seleccionar...</option>';
+        AppState.categories.forEach(c => {
+            catSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+    }
 
     // 3. Rellenar Checkboxes de Tallas
     const sizeContainer = DOMElements.productSizesContainer;
@@ -1298,6 +1305,11 @@ async function init() {
         const input = DOMElements.passwordInput;
         input.type = input.type === 'password' ? 'text' : 'password';
     });
+
+    if (DOMElements.iaPredictionBtn) {
+        // SOLO al hacer click se llama a la IA
+        DOMElements.iaPredictionBtn.addEventListener('click', loadRealAIPrediction);
+    }
 
     // Navegación
     DOMElements.viewButtons.forEach(btn => btn.addEventListener('click', (e) => {
@@ -1352,8 +1364,6 @@ async function init() {
 
     if (sessionStorage.getItem('isAdminAuthenticated') === 'true') {
         showDashboard();
-        loadRealAIPrediction();
-        loadCategoryPrediction();
     } else {
         DOMElements.loginSection.style.display = 'flex';
     }

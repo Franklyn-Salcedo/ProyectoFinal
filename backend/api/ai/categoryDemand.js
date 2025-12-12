@@ -4,11 +4,15 @@ import Category from '../../models/Category.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from 'dotenv';
 
-dotenv.config();
+// --- CACHÉ ---
+let lastRunCat = null;
+let lastResponseCat = null;
+const CAT_CACHE_MINUTES = 30;
+// -------------
 
+dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// Helper para iconos
 function getCategoryIcon(categoryName) {
     if (!categoryName) return 'fa-box';
     const name = categoryName.toLowerCase();
@@ -21,118 +25,127 @@ function getCategoryIcon(categoryName) {
     return 'fa-box-open';
 }
 
-// Helper de limpieza JSON
 function cleanAndParseJSON(text) {
-    try {
-        return JSON.parse(text);
-    } catch (e) {
+    try { return JSON.parse(text); } 
+    catch (e) {
         const match = text.match(/\[[\s\S]*\]/);
-        if (match) {
-            try {
-                return JSON.parse(match[0]);
-            } catch (e2) {
-                console.error("Fallo al parsear JSON extraído:", e2);
-            }
-        }
-        return null;
+        return match ? JSON.parse(match[0]) : null;
     }
 }
 
 export async function getCategoryDemandPrediction(req, res) {
-    try {
-        // 1. FECHAS
-        const now = new Date();
-        const date60DaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
-        const date30DaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    // 1. CHEQUEO DE CACHÉ
+    const now = Date.now();
+    if (lastRunCat && (now - lastRunCat) < CAT_CACHE_MINUTES * 60 * 1000) {
+        console.log("⚡ Usando demanda (caché).");
+        return res.json(lastResponseCat);
+    }
 
-        // 2. DATOS DE BD
+    // Declaramos esto fuera para que el CATCH lo pueda usar
+    let analysisData = []; 
+
+    try {
+        // 2. RECOLECCIÓN DE DATOS
+        const date60DaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+        const date30DaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
         const orders = await Order.find({
             status: 'entregado',
             createdAt: { $gte: date60DaysAgo }
         });
 
-        if (orders.length === 0) {
-            return res.json([]);
-        }
+        // Si no hay ventas, array vacío
+        if (orders.length === 0) return res.json([]);
 
         const products = await Product.find();
         const categories = await Category.find();
 
-        // 3. MAPEOS
         const productCategoryMap = {};
         products.forEach(p => productCategoryMap[p.id] = p.categoryId);
-
         const categoryNameMap = {};
         categories.forEach(c => categoryNameMap[c.id] = c.name);
 
-        // 4. CÁLCULOS
         const stats = {};
-
         orders.forEach(order => {
             const isRecent = new Date(order.createdAt) >= date30DaysAgo;
             if (order.items) {
                 order.items.forEach(item => {
                     const catId = productCategoryMap[item.productId];
-                    const catName = catId ? (categoryNameMap[catId] || "General") : "General";
-                    
+                    const catName = catId ? (categoryNameMap[catId] || "Otros") : "Otros";
                     if (!stats[catName]) stats[catName] = { recent: 0, previous: 0 };
-                    
-                    const qty = item.quantity || 0;
+                    const qty = parseInt(item.quantity) || 0;
                     if (isRecent) stats[catName].recent += qty;
                     else stats[catName].previous += qty;
                 });
             }
         });
 
-        const analysisData = Object.keys(stats).map(name => ({
-            category: name,
-            last30Days: stats[name].recent,
-            previous30Days: stats[name].previous
+        // Convertir a Array para análisis
+        analysisData = Object.keys(stats).map(name => ({
+            name: name,
+            recent: stats[name].recent,
+            previous: stats[name].previous,
+            total: stats[name].recent + stats[name].previous
         }));
-
-        // 5. LLAMADA A GEMINI
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         
-        const prompt = `
-            Analiza la demanda de estas categorías basado en ventas recientes vs anteriores:
-            ${JSON.stringify(analysisData)}
+        // Ordenar por importancia (más ventas totales primero)
+        analysisData.sort((a, b) => b.total - a.total);
 
-            Responde SOLO con un JSON Array válido (sin markdown):
-            [
-                { "name": "NombreExactoDeLaCategoria", "demand": "alta" },
-                { "name": "OtraCategoria", "demand": "estable" }
-            ]
-            Usa solo: "alta", "baja", "estable". Máximo 4 items.
+        // 3. INTENTO IA
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const prompt = `
+            Analiza: ${JSON.stringify(analysisData.slice(0,4))}.
+            JSON Array exacto: [{ "name": "Categoria", "demand": "alta" }]
+            Values demand: "alta", "baja", "estable".
         `;
 
         const result = await model.generateContent(prompt);
-        const text = result.response.text();
-        
-        // 6. LIMPIEZA
-        let finalData = cleanAndParseJSON(text);
+        let finalData = cleanAndParseJSON(result.response.text());
 
-        // Fallback si la IA falla
-        if (!finalData || !Array.isArray(finalData)) {
-            finalData = analysisData.map(d => {
-                let demand = 'estable';
-                if (d.last30Days > d.previous30Days * 1.2) demand = 'alta';
-                if (d.last30Days < d.previous30Days * 0.8) demand = 'baja';
-                return { name: d.category, demand };
-            }).slice(0, 4);
-        }
+        if (!finalData || !Array.isArray(finalData)) throw new Error("IA inválida");
 
-        // 7. AGREGAR ICONOS
-        const responseWithIcons = finalData.map(cat => ({
-            ...cat,
-            icon: getCategoryIcon(cat.name)
+        // Formatear para Frontend (name, demand, icon)
+        const responseData = finalData.map(item => ({
+            name: item.name,        // IMPORTANTE: Frontend espera 'name'
+            demand: item.demand,    // IMPORTANTE: Frontend espera 'demand' (alta/baja/estable)
+            icon: getCategoryIcon(item.name)
         }));
 
-        res.json(responseWithIcons);
+        // Guardar Caché
+        lastRunCat = Date.now();
+        lastResponseCat = responseData;
+        res.json(responseData);
 
     } catch (error) {
-        console.error(" Error en Category Demand:", error.message);
-        res.json([
-            { name: "Error de conexión", demand: "baja", icon: "fa-exclamation-triangle" }
-        ]);
+        console.warn("⚠️ Fallo IA (Quota/Error). Usando cálculo manual.", error.message);
+
+        // 4. PLAN B: CÁLCULO MANUAL (FALLBACK)
+        if (analysisData.length === 0) {
+             return res.json([{ name: "Sin datos", demand: "estable", icon: "fa-box" }]);
+        }
+
+        const fallbackData = analysisData.slice(0, 4).map(d => {
+            let demand = 'estable';
+            // Lógica: Si subió 10% es alta, si bajó 10% es baja
+            if (d.previous === 0) {
+                demand = d.recent > 0 ? 'alta' : 'estable';
+            } else {
+                const ratio = d.recent / d.previous;
+                if (ratio >= 1.1) demand = 'alta';
+                else if (ratio <= 0.9) demand = 'baja';
+            }
+
+            return {
+                name: d.name,       
+                demand: demand,     
+                icon: getCategoryIcon(d.name)
+            };
+        });
+
+        // Guardar Caché del Fallback
+        lastRunCat = Date.now();
+        lastResponseCat = fallbackData;
+
+        res.json(fallbackData);
     }
 }
